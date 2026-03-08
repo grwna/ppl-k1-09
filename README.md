@@ -10,5 +10,10 @@ This document details configurations decisions and explanations for every folder
 - **`src/app/(dashboard)/`**: Protected/Authenticated routes. Shared UI (sidebars, nav) is managed in `(dashboard)/layout.tsx`.
 - **`src/app/api/`**: RESTful API endpoints for external integrations or programmatic access.
 - **`src/app/not-found.tsx`**: The global 404 error handler for the application.
+- **`src/auth.ts`**: The central configuration for **Auth.js (NextAuth v5)**. Define providers, callbacks, and Prisma adapter here.
+- **`src/middleware.ts`**: Global middleware for route protection and authentication-based redirects.
+- **`src/app/api/auth/[...nextauth]/route.ts`**: The API route handler for authentication endpoints.
+- **`src/schemas/`**: Centralized **Zod schemas** for data validation, form inputs, and type safety.
+- **`prisma/schema.prisma`**: The single source of truth for the **database schema**.
 - **`src/components/ui/`**: Reusable base UI components (Shadcn/UI).
 - **`src/lib/`**: Shared utility functions and third-party client initializations (Prisma, Supabase).
