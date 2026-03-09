@@ -1,0 +1,43 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+    branches: [main, master, dev]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Prisma Generate
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+
+      - name: Linting
+        run: npm run lint
+
+      - name: Type Check
+        run: npx tsc --noEmit
+
+      - name: Build Check
+        run: npm run build
+        env:
+          # Dummy env vars required for build-time validation
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          AUTH_SECRET: "dummy-secret-at-least-32-chars-long"
+          NEXTAUTH_URL: "http://localhost:3000"
