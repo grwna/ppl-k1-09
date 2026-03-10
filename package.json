@@ -18,7 +18,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",
-    "next": "16.1.6",
+    "next": "^15.5.12",
     "next-auth": "^5.0.0-beta.25",
     "pg": "^8.20.0",
     "radix-ui": "^1.4.3",
@@ -37,15 +37,17 @@
     "@types/pg": "^8.18.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.3.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "prisma": "^7.4.2",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   },
- "overrides": {
-        "next-auth": {
-            "next": "$next"
-        }
+  "overrides": {
+    "next-auth": {
+      "next": "$next"
     }
+  }
 }
