@@ -8,24 +8,165 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // url      = env("DATABASE_URL")
 }
 
-/**
- * GENERIC TEMPLATE MODEL
- * This is a dummy model to demonstrate Prisma patterns.
- * Developers should copy and rename these for their own business models.
- */
-model TemplateModel {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  isActive    Boolean  @default(true)
-  status      String   @default("DRAFT") // Example of using strings as simple enums
+enum LoanApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LoanStatus {
+  ACTIVE
+  PAID
+  FORGIVEN
+  DEFAULTED
+}
+
+enum FundingSourceType {
+  DONOR
+  INVESTOR
+}
+
+enum RepaymentStatus {
+  PENDING
+  CONFIRMED
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  roles UserRole[]
+
+  donorFunds      DonorFund[]
+  loanApplications LoanApplication[]
+  notifications   Notification[]
+}
+
+model Role {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique
+
+  users UserRole[]
+}
+
+model UserRole {
+  userId String   @db.Uuid
+  roleId String   @db.Uuid
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model DonorFund {
+  id        String   @id @default(uuid()) @db.Uuid
+  donorId   String   @db.Uuid
+  amount    Float
+  remaining Float
+  createdAt DateTime @default(now())
+
+  donor User @relation(fields: [donorId], references: [id], onDelete: Cascade)
+
+  loanFundings LoanFunding[]
+}
+
+// model InvestorFund {
+//   id          String   @id @default(uuid()) @db.Uuid
+//   sourceName  String
+//   totalAmount Float
+//   remaining   Float
+//   createdAt   DateTime @default(now())
+
+//   loanFundings LoanFunding[]
+// }
+
+model LoanApplication {
+  id                    String   @id @default(uuid()) @db.Uuid
+  borrowerId            String   @db.Uuid
+  requestedAmount       Float
+  description           String
+  collateralUrl         String
+  collateralDescription String
+  status                LoanApplicationStatus @default(PENDING)
+  createdAt             DateTime @default(now())
+
+  borrower User @relation(fields: [borrowerId], references: [id], onDelete: Cascade)
+
+  loan Loan?
+}
+
+model Loan {
+  id            String   @id @default(uuid()) @db.Uuid
+  applicationId String   @unique @db.Uuid
+  approvedAmount Float
+  status        LoanStatus
+  approvedAt    DateTime
+  dueDate       DateTime
+
+  application LoanApplication @relation(fields: [applicationId], references: [id])
+
+  fundings  LoanFunding[]
+  repayments Repayment[]
+}
+
+model LoanFunding {
+  id              String @id @default(uuid()) @db.Uuid
+  loanId          String @db.Uuid
+  sourceType      FundingSourceType
+  donorFundId     String? @db.Uuid
+  // investorFundId  String? @db.Uuid
+  amount          Float
+
+  loan Loan @relation(fields: [loanId], references: [id], onDelete: Cascade)
+
+  donorFund    DonorFund?    @relation(fields: [donorFundId], references: [id])
+  // investorFund InvestorFund? @relation(fields: [investorFundId], references: [id])
+}
+
+model Repayment {
+  id        String   @id @default(uuid()) @db.Uuid
+  loanId    String   @db.Uuid
+  amount    Float
+  paidAt    DateTime
+  status    RepaymentStatus
+
+  loan Loan @relation(fields: [loanId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  type        String
+  message     String
+  scheduledAt DateTime
+  sentAt      DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// /**
+//  * GENERIC TEMPLATE MODEL
+//  * This is a dummy model to demonstrate Prisma patterns.
+//  * Developers should copy and rename these for their own business models.
+//  */
+// model TemplateModel {
+//   id          String   @id @default(cuid())
+//   title       String
+//   description String?
+//   isActive    Boolean  @default(true)
+//   status      String   @default("DRAFT") // Example of using strings as simple enums
   
-  // Timestamps are essential for every table
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+//   // Timestamps are essential for every table
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
 
-  @@map("template_models") // Best practice: use snake_case for table names
-}
+//   @@map("template_models") // Best practice: use snake_case for table names
+// }
+         
