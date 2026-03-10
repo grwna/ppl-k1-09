@@ -15,14 +15,11 @@ export async function createExampleAction(formData: FormData) {
 
   try {
     // 1. Call a service to do the heavy lifting
-    const result = await ExampleService.create({ name });
+    await ExampleService.create({ name });
     
     // 2. Clear cache to reflect the new state
     revalidatePath("/dashboard/example");
-    
-    return { success: true, data: result };
   } catch (error) {
     console.error("Action error:", error);
-    return { success: false, message: "Action failed" };
   }
 }
