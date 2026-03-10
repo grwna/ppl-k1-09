@@ -3,8 +3,12 @@
  * Use this to protect routes and handle redirects based on auth status.
  */
 
-import { auth } from "@/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
+
+// Use the lightweight config — no Prisma, safe for Edge Runtime
+const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
