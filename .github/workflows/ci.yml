@@ -9,6 +9,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # Dummy env vars required for build-time validation
+      DATABASE_URL: "postgresql://postgres.wzpttfhkiahplzpyezqu:Mj5qNUHRAaERP3dJ@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
+      AUTH_SECRET: "dummy-secret-at-least-32-chars-long"
+      NEXTAUTH_URL: "http://localhost:3000"
 
     steps:
       - name: Checkout Code
@@ -25,8 +30,6 @@ jobs:
 
       - name: Prisma Generate
         run: npx prisma generate
-        env:
-          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
 
       - name: Linting
         run: npm run lint
@@ -36,8 +39,3 @@ jobs:
 
       - name: Build Check
         run: npm run build
-        env:
-          # Dummy env vars required for build-time validation
-          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
-          AUTH_SECRET: "dummy-secret-at-least-32-chars-long"
-          NEXTAUTH_URL: "http://localhost:3000"
