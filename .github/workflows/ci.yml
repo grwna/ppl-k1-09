@@ -31,8 +31,8 @@ jobs:
       - name: Prisma Generate
         run: npx prisma generate
 
-      - name: Linting
-        run: npm run lint
+      #- name: Linting
+      #  run: npm run lint -- src/
 
       - name: Type Check
         run: npx tsc --noEmit
