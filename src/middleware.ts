@@ -1,8 +1,3 @@
-/**
- * MIDDLEWARE TEMPLATE
- * Use this to protect routes and handle redirects based on auth status.
- */
-
 import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
@@ -11,49 +6,32 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
-  const userRole = req.auth?.user?.role;
+  const roles = (req.auth?.user as any)?.roles || [];
   const pathname = req.nextUrl.pathname;
 
   const isDashboardRoute = pathname.startsWith("/dashboard");
   const isAdminRoute = pathname.startsWith("/dashboard/admin");
-  const isLoginRoute = pathname === "/login" || pathname === "/register";
+  const isAuthRoute = pathname === "/login" || pathname === "/register";
+  const isRootRoute = pathname === "/";
 
-  // Redirect pengguna yang belum login ke halaman login
-  if (isDashboardRoute && !isLoggedIn) {
+  // 1. Redirect pengguna yang belum login ke login (untuk dashboard & root)
+  if ((isDashboardRoute || isRootRoute) && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 
-  // Access Control: Cegah akses selain Admin untuk rute admin
-  if (isAdminRoute && userRole !== "ADMIN") {
-    // Arahkan ke dashboard umum jika memaksa masuk area admin
+  // 2. Access Control: Hanya ADMIN yang bisa masuk ke area admin
+  if (isAdminRoute && !roles.includes("ADMIN")) {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl)); 
   }
 
-  // Arahkan pengguna yang sudah login menjauhi halaman autentikasi
-  if (isLoggedIn && isLoginRoute) {
+  // 3. Jika sudah login, jauhkan dari halaman login/register
+  if (isLoggedIn && isAuthRoute) {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
   }
-    const isLoggedIn = !!req.auth;
-    // const isLoggedIn = !!req.auth?.user;
-    const isDashboardRoute = req.nextUrl.pathname.startsWith("/dashboard");
-    const isRootRoute = req.nextUrl.pathname === "/";
 
-
-    // If trying to access dashboard but not logged in, redirect to login
-    if ((isDashboardRoute || isRootRoute) && !isLoggedIn) {
-        console.log("Middleware: Unauthorized access to dashboard. Redirecting...");
-        return NextResponse.redirect(new URL("/login", req.nextUrl));
-    }
-
-    // If already logged in and trying to access login page, redirect to dashboard
-    if (isLoggedIn && req.nextUrl.pathname === "/login") {
-        return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
-    }
-
-    return NextResponse.next();
+  return NextResponse.next();
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register", "/((?!api|_next/static|_next/image|favicon.ico|public).*)"],
-    matcher: ["/dashboard/:path*", "/login"],
+  matcher: ["/", "/dashboard/:path*", "/login", "/register"],
 };

@@ -1,7 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs"; 
 
 export const authConfig: NextAuthConfig = {
   providers: [
@@ -39,14 +38,15 @@ export const authConfig: NextAuthConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
-        token.role = user.role;
+        // Ambil nama-nama roles dari nested object prisma
+        token.roles = (user as any).roles?.map((ur: any) => ur.role?.name || ur.role) || [];
       }
       return token;
     },
     async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
-        session.user.role = token.role as string;
+        (session.user as any).roles = token.roles || [];
       }
       return session;
     },

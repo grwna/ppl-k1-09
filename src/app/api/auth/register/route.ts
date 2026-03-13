@@ -16,17 +16,34 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const selectedRole = role || "DONATUR";
+
     const newUser = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
-        role: role || "DONATUR",
+        roles: {
+          create: {
+            role: {
+              connectOrCreate: {
+                where: { name: selectedRole },
+                create: { name: selectedRole }
+              }
+            }
+          }
+        },
       },
+      include: {
+        roles: {
+          include: { role: true }
+        }
+      }
     });
 
     return NextResponse.json({ message: "Registrasi berhasil", user: newUser }, { status: 201 });
   } catch (error) {
+    console.error("Register error:", error);
     return NextResponse.json({ error: "Terjadi kesalahan sistem" }, { status: 500 });
   }
 }
