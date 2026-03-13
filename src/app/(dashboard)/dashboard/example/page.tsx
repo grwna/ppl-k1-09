@@ -5,13 +5,15 @@
 
 import { ExampleService } from "@/services/example.service";
 import { createExampleAction } from "@/actions/example.action";
+import NavigationBar from "@/components/ui/navbar";
 
 export default async function DashboardExamplePage() {
   // Example of server-side data fetching through service
   const data = await ExampleService.findAll();
 
-  return (
+  return (    
     <div className="p-4 space-y-6 border rounded-lg bg-white/50">
+      <NavigationBar/>
       <h2 className="text-xl font-bold">Dashboard Section Template</h2>
       <p>This section is for authenticated users and internal tools.</p>
 
