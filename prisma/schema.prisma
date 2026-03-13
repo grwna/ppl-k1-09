@@ -37,17 +37,18 @@ model UserRole {
 model DonorFund {
   id           String        @id @default(uuid()) @db.Uuid
   donorId      String        @db.Uuid
-  amount       Float
-  remaining    Float
+  amount       Decimal       @db.Decimal
+  remaining    Decimal       @db.Decimal
   createdAt    DateTime      @default(now())
   donor        User          @relation(fields: [donorId], references: [id], onDelete: Cascade)
   loanFundings LoanFunding[]
+  paymentTransactions PaymentTransaction[]
 }
 
 model LoanApplication {
   id                    String                @id @default(uuid()) @db.Uuid
   borrowerId            String                @db.Uuid
-  requestedAmount       Float
+  requestedAmount       Decimal               @db.Decimal
   description           String
   collateralUrl         String
   collateralDescription String
@@ -55,12 +56,14 @@ model LoanApplication {
   createdAt             DateTime              @default(now())
   loan                  Loan?
   borrower              User                  @relation(fields: [borrowerId], references: [id], onDelete: Cascade)
+  statusHistories       ApplicationStatusHistory[]
+  attachments           ApplicationAttachment[]  
 }
 
 model Loan {
   id             String          @id @default(uuid()) @db.Uuid
   applicationId  String          @unique @db.Uuid
-  approvedAmount Float
+  approvedAmount Decimal         @db.Decimal
   status         LoanStatus
   approvedAt     DateTime
   dueDate        DateTime
@@ -74,7 +77,7 @@ model LoanFunding {
   loanId      String            @db.Uuid
   sourceType  FundingSourceType
   donorFundId String?           @db.Uuid
-  amount      Float
+  amount      Decimal           @db.Decimal
   donorFund   DonorFund?        @relation(fields: [donorFundId], references: [id])
   loan        Loan              @relation(fields: [loanId], references: [id], onDelete: Cascade)
 }
@@ -82,10 +85,11 @@ model LoanFunding {
 model Repayment {
   id     String          @id @default(uuid()) @db.Uuid
   loanId String          @db.Uuid
-  amount Float
+  amount Decimal         @db.Decimal
   paidAt DateTime
   status RepaymentStatus
   loan   Loan            @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  paymentTransaction PaymentTransaction[]
 }
 
 model Notification {
@@ -96,6 +100,40 @@ model Notification {
   scheduledAt DateTime
   sentAt      DateTime?
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PaymentTransaction {
+  id          String              @id @default(uuid()) @db.Uuid
+  externalId  String
+  referenceRepayment String?              @db.Uuid
+  referenceDonorFund String?              @db.Uuid
+  category    TransactionCategory
+  amount      Decimal             @db.Decimal()
+  paymentType String
+  status      TransactionStatus
+  response    Json
+  repayment   Repayment?           @relation(fields: [referenceRepayment], references: [id], onDelete: Cascade)
+  donorFund   DonorFund?           @relation(fields: [referenceDonorFund], references: [id], onDelete: Cascade)
+}
+
+model ApplicationStatusHistory {
+  id            String    @id @default(uuid()) @db.Uuid
+  applicationId String    @db.Uuid
+  adminId       String    @db.Uuid
+  fromStatus    LoanApplicationStatus
+  toStatus      LoanApplicationStatus
+  notes         String?
+  createdAt   DateTime  @default(now())
+  loanApplication LoanApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model ApplicationAttachment {
+  id            String    @id @default(uuid()) @db.Uuid
+  applicationId String    @db.Uuid
+  documentType  String
+  fileUrl       String
+  uploadedAt    DateTime  @default(now())
+  loanApplication LoanApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 }
 
 enum LoanApplicationStatus {
@@ -119,4 +157,16 @@ enum FundingSourceType {
 enum RepaymentStatus {
   PENDING
   CONFIRMED
+}
+
+enum TransactionStatus {
+  PENDING
+  SETTLEMENT
+  EXPIRE
+  FAILURE
+}
+
+enum TransactionCategory {
+  DONATION
+  REPAYMENT
 }
