@@ -7,28 +7,36 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
 
-// Use the lightweight config — no Prisma, safe for Edge Runtime
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
-  const isDashboardRoute = req.nextUrl.pathname.startsWith("/dashboard");
+  const userRole = req.auth?.user?.role;
+  const pathname = req.nextUrl.pathname;
 
-  // If trying to access dashboard but not logged in, redirect to login
+  const isDashboardRoute = pathname.startsWith("/dashboard");
+  const isAdminRoute = pathname.startsWith("/dashboard/admin");
+  const isLoginRoute = pathname === "/login" || pathname === "/register";
+
+  // Redirect pengguna yang belum login ke halaman login
   if (isDashboardRoute && !isLoggedIn) {
-    console.log("Middleware: Unauthorized access to dashboard. Redirecting...");
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 
-  // If already logged in and trying to access login page, redirect to dashboard
-  if (isLoggedIn && req.nextUrl.pathname === "/login") {
+  // Access Control: Cegah akses selain Admin untuk rute admin
+  if (isAdminRoute && userRole !== "ADMIN") {
+    // Arahkan ke dashboard umum jika memaksa masuk area admin
+    return NextResponse.redirect(new URL("/dashboard", req.nextUrl)); 
+  }
+
+  // Arahkan pengguna yang sudah login menjauhi halaman autentikasi
+  if (isLoggedIn && isLoginRoute) {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
   }
 
   return NextResponse.next();
 });
 
-// Configure which paths should trigger the middleware
 export const config = {
-  matcher: ["/dashboard/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/login", "/register", "/((?!api|_next/static|_next/image|favicon.ico|public).*)"],
 };
