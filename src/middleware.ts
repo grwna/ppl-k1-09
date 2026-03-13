@@ -33,10 +33,27 @@ export default auth((req) => {
   if (isLoggedIn && isLoginRoute) {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
   }
+    const isLoggedIn = !!req.auth;
+    // const isLoggedIn = !!req.auth?.user;
+    const isDashboardRoute = req.nextUrl.pathname.startsWith("/dashboard");
+    const isRootRoute = req.nextUrl.pathname === "/";
 
-  return NextResponse.next();
+
+    // If trying to access dashboard but not logged in, redirect to login
+    if ((isDashboardRoute || isRootRoute) && !isLoggedIn) {
+        console.log("Middleware: Unauthorized access to dashboard. Redirecting...");
+        return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
+
+    // If already logged in and trying to access login page, redirect to dashboard
+    if (isLoggedIn && req.nextUrl.pathname === "/login") {
+        return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
+    }
+
+    return NextResponse.next();
 });
 
 export const config = {
   matcher: ["/dashboard/:path*", "/login", "/register", "/((?!api|_next/static|_next/image|favicon.ico|public).*)"],
+    matcher: ["/dashboard/:path*", "/login"],
 };
