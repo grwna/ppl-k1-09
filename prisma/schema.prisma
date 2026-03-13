@@ -5,42 +5,48 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  DONATUR
-  PEMINJAM
-}
+// ==========================================
+// AUTH & USER MODELS (NextAuth Compatible)
+// ==========================================
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  role          Role      @default(DONATUR)
-  accounts      Account[]
-  sessions      Session[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id               String    @id @default(uuid()) @db.Uuid
+  name             String?
+  email            String?   @unique
+  emailVerified    DateTime?
+  password         String?
+  image            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // NextAuth Relations
+  accounts         Account[]
+  sessions         Session[]
+
+  // Business Logic Relations
+  donorFunds       DonorFund[]
+  loanApplications LoanApplication[]
+  notifications    Notification[]
+  roles            UserRole[]
 
   @@map("users")
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
+  id                 String  @id @default(uuid()) @db.Uuid
+  userId             String  @db.Uuid
   type               String
   provider           String
   providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
   expires_at         Int?
   token_type         String?
   scope              String?
-  id_token           String?  @db.Text
+  id_token           String? @db.Text
   session_state      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -50,9 +56,9 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id @default(uuid()) @db.Uuid
   sessionToken String   @unique
-  userId       String
+  userId       String   @db.Uuid
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -66,16 +72,6 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
-model User {
-  id               String            @id @default(uuid()) @db.Uuid
-  name             String
-  email            String            @unique
-  password         String
-  createdAt        DateTime          @default(now())
-  donorFunds       DonorFund[]
-  loanApplications LoanApplication[]
-  notifications    Notification[]
-  roles            UserRole[]
 }
 
 model Role {
@@ -93,11 +89,15 @@ model UserRole {
   @@id([userId, roleId])
 }
 
+// ==========================================
+// BUSINESS LOGIC MODELS
+// ==========================================
+
 model DonorFund {
   id           String        @id @default(uuid()) @db.Uuid
   donorId      String        @db.Uuid
-  amount       Decimal       @db.Decimal
-  remaining    Decimal       @db.Decimal
+  amount       Decimal       @db.Decimal(12, 2)
+  remaining    Decimal       @db.Decimal(12, 2)
   createdAt    DateTime      @default(now())
   donor        User          @relation(fields: [donorId], references: [id], onDelete: Cascade)
   loanFundings LoanFunding[]
@@ -107,7 +107,7 @@ model DonorFund {
 model LoanApplication {
   id                    String                @id @default(uuid()) @db.Uuid
   borrowerId            String                @db.Uuid
-  requestedAmount       Decimal               @db.Decimal
+  requestedAmount       Decimal               @db.Decimal(12, 2)
   description           String
   collateralUrl         String
   collateralDescription String
@@ -122,7 +122,7 @@ model LoanApplication {
 model Loan {
   id             String          @id @default(uuid()) @db.Uuid
   applicationId  String          @unique @db.Uuid
-  approvedAmount Decimal         @db.Decimal
+  approvedAmount Decimal         @db.Decimal(12, 2)
   status         LoanStatus
   approvedAt     DateTime
   dueDate        DateTime
@@ -136,7 +136,7 @@ model LoanFunding {
   loanId      String            @db.Uuid
   sourceType  FundingSourceType
   donorFundId String?           @db.Uuid
-  amount      Decimal           @db.Decimal
+  amount      Decimal           @db.Decimal(12, 2)
   donorFund   DonorFund?        @relation(fields: [donorFundId], references: [id])
   loan        Loan              @relation(fields: [loanId], references: [id], onDelete: Cascade)
 }
@@ -144,7 +144,7 @@ model LoanFunding {
 model Repayment {
   id     String          @id @default(uuid()) @db.Uuid
   loanId String          @db.Uuid
-  amount Decimal         @db.Decimal
+  amount Decimal         @db.Decimal(12, 2)
   paidAt DateTime
   status RepaymentStatus
   loan   Loan            @relation(fields: [loanId], references: [id], onDelete: Cascade)
@@ -167,7 +167,7 @@ model PaymentTransaction {
   referenceRepayment String?              @db.Uuid
   referenceDonorFund String?              @db.Uuid
   category    TransactionCategory
-  amount      Decimal             @db.Decimal()
+  amount      Decimal             @db.Decimal(12, 2)
   paymentType String
   status      TransactionStatus
   response    Json
@@ -182,7 +182,7 @@ model ApplicationStatusHistory {
   fromStatus    LoanApplicationStatus
   toStatus      LoanApplicationStatus
   notes         String?
-  createdAt   DateTime  @default(now())
+  createdAt     DateTime  @default(now())
   loanApplication LoanApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 }
 
@@ -194,6 +194,10 @@ model ApplicationAttachment {
   uploadedAt    DateTime  @default(now())
   loanApplication LoanApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 }
+
+// ==========================================
+// ENUMS
+// ==========================================
 
 enum LoanApplicationStatus {
   PENDING
