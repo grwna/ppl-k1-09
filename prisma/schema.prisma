@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -10,21 +7,166 @@ datasource db {
   provider = "postgresql"
 }
 
-/**
- * GENERIC TEMPLATE MODEL
- * This is a dummy model to demonstrate Prisma patterns.
- * Developers should copy and rename these for their own business models.
- */
-model TemplateModel {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  isActive    Boolean  @default(true)
-  status      String   @default("DRAFT") // Example of using strings as simple enums
-  
-  // Timestamps are essential for every table
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model User {
+  id               String            @id @default(uuid()) @db.Uuid
+  name             String
+  email            String            @unique
+  password         String
+  createdAt        DateTime          @default(now())
+  donorFunds       DonorFund[]
+  loanApplications LoanApplication[]
+  notifications    Notification[]
+  roles            UserRole[]
+}
 
-  @@map("template_models") // Best practice: use snake_case for table names
+model Role {
+  id    String     @id @default(uuid()) @db.Uuid
+  name  String     @unique
+  users UserRole[]
+}
+
+model UserRole {
+  userId String @db.Uuid
+  roleId String @db.Uuid
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model DonorFund {
+  id           String        @id @default(uuid()) @db.Uuid
+  donorId      String        @db.Uuid
+  amount       Decimal       @db.Decimal
+  remaining    Decimal       @db.Decimal
+  createdAt    DateTime      @default(now())
+  donor        User          @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  loanFundings LoanFunding[]
+  paymentTransactions PaymentTransaction[]
+}
+
+model LoanApplication {
+  id                    String                @id @default(uuid()) @db.Uuid
+  borrowerId            String                @db.Uuid
+  requestedAmount       Decimal               @db.Decimal
+  description           String
+  collateralUrl         String
+  collateralDescription String
+  status                LoanApplicationStatus @default(PENDING)
+  createdAt             DateTime              @default(now())
+  loan                  Loan?
+  borrower              User                  @relation(fields: [borrowerId], references: [id], onDelete: Cascade)
+  statusHistories       ApplicationStatusHistory[]
+  attachments           ApplicationAttachment[]  
+}
+
+model Loan {
+  id             String          @id @default(uuid()) @db.Uuid
+  applicationId  String          @unique @db.Uuid
+  approvedAmount Decimal         @db.Decimal
+  status         LoanStatus
+  approvedAt     DateTime
+  dueDate        DateTime
+  application    LoanApplication @relation(fields: [applicationId], references: [id])
+  fundings       LoanFunding[]
+  repayments     Repayment[]
+}
+
+model LoanFunding {
+  id          String            @id @default(uuid()) @db.Uuid
+  loanId      String            @db.Uuid
+  sourceType  FundingSourceType
+  donorFundId String?           @db.Uuid
+  amount      Decimal           @db.Decimal
+  donorFund   DonorFund?        @relation(fields: [donorFundId], references: [id])
+  loan        Loan              @relation(fields: [loanId], references: [id], onDelete: Cascade)
+}
+
+model Repayment {
+  id     String          @id @default(uuid()) @db.Uuid
+  loanId String          @db.Uuid
+  amount Decimal         @db.Decimal
+  paidAt DateTime
+  status RepaymentStatus
+  loan   Loan            @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  paymentTransaction PaymentTransaction[]
+}
+
+model Notification {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  type        String
+  message     String
+  scheduledAt DateTime
+  sentAt      DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PaymentTransaction {
+  id          String              @id @default(uuid()) @db.Uuid
+  externalId  String
+  referenceRepayment String?              @db.Uuid
+  referenceDonorFund String?              @db.Uuid
+  category    TransactionCategory
+  amount      Decimal             @db.Decimal()
+  paymentType String
+  status      TransactionStatus
+  response    Json
+  repayment   Repayment?           @relation(fields: [referenceRepayment], references: [id], onDelete: Cascade)
+  donorFund   DonorFund?           @relation(fields: [referenceDonorFund], references: [id], onDelete: Cascade)
+}
+
+model ApplicationStatusHistory {
+  id            String    @id @default(uuid()) @db.Uuid
+  applicationId String    @db.Uuid
+  adminId       String    @db.Uuid
+  fromStatus    LoanApplicationStatus
+  toStatus      LoanApplicationStatus
+  notes         String?
+  createdAt   DateTime  @default(now())
+  loanApplication LoanApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model ApplicationAttachment {
+  id            String    @id @default(uuid()) @db.Uuid
+  applicationId String    @db.Uuid
+  documentType  String
+  fileUrl       String
+  uploadedAt    DateTime  @default(now())
+  loanApplication LoanApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+enum LoanApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LoanStatus {
+  ACTIVE
+  PAID
+  FORGIVEN
+  DEFAULTED
+}
+
+enum FundingSourceType {
+  DONOR
+  INVESTOR
+}
+
+enum RepaymentStatus {
+  PENDING
+  CONFIRMED
+}
+
+enum TransactionStatus {
+  PENDING
+  SETTLEMENT
+  EXPIRE
+  FAILURE
+}
+
+enum TransactionCategory {
+  DONATION
+  REPAYMENT
 }
