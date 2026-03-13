@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -8,7 +5,97 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(uuid()) @db.Uuid
+  name             String
+  email            String            @unique
+  password         String
+  createdAt        DateTime          @default(now())
+  donorFunds       DonorFund[]
+  loanApplications LoanApplication[]
+  notifications    Notification[]
+  roles            UserRole[]
+}
+
+model Role {
+  id    String     @id @default(uuid()) @db.Uuid
+  name  String     @unique
+  users UserRole[]
+}
+
+model UserRole {
+  userId String @db.Uuid
+  roleId String @db.Uuid
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model DonorFund {
+  id           String        @id @default(uuid()) @db.Uuid
+  donorId      String        @db.Uuid
+  amount       Float
+  remaining    Float
+  createdAt    DateTime      @default(now())
+  donor        User          @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  loanFundings LoanFunding[]
+}
+
+model LoanApplication {
+  id                    String                @id @default(uuid()) @db.Uuid
+  borrowerId            String                @db.Uuid
+  requestedAmount       Float
+  description           String
+  collateralUrl         String
+  collateralDescription String
+  status                LoanApplicationStatus @default(PENDING)
+  createdAt             DateTime              @default(now())
+  loan                  Loan?
+  borrower              User                  @relation(fields: [borrowerId], references: [id], onDelete: Cascade)
+}
+
+model Loan {
+  id             String          @id @default(uuid()) @db.Uuid
+  applicationId  String          @unique @db.Uuid
+  approvedAmount Float
+  status         LoanStatus
+  approvedAt     DateTime
+  dueDate        DateTime
+  application    LoanApplication @relation(fields: [applicationId], references: [id])
+  fundings       LoanFunding[]
+  repayments     Repayment[]
+}
+
+model LoanFunding {
+  id          String            @id @default(uuid()) @db.Uuid
+  loanId      String            @db.Uuid
+  sourceType  FundingSourceType
+  donorFundId String?           @db.Uuid
+  amount      Float
+  donorFund   DonorFund?        @relation(fields: [donorFundId], references: [id])
+  loan        Loan              @relation(fields: [loanId], references: [id], onDelete: Cascade)
+}
+
+model Repayment {
+  id     String          @id @default(uuid()) @db.Uuid
+  loanId String          @db.Uuid
+  amount Float
+  paidAt DateTime
+  status RepaymentStatus
+  loan   Loan            @relation(fields: [loanId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  type        String
+  message     String
+  scheduledAt DateTime
+  sentAt      DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum LoanApplicationStatus {
@@ -32,121 +119,4 @@ enum FundingSourceType {
 enum RepaymentStatus {
   PENDING
   CONFIRMED
-}
-
-model User {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-
-  roles UserRole[]
-
-  donorFunds       DonorFund[]
-  loanApplications LoanApplication[]
-  notifications    Notification[]
-}
-
-model Role {
-  id   String @id @default(uuid()) @db.Uuid
-  name String @unique
-
-  users UserRole[]
-}
-
-model UserRole {
-  userId String @db.Uuid
-  roleId String @db.Uuid
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@id([userId, roleId])
-}
-
-model DonorFund {
-  id        String   @id @default(uuid()) @db.Uuid
-  donorId   String   @db.Uuid
-  amount    Float
-  remaining Float
-  createdAt DateTime @default(now())
-
-  donor User @relation(fields: [donorId], references: [id], onDelete: Cascade)
-
-  loanFundings LoanFunding[]
-}
-
-// model InvestorFund {
-//   id          String   @id @default(uuid()) @db.Uuid
-//   sourceName  String
-//   totalAmount Float
-//   remaining   Float
-//   createdAt   DateTime @default(now())
-
-//   loanFundings LoanFunding[]
-// }
-
-model LoanApplication {
-  id                    String                @id @default(uuid()) @db.Uuid
-  borrowerId            String                @db.Uuid
-  requestedAmount       Float
-  description           String
-  collateralUrl         String
-  collateralDescription String
-  status                LoanApplicationStatus @default(PENDING)
-  createdAt             DateTime              @default(now())
-
-  borrower User @relation(fields: [borrowerId], references: [id], onDelete: Cascade)
-
-  loan Loan?
-}
-
-model Loan {
-  id             String     @id @default(uuid()) @db.Uuid
-  applicationId  String     @unique @db.Uuid
-  approvedAmount Float
-  status         LoanStatus
-  approvedAt     DateTime
-  dueDate        DateTime
-
-  application LoanApplication @relation(fields: [applicationId], references: [id])
-
-  fundings   LoanFunding[]
-  repayments Repayment[]
-}
-
-model LoanFunding {
-  id          String            @id @default(uuid()) @db.Uuid
-  loanId      String            @db.Uuid
-  sourceType  FundingSourceType
-  donorFundId String?           @db.Uuid
-  // investorFundId  String? @db.Uuid
-  amount      Float
-
-  loan Loan @relation(fields: [loanId], references: [id], onDelete: Cascade)
-
-  donorFund DonorFund? @relation(fields: [donorFundId], references: [id])
-  // investorFund InvestorFund? @relation(fields: [investorFundId], references: [id])
-}
-
-model Repayment {
-  id     String          @id @default(uuid()) @db.Uuid
-  loanId String          @db.Uuid
-  amount Float
-  paidAt DateTime
-  status RepaymentStatus
-
-  loan Loan @relation(fields: [loanId], references: [id], onDelete: Cascade)
-}
-
-model Notification {
-  id          String    @id @default(uuid()) @db.Uuid
-  userId      String    @db.Uuid
-  type        String
-  message     String
-  scheduledAt DateTime
-  sentAt      DateTime?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
