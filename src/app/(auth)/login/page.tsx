@@ -2,16 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import localFont from 'next/font/local'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import { useState } from "react";
 
-import RumahAmalLogo from "../../../../public/rumah-amal-logo.svg"
-import AuthBg from "../../../../public/auth-bg.svg"
-
 // init fonts
-const plusJakartaSansFont = localFont({
-    src: "../../../../public/fonts/PlusJakartaSans-VariableFont.ttf",
+const plusJakartaSansFont = Plus_Jakarta_Sans({
+    subsets: ['latin'],
     display: 'swap',
+    variable: '--font-plus-jakarta-sans',
 });
 
 export default function LoginPage() {
@@ -29,21 +27,22 @@ export default function LoginPage() {
 
     return (
         // main container
-        <div className="flex-col w-full min-h-screen block overflow-hidden items-center justify-center">
+        <div className={`${plusJakartaSansFont.variable} font-sans flex-col w-full min-h-screen block overflow-hidden items-center justify-center`}>
             <Image
-                src={AuthBg}
+                src="/auth-bg.svg"
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover -z-10"
+                fill
+                className="object-cover -z-10"
             />
 
             {/* rumah amal salman logo */}
             <div className="flex relative w-full justify-center items-center h-[30%]">
-                {/* <div> */}
                     <Image
-                        src={RumahAmalLogo}
+                        src="/rumah-amal-logo.svg"
                         alt="Logo Rumah Amal Salman"
+                        width={200}
+                        height={100}
                     />
-                {/* </div> */}
             </div>
 
             {/* login container */}
