@@ -11,7 +11,8 @@ import { NextResponse } from "next/server";
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
-  const isLoggedIn = !!req.auth?.user;
+  const isLoggedIn = !!req.auth;
+  // const isLoggedIn = !!req.auth?.user;
   const isDashboardRoute = req.nextUrl.pathname.startsWith("/dashboard");
 
   // If trying to access dashboard but not logged in, redirect to login
