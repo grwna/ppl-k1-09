@@ -21,29 +21,31 @@ export default function Home() {
 
   return (
     // main container
-    <div className="w-full h-full">
+    <div className="w-full h-screen">
 
       {/* ----------------------------- navigation bar -----------------------------------*/}
       <NavigationBar/>
 
       {/* =------------------------------------ banner + offer for donor or loan --------------------------- */}
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-[60%] overflow-hidden flex flex-1 flex-col">
 
         {/* dua div di bawah ini itu gradient sm gambar */}
-        <div className="bg-[url(../../public/landing-banner-image.svg)] absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"></div>
+        <div className="bg-[url(../../public/landing-banner-image.svg)] absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"/>
 
-        <div className="absolute inset-0 z-10 bg-linear-to-t from-white via-white/50 to-transparent" />
+        <div className="absolute inset-0 z-10 bg-linear-to-t from-white via-white/20 to-transparent" />
+
+        <div className="absolute inset-0 z-20 bg-[#07B0C8]/40 bg-linear-to-t from-white to-transparent" />
 
         {/* container for the main content */}
-        <div className="relative z-20 w-full h-full">
+        <div className="relative z-30 w-full flex-1 flex flex-col items-center justify-center">
 
           {/* title */}
-          <div className={`${plusJakartaSansFont.className}`}>
+          <div className={`${plusJakartaSansFont.className} w-full h-full`}>
             Empowering Students with Interest-Free Loans
           </div>
 
           {/* captions */}
-          <div>
+          <div className="w-full h-full">
             In collaboration with Rumah Amal Salman, RAS1 provides ethical, Sharia-compliant financial assistance to students in need - with absolutely zero interest charged.
           </div>
 
@@ -54,7 +56,7 @@ export default function Home() {
             <div className="flex w-[90%] h-full justify-center items-center">
 
               {/* become a donor block */}
-              <div className="flex w-[50%] bg-white">
+              <div className="flex w-[50%] bg-white p-2 rounded-l-2xl">
                 {/* donor logo */}
                 <div className="">
                   <Image
@@ -100,8 +102,8 @@ export default function Home() {
               </div>
 
               {/* apply for a loan block */}
-              <div className="flex w-[50%] bg-white">
-                {/* donor logo */}
+              <div className="flex w-[50%] bg-white p-2 rounded-r-2xl">
+                {/* education logo */}
                 <div className="">
                   <Image
                     src={GraduationCap}
@@ -109,7 +111,7 @@ export default function Home() {
                   />
                 </div>
 
-                {/* captions for becoming a donor */}
+                {/* captions for appllying for a loan */}
                 <div className="">
 
                   {/* title caption */}
@@ -122,7 +124,7 @@ export default function Home() {
                     Students can apply for an interest-free loan to cover tuition, books, and living expenses.
                   </div>
 
-                  {/* CTA become a donor */}
+                  {/* CTA apply a loan */}
                   <div className="flex justify-center items-center">
                     <div className="bg-[#07B0C8] flex w-[80%] justify-center items-center">
                       {/* caption */}
@@ -155,7 +157,104 @@ export default function Home() {
       </div>
 
       {/* --------------------------- how it works + the steps of working in rumah amal salman ----------------- */}
-      <div>
+      <div className="w-full h-[80%]">
+
+        {/* title + separator + caption */}
+        <div className="flex flex-col justify-center items-center">
+          {/* title */}
+          <div>
+            How It Works
+          </div>
+
+          {/* separator */}
+          <div className="bg-[#07B0C8] h-0.5 w-50"/>
+
+          {/* caption */}
+          <div>
+            Our streamlined process ensures every donation makes a real impact and every student gets fair, transparent access.
+          </div>
+          
+          {/* grid of how it works (it is actually implemented using flex, so please don't be misled) */}
+          <div className="flex justify-center items-center">
+
+            {/* fund donation container */}
+            <div>
+
+              {/* number 1 */}
+              <div>
+                1
+              </div>
+
+              {/* title */}
+              <div>
+                Fund Donation
+              </div>
+
+              {/* caption */}
+              <div>
+                Generous donors contribute to our collective fund pool, creating a sustainable source of interest-free loans for students who need it most.
+              </div>
+
+            </div>
+
+            {/* right arrow */}
+            <div>
+              <Image 
+                src={ArrowRightGrey}
+                alt="Grey Right Arrow"
+              />
+            </div>
+
+            {/* application & verification container */}
+            <div>
+
+              {/* number 1 */}
+              <div>
+                2
+              </div>
+
+              {/* title */}
+              <div>
+                Application & Verification
+              </div>
+
+              {/* caption */}
+              <div>
+                Students submit their loan applications, which are carefully reviewed and verified by our transparent and independent selection committee.
+              </div>
+
+            </div>
+
+            {/* right arrow */}
+            <div>
+              <Image 
+                src={ArrowRightGrey}
+                alt="Grey Right Arrow"
+              />
+            </div>
+
+            {/* impactful distribution container */}
+            <div>
+
+              {/* number 1 */}
+              <div>
+                3
+              </div>
+
+              {/* title */}
+              <div>
+                Impactful Distribution
+              </div>
+
+              {/* caption */}
+              <div>
+                Once approved, loans are distributed directly to students - empowering them to focus on their education without any financial burden or interest.
+              </div>
+
+            </div>
+
+          </div>
+        </div>
 
       </div>
 
