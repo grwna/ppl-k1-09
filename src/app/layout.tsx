@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Footer from "@/components/ui/footer";
 import "./globals.css";
 
 import QueryClientProvider from "@/providers/QueryClientProvider";
@@ -29,9 +30,13 @@ export default function RootLayout({
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
-                <QueryClientProvider>
-                    {children}
-                </QueryClientProvider>
+                <main>
+                    <QueryClientProvider>
+                        {children}
+                    </QueryClientProvider>
+                </main>
+
+                <Footer/>
             </body>
         </html>
     );

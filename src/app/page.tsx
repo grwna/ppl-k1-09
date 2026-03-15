@@ -1,65 +1,179 @@
 import Image from "next/image";
+import localFont from "next/font/local";
+
+import LandingBannerImage from "../../public/landing-banner-image.svg"
+import ArrowRightWhite from "../../public/arrow-right-white.svg"
+import GraduationCap from "../../public/graduation-cap.svg"
+import HandCoins from "../../public/hand-coins.svg"
+import ArrowRightGrey from "../../public/arrow-right-grey.svg"
+import NavigationBar from "@/components/ui/navbar";
+
+// init fonts
+const plusJakartaSansFont = localFont({
+    src: "../../public/fonts/PlusJakartaSans-VariableFont.ttf",
+    display: 'swap',
+});
 
 export default function Home() {
+
+  // init variables
+
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    // main container
+    <div className="w-full h-full">
+
+      {/* ----------------------------- navigation bar -----------------------------------*/}
+      <NavigationBar/>
+
+      {/* =------------------------------------ banner + offer for donor or loan --------------------------- */}
+      <div className="relative w-full h-full">
+
+        {/* dua div di bawah ini itu gradient sm gambar */}
+        <div className="bg-[url(../../public/landing-banner-image.svg)] absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"></div>
+
+        <div className="absolute inset-0 z-10 bg-linear-to-t from-white via-white/50 to-transparent" />
+
+        {/* container for the main content */}
+        <div className="relative z-20 w-full h-full">
+
+          {/* title */}
+          <div className={`${plusJakartaSansFont.className}`}>
+            Empowering Students with Interest-Free Loans
+          </div>
+
+          {/* captions */}
+          <div>
+            In collaboration with Rumah Amal Salman, RAS1 provides ethical, Sharia-compliant financial assistance to students in need - with absolutely zero interest charged.
+          </div>
+
+          {/* become a donor + apply for a loan container */}
+          <div className="flex w-full h-full justify-center items-center">
+
+            {/* become a donor + apply for a loan block */}
+            <div className="flex w-[90%] h-full justify-center items-center">
+
+              {/* become a donor block */}
+              <div className="flex w-[50%] bg-white">
+                {/* donor logo */}
+                <div className="">
+                  <Image
+                    src={HandCoins}
+                    alt="Coin handing logo"
+                  />
+                </div>
+
+                {/* captions for becoming a donor */}
+                <div className="">
+
+                  {/* title caption */}
+                  <div>
+                    Become a donor
+                  </div>
+
+                  {/* main caption */}
+                  <div>
+                    Help fund interest-free loans and support students in achieving their educational dreams.
+                  </div>
+
+                  {/* CTA become a donor */}
+                  <div className="flex justify-center items-center">
+
+                    <div className="bg-[#FCB82E] flex w-[80%] justify-center items-center">
+                      {/* caption */}
+                      <div className="flex w-full h-full justify-center items-center">
+                        Become a donor
+                      </div>
+
+                      {/* arrow right */}
+                      <div className="flex w-full h-full justify-center items-center">
+                        <Image
+                          src={ArrowRightWhite}
+                          alt="Right White Arrow"
+                        />
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+
+              {/* apply for a loan block */}
+              <div className="flex w-[50%] bg-white">
+                {/* donor logo */}
+                <div className="">
+                  <Image
+                    src={GraduationCap}
+                    alt="Education logo"
+                  />
+                </div>
+
+                {/* captions for becoming a donor */}
+                <div className="">
+
+                  {/* title caption */}
+                  <div>
+                    Apply for a Loan
+                  </div>
+
+                  {/* main caption */}
+                  <div>
+                    Students can apply for an interest-free loan to cover tuition, books, and living expenses.
+                  </div>
+
+                  {/* CTA become a donor */}
+                  <div className="flex justify-center items-center">
+                    <div className="bg-[#07B0C8] flex w-[80%] justify-center items-center">
+                      {/* caption */}
+                      <div className="flex w-full h-full justify-center items-center">
+                        Apply for a Loan
+                      </div>
+
+                      {/* arrow right */}
+                      <div className="flex w-full h-full justify-center items-center">
+                        <Image
+                          src={ArrowRightWhite}
+                          alt="Right White Arrow"
+                        />
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+              
+            </div>
+    
+          </div>
+
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+      </div>
+
+      {/* --------------------------- how it works + the steps of working in rumah amal salman ----------------- */}
+      <div>
+
+      </div>
+
+      {/* -------------------------- impact in numbers (total donated + students helped + interest charged) -------------------- */}
+      <div>
+
+      </div>
+
+      {/* ---------------------------- trust + transparency + steps for trust and transparency --------------------------- */}
+      <div>
+
+      </div>
+
+      {/* --------------------------------- call to action (ready to make a difference?) ----------------------------- */}
+      <div>
+
+      </div>
+
     </div>
   );
 }
