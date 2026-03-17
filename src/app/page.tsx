@@ -215,7 +215,7 @@ export default function Home() {
       </div>
 
       {/* -------------------------- impact in numbers (total donated + students helped + interest charged) -------------------- */}
-      <div className="flex w-full h-[65%] justify-center items-center">
+      <div className="bg-[#07B0C8] flex w-full h-[65%] justify-center items-center">
 
         {/* title + separator + caption */}
         <div className="flex flex-col justify-center items-center">
