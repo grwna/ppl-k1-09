@@ -42,7 +42,7 @@ export default function Home() {
         <div className="absolute inset-0 z-10 bg-linear-to-t from-white via-white/20 to-transparent" />
 
         {/* <div class="bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%  */}
-        <div className="absolute inset-0 z-20 bg-linear-to-b from-[#07B0C8]/65 from-0% via-[#07B0C8]/30 via-50% to-white to-100%" />
+        <div className="absolute inset-0 z-20 bg-linear-to-b from-[#07B0C8]/65 from-0% via-[#07B0C8]/30 via-50% to-[#F9FAFB] to-100%" />
 
         {/* container for the main content */}
         <div className="relative z-30 w-full flex-1 flex flex-col items-center justify-start">
@@ -166,31 +166,33 @@ export default function Home() {
       </div>
 
       {/* --------------------------- how it works + the steps of working in rumah amal salman ----------------- */}
-      <div className="flex w-full h-[65%] justify-center items-center">
+      <div className="flex w-full h-[70%] justify-center items-center">
 
         {/* title + separator + caption */}
-        <div className="flex flex-col justify-center items-center">
+        <div className="flex flex-col justify-start items-center">
           {/* title */}
-          <div>
+          <div className={`${plusJakartaSansFont.className} w-full h-[20%] text-[38px] flex justify-center items-center font-bold`}>
             How It Works
           </div>
 
           {/* separator */}
-          <div className="bg-[#07B0C8] h-0.5 w-50"/>
+          <div className="bg-[#07B0C8] h-1 w-40"/>
 
           {/* caption */}
-          <div>
+          <div className={`${plusJakartaSansFont.className} w-[55%] h-[20%] p-4 flex justify-center items-center font-medium text-[#666666] text-center text-sm`}>
             Our streamlined process ensures every donation makes a real impact and every student gets fair, transparent access.
           </div>
           
           {/* grid of how it works (it is actually implemented using flex, so please don't be misled) */}
-          <div className="flex justify-center items-center">
+          <div className="w-full h-[50%] flex justify-center items-center">
 
             {/* fund donation container */}
-            <LandingHowItWorkBox number="1" title="Fund Donation" caption="Generous donors contribute to our collective fund pool, creating a sustainable source of interest-free loans for students who need it most." />
+            <div className="w-[25%] h-full flex justify-center items-center">
+              <LandingHowItWorkBox color="#FCB82E" number="1" title="Fund Donation" caption="Generous donors contribute to our collective fund pool, creating a sustainable source of interest-free loans for students who need it most." />
+            </div>
 
             {/* right arrow */}
-            <div>
+            <div className="h-full w-[10%] flex justify-center items-center">
               <Image 
                 src={ArrowRightGrey}
                 alt="Grey Right Arrow"
@@ -198,10 +200,12 @@ export default function Home() {
             </div>
 
             {/* application & verification container */}
-            <LandingHowItWorkBox number="2" title="Application & Verification" caption="Students submit their loan applications, which are carefully reviewed and verified by our transparent and independent selection committee." />
+            <div className="w-[25%] h-full flex justify-center items-center">
+              <LandingHowItWorkBox color="#07B0C8" number="2" title="Application & Verification" caption="Students submit their loan applications, which are carefully reviewed and verified by our transparent and independent selection committee." />
+            </div>
 
             {/* right arrow */}
-            <div>
+            <div className="h-full w-[10%] flex justify-center items-center">
               <Image 
                 src={ArrowRightGrey}
                 alt="Grey Right Arrow"
@@ -209,7 +213,9 @@ export default function Home() {
             </div>
 
             {/* impactful distribution container */}
-            <LandingHowItWorkBox number="3" title="Impactful Distribution" caption="Once approved, loans are distributed directly to students - empowering them to focus on their education without any financial burden or interest." />
+            <div className="w-[25%] h-full flex justify-center items-center">
+              <LandingHowItWorkBox color="#10B981" number="3" title="Impactful Distribution" caption="Once approved, loans are distributed directly to students - empowering them to focus on their education without any financial burden or interest." />
+            </div>
 
           </div>
         </div>
