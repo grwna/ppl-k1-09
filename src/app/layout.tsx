@@ -36,7 +36,7 @@ export default function RootLayout({
                     </QueryClientProvider>
                 </main>
 
-                <Footer/>
+                {/* <Footer/> */}
             </body>
         </html>
     );
