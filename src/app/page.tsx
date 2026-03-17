@@ -34,68 +34,70 @@ export default function Home() {
       <NavigationBar/>
 
       {/* =------------------------------------ banner + offer for donor or loan --------------------------- */}
-      <div className="relative w-full h-[60%] overflow-hidden flex flex-1 flex-col">
+      <div className="relative w-full h-[80%] overflow-hidden flex flex-1 flex-col">
 
         {/* dua div di bawah ini itu gradient sm gambar */}
         <div className="bg-[url(../../public/landing-banner-image.svg)] absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"/>
 
         <div className="absolute inset-0 z-10 bg-linear-to-t from-white via-white/20 to-transparent" />
 
-        <div className="absolute inset-0 z-20 bg-[#07B0C8]/70 bg-linear-to-t from-white to-transparent" />
+        {/* <div class="bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%  */}
+        <div className="absolute inset-0 z-20 bg-linear-to-b from-[#07B0C8]/65 from-0% via-[#07B0C8]/30 via-50% to-white to-100%" />
 
         {/* container for the main content */}
-        <div className="relative z-30 w-full flex-1 flex flex-col items-center justify-end">
+        <div className="relative z-30 w-full flex-1 flex flex-col items-center justify-start">
 
           {/* title */}
-          <div className={`${plusJakartaSansFont.className} w-full h-full font-extrabold text-white flex justify-start items-center pl-[5%] text-shadow-2xs text-[56px]`}>
+          <div className={`${plusJakartaSansFont.className} w-full h-[40%] font-extrabold text-white flex justify-start items-center pl-[5%] pt-[5%] text-shadow-2xs text-[56px]`}>
             Empowering Students with Interest-Free Loans
           </div>
 
           {/* captions */}
-          <div className={`${plusJakartaSansFont.className} w-full h-full font-extrabold text-white flex justify-start items-center pl-[5%]`}>
+          <div className={`${plusJakartaSansFont.className} w-full h-[20%] font-medium text-white flex justify-start items-center pl-[5%]`}>
             In collaboration with Rumah Amal Salman, RAS1 provides ethical, Sharia-compliant financial assistance to students in need - with absolutely zero interest charged.
           </div>
 
           {/* become a donor + apply for a loan container */}
-          <div className="flex w-full h-full justify-center items-center">
+          <div className="flex w-full h-[30%] justify-center items-center p-2">
 
             {/* become a donor + apply for a loan block */}
-            <div className="flex w-[90%] h-full justify-center items-center">
+            <div className="flex w-[90%] h-full justify-center items-center shadow-[0_10px_6px_-2px_rgba(0,0,0,0.1)] rounded-2xl">
 
               {/* become a donor block */}
-              <div className="flex w-[50%] bg-white p-2 rounded-l-2xl">
+              <div className="flex w-[50%] h-full bg-white p-2 rounded-l-2xl">
                 {/* donor logo */}
-                <div className="">
+                <div className="w-[10%] h-fit flex justify-center items-center bg-[#FCB82E]/6 rounded-full">
                   <Image
                     src={HandCoins}
                     alt="Coin handing logo"
+                    className="m-2"
                   />
                 </div>
 
                 {/* captions for becoming a donor */}
-                <div className="">
+                <div className="w-[90%] h-full flex flex-col justify-start items-start">
 
                   {/* title caption */}
-                  <div>
+                  <div className={`${plusJakartaSansFont.className} w-full h-[30%] text-start font-semibold tracking-wide flex justify-start items-center`}>
                     Become a donor
                   </div>
 
                   {/* main caption */}
-                  <div>
+                  <div className={`${plusJakartaSansFont.className} w-full h-[30%] text-start font-normal text-sm flex justify-center items-center`}>
                     Help fund interest-free loans and support students in achieving their educational dreams.
                   </div>
 
                   {/* CTA become a donor */}
-                  <div className="flex justify-center items-center">
+                  <div className="w-full h-[40%] flex justify-start items-center">
 
-                    <div className="bg-[#FCB82E] flex w-[80%] justify-center items-center">
+                    <div className="bg-[#FCB82E] flex w-[40%] h-[80%] justify-center items-center rounded-2xl">
                       {/* caption */}
-                      <div className="flex w-full h-full justify-center items-center">
+                      <div className={`${plusJakartaSansFont.className} flex w-[80%] h-full text-sm font-medium text-white justify-center items-center`}>
                         Become a donor
                       </div>
 
                       {/* arrow right */}
-                      <div className="flex w-full h-full justify-center items-center">
+                      <div className="flex w-[20%] h-full justify-center items-center">
                         <Image
                           src={ArrowRightWhite}
                           alt="Right White Arrow"
@@ -108,53 +110,53 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* apply for a loan block */}
-              <div className="flex w-[50%] bg-white p-2 rounded-r-2xl">
-                {/* education logo */}
-                <div className="">
+              {/* apply for a lon block */}
+              <div className="flex w-[50%] h-full bg-white p-2 rounded-r-2xl">
+                {/* eduacation logo */}
+                <div className="w-[10%] h-fit flex justify-center items-center bg-[#07B0C8]/6 rounded-full">
                   <Image
                     src={GraduationCap}
                     alt="Education logo"
+                    className="m-2"
                   />
                 </div>
 
-                {/* captions for appllying for a loan */}
-                <div className="">
+                {/* captions for becoming a donor */}
+                <div className="w-[90%] h-full flex flex-col justify-start items-start">
 
                   {/* title caption */}
-                  <div>
+                  <div className={`${plusJakartaSansFont.className} w-full h-[30%] text-start font-semibold tracking-wide flex justify-start items-center`}>
                     Apply for a Loan
                   </div>
 
                   {/* main caption */}
-                  <div>
+                  <div className={`${plusJakartaSansFont.className} w-full h-[30%] text-start font-normal text-sm flex justify-center items-center`}>
                     Students can apply for an interest-free loan to cover tuition, books, and living expenses.
                   </div>
 
-                  {/* CTA apply a loan */}
-                  <div className="flex justify-center items-center">
-                    <div className="bg-[#07B0C8] flex w-[80%] justify-center items-center">
+                  {/* CTA become a donor */}
+                  <div className="w-full h-[40%] flex justify-start items-center">
+
+                    <div className="bg-[#07B0C8] flex w-[40%] h-[80%] justify-center items-center rounded-2xl">
                       {/* caption */}
-                      <div className="flex w-full h-full justify-center items-center">
+                      <div className={`${plusJakartaSansFont.className} flex w-[80%] h-full text-sm font-medium text-white justify-center items-center`}>
                         Apply for a Loan
                       </div>
 
                       {/* arrow right */}
-                      <div className="flex w-full h-full justify-center items-center">
+                      <div className="flex w-[20%] h-full justify-center items-center">
                         <Image
                           src={ArrowRightWhite}
                           alt="Right White Arrow"
                         />
                       </div>
-
                     </div>
 
                   </div>
 
                 </div>
-
               </div>
-              
+
             </div>
     
           </div>
