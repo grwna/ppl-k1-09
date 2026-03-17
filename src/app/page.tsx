@@ -37,13 +37,13 @@ export default function Home() {
 
   return (
     // main container
-    <div className="w-full h-screen">
+    <div className="w-full min-h-screen">
 
       {/* ----------------------------- navigation bar -----------------------------------*/}
       <NavigationBar/>
 
       {/* =------------------------------------ banner + offer for donor or loan --------------------------- */}
-      <div className="relative w-full h-[80%] overflow-hidden flex flex-1 flex-col">
+      <div className="relative w-full h-[80vh] flex flex-1 flex-col">
 
         {/* dua div di bawah ini itu gradient sm gambar */}
         <div className="bg-[url(../../public/landing-banner-image.svg)] absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"/>
@@ -175,7 +175,7 @@ export default function Home() {
       </div>
 
       {/* --------------------------- how it works + the steps of working in rumah amal salman ----------------- */}
-      <div className="flex w-full h-[70%] justify-center items-center">
+      <div className="flex w-full h-[70vh] justify-center items-center">
 
         {/* title + separator + caption */}
         <div className="flex flex-col justify-start items-center">
@@ -232,7 +232,7 @@ export default function Home() {
       </div>
 
       {/* -------------------------- impact in numbers (total donated + students helped + interest charged) -------------------- */}
-      <div className="bg-[#07B0C8] flex w-full h-[65%] justify-center items-center">
+      <div className="bg-[#07B0C8] flex w-full h-[70vh] justify-center items-center">
 
         {/* title + separator + caption */}
         <div className="w-full h-full flex flex-col justify-center items-center">
@@ -265,7 +265,7 @@ export default function Home() {
       </div>
 
       {/* ---------------------------- trust + transparency + steps for trust and transparency --------------------------- */}
-      <div className="flex w-full h-[75%] justify-center items-center">
+      <div className="flex w-full h-[75vh] justify-center items-center">
 
         <div className="flex flex-col justify-start items-center">
           {/* title */}
@@ -295,7 +295,7 @@ export default function Home() {
           </div>
 
           {/* certification */}
-          <div className="h-[10%] w-[50%] flex justify-between items-center pt-4">
+          <div className="h-[10%] w-[55%] flex justify-between items-center pt-4">
             
             <LandingCertificationBox logo={LockGreySign} alt="Lock Grey Logo" caption="SSL Secured"/>
             <LandingCertificationBox logo={LockGreySign} alt="Lock Grey Logo" caption="PCI DSS Compliant"/>
@@ -308,7 +308,7 @@ export default function Home() {
       </div>
 
       {/* --------------------------------- call to action (ready to make a difference?) ----------------------------- */}
-      <div className="flex flex-col justify-center items-center w-full h-[45%] bg-[#07B0C8] m-4 rounded-2xl">
+      <div className="flex flex-col justify-center items-center w-full h-[45vh] bg-[#07B0C8] m-4 rounded-2xl">
 
         {/* title : Ready to make a difference? */}
         <div className={`${plusJakartaSansFont.className} w-full h-[30%] flex justify-center items-end text-white font-bold text-[40px]`}>

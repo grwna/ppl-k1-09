@@ -1,5 +1,11 @@
 
 import Image from "next/image";
+import localFont from "next/font/local";
+
+const plusJakartaSansFont = localFont({
+    src: "../../../public/fonts/PlusJakartaSans-VariableFont.ttf",
+    display: 'swap',
+});
 
 export default function LandingCertificationBox(props : {logo : string, alt: string, caption : string}) {
 
@@ -10,10 +16,12 @@ export default function LandingCertificationBox(props : {logo : string, alt: str
                 <Image 
                     src={props.logo}
                     alt={props.alt}
+                    width={10}
+                    height={10}
                 />
             </div>
 
-            <div className="flex w-[90%] h-full justify-center items-center text-sm">
+            <div className={`${plusJakartaSansFont.className} flex w-[95%] h-full justify-center items-center text-sm text-center`}>
                 {props.caption}
             </div>
 
