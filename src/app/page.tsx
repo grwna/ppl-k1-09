@@ -226,29 +226,29 @@ export default function Home() {
       <div className="bg-[#07B0C8] flex w-full h-[65%] justify-center items-center">
 
         {/* title + separator + caption */}
-        <div className="flex flex-col justify-center items-center">
+        <div className="w-full h-full flex flex-col justify-center items-center">
           {/* title */}
-          <div>
+          <div className={`${plusJakartaSansFont.className} font-bold text-[38px] text-white h-[15%] w-full text-center`}>
             Our Impact in Numbers
           </div>
 
           {/* separator */}
-          <div className="bg-[#FCB82E] h-0.5 w-50"/>
+          <div className="bg-[#FCB82E] h-1 w-40"/>
 
           {/* caption */}
-          <div>
+          <div className={`${plusJakartaSansFont.className} font-light text-sm text-white h-[10%] w-full text-center flex justify-center items-center`}>
             Every number represents real lives changed through the power of ethical giving.
           </div>
           
           {/* grid of how it works (it is actually implemented using flex, so please don't be misled) */}
-          <div className="flex justify-center items-center">
+          <div className="flex justify-between items-center h-[65%] w-full py-2 px-4">
 
             {/* total donated container */}
             <LandingImpactInNumberBox logo={DollarSign} alt="Dollar Sign" title="Rp 2.5B+" subtitle="Total Donated" caption="Funds raised from generous donors across Indonesia" />
             {/* total donated container */}
-            <LandingImpactInNumberBox logo={DollarSign} alt="Dollar Sign" title="Rp 2.5B+" subtitle="Total Donated" caption="Funds raised from generous donors across Indonesia" />
+            <LandingImpactInNumberBox logo={PersonSign} alt="Dollar Sign" title="500+" subtitle="Students Helped" caption="Lives transformed through accessible education funding" />
             {/* total donated container */}
-            <LandingImpactInNumberBox logo={DollarSign} alt="Dollar Sign" title="Rp 2.5B+" subtitle="Total Donated" caption="Funds raised from generous donors across Indonesia" />
+            <LandingImpactInNumberBox logo={PercentageSign} alt="Dollar Sign" title="0%" subtitle="Zero Interest Charged" caption="Fully Sharia-compliant, ethical financial assistance" />
 
           </div>
         </div>
