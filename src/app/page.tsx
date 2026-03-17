@@ -5,6 +5,15 @@ import ShieldSign from "../../public/shield.svg"
 import DollarSign from "../../public/dollar.svg"
 import PersonSign from "../../public/person.svg"
 import PercentageSign from "../../public/percentage.svg"
+import ChecklistSign from "../../public/checklist.svg"
+import EyeSign from "../../public/eye.svg"
+import LockSign from "../../public/lock.svg"
+import MedalSign from "../../public/medal.svg"
+import ReportSign from "../../public/report.svg"
+import LockGreySign from "../../public/lock-grey.svg"
+import HeartSign from "../../public/heart.svg"
+import WhiteGraduationCapSign from "../../public/white-graduation-cap.svg"
+import BlackRightArrow from "../../public/black-arrow-right.svg"
 import ArrowRightWhite from "../../public/arrow-right-white.svg"
 import GraduationCap from "../../public/graduation-cap.svg"
 import HandCoins from "../../public/hand-coins.svg"
@@ -256,43 +265,42 @@ export default function Home() {
       </div>
 
       {/* ---------------------------- trust + transparency + steps for trust and transparency --------------------------- */}
-      <div className="flex w-full h-[65%] justify-center items-center">
+      <div className="flex w-full h-[75%] justify-center items-center">
 
-        {/* title + separator + caption */}
-        <div className="flex flex-col justify-center items-center">
+        <div className="flex flex-col justify-start items-center">
           {/* title */}
-          <div>
+          <div className={`${plusJakartaSansFont.className} w-full h-[20%] text-[38px] flex justify-center items-center font-bold`}>
             Trust & Transparency
           </div>
 
           {/* separator */}
-          <div className="bg-[#07B0C8] h-0.5 w-50"/>
+          <div className="bg-[#07B0C8] h-1 w-40"/>
 
           {/* caption */}
-          <div>
+          <div className={`${plusJakartaSansFont.className} w-[55%] h-[20%] p-4 flex justify-center items-center font-medium text-[#666666] text-center text-sm`}>
             Your trust is our foundation. We maintain the highest standards of security, transparency, and ethical financial management.
           </div>
           
           {/* grid of trust and transparency */}
-          <div className="grid grid-cols-3 grid-rows-2 justify-center items-center">
+          <div className="w-full h-[40%] grid grid-cols-3 grid-rows-2 justify-center items-center gap-4 p-2">
 
             {/* secure payment gateway container */}
             <LandingTrustTransparencyBox logo={ShieldSign} alt="Shield Logo" title="Secure Payment " caption="All transactions are protected with bank-level SSL encryption and secure processing."/>
-            <LandingTrustTransparencyBox logo={ShieldSign} alt="Shield Logo" title="Secure Payment " caption="All transactions are protected with bank-level SSL encryption and secure processing."/>
-            <LandingTrustTransparencyBox logo={ShieldSign} alt="Shield Logo" title="Secure Payment " caption="All transactions are protected with bank-level SSL encryption and secure processing."/>
-            <LandingTrustTransparencyBox logo={ShieldSign} alt="Shield Logo" title="Secure Payment " caption="All transactions are protected with bank-level SSL encryption and secure processing."/>
-            <LandingTrustTransparencyBox logo={ShieldSign} alt="Shield Logo" title="Secure Payment " caption="All transactions are protected with bank-level SSL encryption and secure processing."/>
-            <LandingTrustTransparencyBox logo={ShieldSign} alt="Shield Logo" title="Secure Payment " caption="All transactions are protected with bank-level SSL encryption and secure processing."/>
+            <LandingTrustTransparencyBox logo={ReportSign} alt="Report Logo" title="Transparency Reports" caption="Quarterly financial reports are published openly for full accountability to donors."/>
+            <LandingTrustTransparencyBox logo={LockSign} alt="Lock Logo" title="Data Privacy " caption="Student and donor information is protected under strict privacy policies."/>
+            <LandingTrustTransparencyBox logo={MedalSign} alt="Medal Logo" title="Certified Non-Profit " caption="Officially registered and independently audited non-profit organization."/>
+            <LandingTrustTransparencyBox logo={EyeSign} alt="Eye Logo" title="Open Audit Trail" caption="Every loan and donation is tracked and verifiable through our open ledger."/>
+            <LandingTrustTransparencyBox logo={ChecklistSign} alt="Checklist Logo" title="Sharia Compliant " caption="All financial operations are reviewed and certified as fully Sharia-compliant."/>
 
           </div>
 
           {/* certification */}
-          <div className="h-[10%] w-[80%] flex justify-center items-center">
+          <div className="h-[10%] w-[50%] flex justify-between items-center pt-4">
             
-            <LandingCertificationBox logo={ShieldSign} alt="Shield Logo" caption="SSL Secured"/>
-            <LandingCertificationBox logo={ShieldSign} alt="Shield Logo" caption="SSL Secured"/>
-            <LandingCertificationBox logo={ShieldSign} alt="Shield Logo" caption="SSL Secured"/>
-            <LandingCertificationBox logo={ShieldSign} alt="Shield Logo" caption="SSL Secured"/>
+            <LandingCertificationBox logo={LockGreySign} alt="Lock Grey Logo" caption="SSL Secured"/>
+            <LandingCertificationBox logo={LockGreySign} alt="Lock Grey Logo" caption="PCI DSS Compliant"/>
+            <LandingCertificationBox logo={LockGreySign} alt="Lock Grey Logo" caption="ISO 27001"/>
+            <LandingCertificationBox logo={LockGreySign} alt="Lock Grey Logo" caption="Sharia Compliant"/>
 
           </div>
         </div>
@@ -300,43 +308,43 @@ export default function Home() {
       </div>
 
       {/* --------------------------------- call to action (ready to make a difference?) ----------------------------- */}
-      <div className="flex flex-col justify-center items-center w-full h-[35%]">
+      <div className="flex flex-col justify-center items-center w-full h-[45%] bg-[#07B0C8] m-4 rounded-2xl">
 
         {/* title : Ready to make a difference? */}
-        <div>
-          Ready to make a difference?
+        <div className={`${plusJakartaSansFont.className} w-full h-[30%] flex justify-center items-end text-white font-bold text-[40px]`}>
+          Ready to Make a Difference?
         </div>
 
         {/* caption */}
-        <div>
+        <div className={`${plusJakartaSansFont.className} flex justify-center items-end w-[60%] h-[20%] text-center text-white font-light`}>
           Whether you want to support a student's future or need financial help for your education, Rumah Amal Salman is here for you. Join our growing community of changemakers.
         </div>
 
         {/* cta : become a donor + apply for a loan */}
-        <div className="flex justify-center items-center w-full">
+        <div className="flex justify-center items-center w-full h-[55%]">
 
           {/* CTA become a donor */}
-          <div className="flex justify-end items-center w-[50%] p-2">
-            <div className="bg-[#FCB82E] flex w-[80%] justify-center items-center">
+          <div className="flex justify-end items-start w-[30%] h-[60%] p-2">
+            <div className="bg-[#FCB82E] flex w-[80%] h-[70%] justify-center items-center shadow-lg rounded-2xl">
 
               {/* arrow right */}
-              <div className="flex w-full h-full justify-center items-center">
+              <div className="flex w-[20%] h-full justify-end items-center">
                 <Image
-                  src={ArrowRightWhite}
-                  alt="Right White Arrow"
+                  src={HeartSign}
+                  alt="Heart Sign"
                 />
               </div>
 
               {/* caption */}
-              <div className="flex w-full h-full justify-center items-center">
+              <div className={`${plusJakartaSansFont.className} flex w-[60%] h-full justify-center items-center text-[16px] text-black font-semibold`}>
                 Become a Donor
               </div>
 
               {/* arrow right */}
-              <div className="flex w-full h-full justify-center items-center">
+              <div className="flex w-[20%] h-full justify-start items-center">
                 <Image
-                  src={ArrowRightWhite}
-                  alt="Right White Arrow"
+                  src={BlackRightArrow}
+                  alt="Right Black Arrow"
                 />
               </div>
 
@@ -345,24 +353,24 @@ export default function Home() {
           </div>
           
           {/* CTA apply a loan */}
-          <div className="flex justify-start items-center w-[50%] p-2">
-            <div className="bg-[#07B0C8] flex w-[80%] justify-center items-center">
+          <div className="flex justify-start items-start w-[30%] h-[60%] p-2">
+            <div className="bg-[#07B0C8] flex w-[80%] h-[70%] justify-center items-center border border-white rounded-2xl">
 
               {/* arrow right */}
-              <div className="flex w-full h-full justify-center items-center">
+              <div className="flex w-[20%] h-full justify-end items-center">
                 <Image
-                  src={ArrowRightWhite}
-                  alt="Right White Arrow"
+                  src={WhiteGraduationCapSign}
+                  alt="White Graduation Cap"
                 />
               </div>
 
               {/* caption */}
-              <div className="flex w-full h-full justify-center items-center">
+              <div className={`${plusJakartaSansFont.className} flex w-[60%] h-full justify-center items-center text-[16px] text-white font-semibold`}>
                 Apply for a Loan
               </div>
 
               {/* arrow right */}
-              <div className="flex w-full h-full justify-center items-center">
+              <div className="flex w-[20%] h-full justify-start items-center">
                 <Image
                   src={ArrowRightWhite}
                   alt="Right White Arrow"
