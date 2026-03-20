@@ -1,65 +1,390 @@
 import Image from "next/image";
+import localFont from "next/font/local";
+
+import ShieldSign from "../../public/shield.svg"
+import DollarSign from "../../public/dollar.svg"
+import PersonSign from "../../public/person.svg"
+import PercentageSign from "../../public/percentage.svg"
+import ChecklistSign from "../../public/checklist.svg"
+import EyeSign from "../../public/eye.svg"
+import LockSign from "../../public/lock.svg"
+import MedalSign from "../../public/medal.svg"
+import ReportSign from "../../public/report.svg"
+import LockGreySign from "../../public/lock-grey.svg"
+import HeartSign from "../../public/heart.svg"
+import WhiteGraduationCapSign from "../../public/white-graduation-cap.svg"
+import BlackRightArrow from "../../public/black-arrow-right.svg"
+import ArrowRightWhite from "../../public/arrow-right-white.svg"
+import GraduationCap from "../../public/graduation-cap.svg"
+import HandCoins from "../../public/hand-coins.svg"
+import ArrowRightGrey from "../../public/arrow-right-grey.svg"
+import NavigationBar from "@/components/ui/navbar";
+import LandingTrustTransparencyBox from "@/components/ui/landing_trust_transparency_box";
+import LandingCertificationBox from "@/components/ui/landing_certification_box";
+import LandingHowItWorkBox from "@/components/ui/landing_how_it_work_box";
+import LandingImpactInNumberBox from "@/components/ui/landing_impact_in_number_box";
+
+// init fonts
+const plusJakartaSansFont = localFont({
+    src: "../../public/fonts/PlusJakartaSans-VariableFont.ttf",
+    display: 'swap',
+});
 
 export default function Home() {
+
+  // init variables
+
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    // main container
+    <div className="w-full min-h-screen">
+
+      {/* ----------------------------- navigation bar -----------------------------------*/}
+      <NavigationBar/>
+
+      {/* =------------------------------------ banner + offer for donor or loan --------------------------- */}
+      <div className="relative w-full h-[80vh] flex flex-1 flex-col">
+
+        {/* dua div di bawah ini itu gradient sm gambar */}
+        <div className="bg-[url(../../public/landing-banner-image.svg)] absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"/>
+
+        <div className="absolute inset-0 z-10 bg-linear-to-t from-white via-white/20 to-transparent" />
+
+        {/* <div class="bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%  */}
+        <div className="absolute inset-0 z-20 bg-linear-to-b from-[#07B0C8]/65 from-0% via-[#07B0C8]/30 via-50% to-[#F9FAFB] to-100%" />
+
+        {/* container for the main content */}
+        <div className="relative z-30 w-full flex-1 flex flex-col items-center justify-start">
+
+          {/* title */}
+          <div className={`${plusJakartaSansFont.className} w-full h-[40%] font-extrabold text-white flex justify-start items-center pl-[5%] pt-[5%] text-shadow-2xs text-[56px]`}>
+            Empowering Students with Interest-Free Loans
+          </div>
+
+          {/* captions */}
+          <div className={`${plusJakartaSansFont.className} w-full h-[20%] font-medium text-white flex justify-start items-center pl-[5%]`}>
+            In collaboration with Rumah Amal Salman, RAS1 provides ethical, Sharia-compliant financial assistance to students in need - with absolutely zero interest charged.
+          </div>
+
+          {/* become a donor + apply for a loan container */}
+          <div className="flex w-full h-[30%] justify-center items-center p-2">
+
+            {/* become a donor + apply for a loan block */}
+            <div className="flex w-[90%] h-full justify-center items-center shadow-[0_10px_6px_-2px_rgba(0,0,0,0.1)] rounded-2xl">
+
+              {/* become a donor block */}
+              <div className="flex w-[50%] h-full bg-white p-2 rounded-l-2xl">
+                {/* donor logo */}
+                <div className="w-[10%] h-fit flex justify-center items-center bg-[#FCB82E]/6 rounded-full">
+                  <Image
+                    src={HandCoins}
+                    alt="Coin handing logo"
+                    className="m-2"
+                  />
+                </div>
+
+                {/* captions for becoming a donor */}
+                <div className="w-[90%] h-full flex flex-col justify-start items-start">
+
+                  {/* title caption */}
+                  <div className={`${plusJakartaSansFont.className} w-full h-[30%] text-start font-semibold tracking-wide flex justify-start items-center`}>
+                    Become a donor
+                  </div>
+
+                  {/* main caption */}
+                  <div className={`${plusJakartaSansFont.className} w-full h-[30%] text-start font-normal text-sm flex justify-center items-center`}>
+                    Help fund interest-free loans and support students in achieving their educational dreams.
+                  </div>
+
+                  {/* CTA become a donor */}
+                  <div className="w-full h-[40%] flex justify-start items-center">
+
+                    <div className="bg-[#FCB82E] flex w-[40%] h-[80%] justify-center items-center rounded-2xl">
+                      {/* caption */}
+                      <div className={`${plusJakartaSansFont.className} flex w-[80%] h-full text-sm font-medium text-white justify-center items-center`}>
+                        Become a donor
+                      </div>
+
+                      {/* arrow right */}
+                      <div className="flex w-[20%] h-full justify-center items-center">
+                        <Image
+                          src={ArrowRightWhite}
+                          alt="Right White Arrow"
+                        />
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+
+              {/* apply for a lon block */}
+              <div className="flex w-[50%] h-full bg-white p-2 rounded-r-2xl">
+                {/* eduacation logo */}
+                <div className="w-[10%] h-fit flex justify-center items-center bg-[#07B0C8]/6 rounded-full">
+                  <Image
+                    src={GraduationCap}
+                    alt="Education logo"
+                    className="m-2"
+                  />
+                </div>
+
+                {/* captions for becoming a donor */}
+                <div className="w-[90%] h-full flex flex-col justify-start items-start">
+
+                  {/* title caption */}
+                  <div className={`${plusJakartaSansFont.className} w-full h-[30%] text-start font-semibold tracking-wide flex justify-start items-center`}>
+                    Apply for a Loan
+                  </div>
+
+                  {/* main caption */}
+                  <div className={`${plusJakartaSansFont.className} w-full h-[30%] text-start font-normal text-sm flex justify-center items-center`}>
+                    Students can apply for an interest-free loan to cover tuition, books, and living expenses.
+                  </div>
+
+                  {/* CTA become a donor */}
+                  <div className="w-full h-[40%] flex justify-start items-center">
+
+                    <div className="bg-[#07B0C8] flex w-[40%] h-[80%] justify-center items-center rounded-2xl">
+                      {/* caption */}
+                      <div className={`${plusJakartaSansFont.className} flex w-[80%] h-full text-sm font-medium text-white justify-center items-center`}>
+                        Apply for a Loan
+                      </div>
+
+                      {/* arrow right */}
+                      <div className="flex w-[20%] h-full justify-center items-center">
+                        <Image
+                          src={ArrowRightWhite}
+                          alt="Right White Arrow"
+                        />
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+    
+          </div>
+
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+      </div>
+
+      {/* --------------------------- how it works + the steps of working in rumah amal salman ----------------- */}
+      <div className="flex w-full h-[70vh] justify-center items-center">
+
+        {/* title + separator + caption */}
+        <div className="flex flex-col justify-start items-center">
+          {/* title */}
+          <div className={`${plusJakartaSansFont.className} w-full h-[20%] text-[38px] flex justify-center items-center font-bold`}>
+            How It Works
+          </div>
+
+          {/* separator */}
+          <div className="bg-[#07B0C8] h-1 w-40"/>
+
+          {/* caption */}
+          <div className={`${plusJakartaSansFont.className} w-[55%] h-[20%] p-4 flex justify-center items-center font-medium text-[#666666] text-center text-sm`}>
+            Our streamlined process ensures every donation makes a real impact and every student gets fair, transparent access.
+          </div>
+          
+          {/* grid of how it works (it is actually implemented using flex, so please don't be misled) */}
+          <div className="w-full h-[50%] flex justify-center items-center">
+
+            {/* fund donation container */}
+            <div className="w-[25%] h-full flex justify-center items-center">
+              <LandingHowItWorkBox color="#FCB82E" number="1" title="Fund Donation" caption="Generous donors contribute to our collective fund pool, creating a sustainable source of interest-free loans for students who need it most." />
+            </div>
+
+            {/* right arrow */}
+            <div className="h-full w-[10%] flex justify-center items-center">
+              <Image 
+                src={ArrowRightGrey}
+                alt="Grey Right Arrow"
+              />
+            </div>
+
+            {/* application & verification container */}
+            <div className="w-[25%] h-full flex justify-center items-center">
+              <LandingHowItWorkBox color="#07B0C8" number="2" title="Application & Verification" caption="Students submit their loan applications, which are carefully reviewed and verified by our transparent and independent selection committee." />
+            </div>
+
+            {/* right arrow */}
+            <div className="h-full w-[10%] flex justify-center items-center">
+              <Image 
+                src={ArrowRightGrey}
+                alt="Grey Right Arrow"
+              />
+            </div>
+
+            {/* impactful distribution container */}
+            <div className="w-[25%] h-full flex justify-center items-center">
+              <LandingHowItWorkBox color="#10B981" number="3" title="Impactful Distribution" caption="Once approved, loans are distributed directly to students - empowering them to focus on their education without any financial burden or interest." />
+            </div>
+
+          </div>
         </div>
-      </main>
+
+      </div>
+
+      {/* -------------------------- impact in numbers (total donated + students helped + interest charged) -------------------- */}
+      <div className="bg-[#07B0C8] flex w-full h-[70vh] justify-center items-center">
+
+        {/* title + separator + caption */}
+        <div className="w-full h-full flex flex-col justify-center items-center">
+          {/* title */}
+          <div className={`${plusJakartaSansFont.className} font-bold text-[38px] text-white h-[15%] w-full text-center`}>
+            Our Impact in Numbers
+          </div>
+
+          {/* separator */}
+          <div className="bg-[#FCB82E] h-1 w-40"/>
+
+          {/* caption */}
+          <div className={`${plusJakartaSansFont.className} font-light text-sm text-white h-[10%] w-full text-center flex justify-center items-center`}>
+            Every number represents real lives changed through the power of ethical giving.
+          </div>
+          
+          {/* grid of how it works (it is actually implemented using flex, so please don't be misled) */}
+          <div className="flex justify-between items-center h-[65%] w-full py-2 px-4">
+
+            {/* total donated container */}
+            <LandingImpactInNumberBox logo={DollarSign} alt="Dollar Sign" title="Rp 2.5B+" subtitle="Total Donated" caption="Funds raised from generous donors across Indonesia" />
+            {/* total donated container */}
+            <LandingImpactInNumberBox logo={PersonSign} alt="Dollar Sign" title="500+" subtitle="Students Helped" caption="Lives transformed through accessible education funding" />
+            {/* total donated container */}
+            <LandingImpactInNumberBox logo={PercentageSign} alt="Dollar Sign" title="0%" subtitle="Zero Interest Charged" caption="Fully Sharia-compliant, ethical financial assistance" />
+
+          </div>
+        </div>
+
+      </div>
+
+      {/* ---------------------------- trust + transparency + steps for trust and transparency --------------------------- */}
+      <div className="flex w-full h-[75vh] justify-center items-center">
+
+        <div className="flex flex-col justify-start items-center">
+          {/* title */}
+          <div className={`${plusJakartaSansFont.className} w-full h-[20%] text-[38px] flex justify-center items-center font-bold`}>
+            Trust & Transparency
+          </div>
+
+          {/* separator */}
+          <div className="bg-[#07B0C8] h-1 w-40"/>
+
+          {/* caption */}
+          <div className={`${plusJakartaSansFont.className} w-[55%] h-[20%] p-4 flex justify-center items-center font-medium text-[#666666] text-center text-sm`}>
+            Your trust is our foundation. We maintain the highest standards of security, transparency, and ethical financial management.
+          </div>
+          
+          {/* grid of trust and transparency */}
+          <div className="w-full h-[40%] grid grid-cols-3 grid-rows-2 justify-center items-center gap-4 p-2">
+
+            {/* secure payment gateway container */}
+            <LandingTrustTransparencyBox logo={ShieldSign} alt="Shield Logo" title="Secure Payment " caption="All transactions are protected with bank-level SSL encryption and secure processing."/>
+            <LandingTrustTransparencyBox logo={ReportSign} alt="Report Logo" title="Transparency Reports" caption="Quarterly financial reports are published openly for full accountability to donors."/>
+            <LandingTrustTransparencyBox logo={LockSign} alt="Lock Logo" title="Data Privacy " caption="Student and donor information is protected under strict privacy policies."/>
+            <LandingTrustTransparencyBox logo={MedalSign} alt="Medal Logo" title="Certified Non-Profit " caption="Officially registered and independently audited non-profit organization."/>
+            <LandingTrustTransparencyBox logo={EyeSign} alt="Eye Logo" title="Open Audit Trail" caption="Every loan and donation is tracked and verifiable through our open ledger."/>
+            <LandingTrustTransparencyBox logo={ChecklistSign} alt="Checklist Logo" title="Sharia Compliant " caption="All financial operations are reviewed and certified as fully Sharia-compliant."/>
+
+          </div>
+
+          {/* certification */}
+          <div className="h-[10%] w-[55%] flex justify-between items-center pt-4">
+            
+            <LandingCertificationBox logo={LockGreySign} alt="Lock Grey Logo" caption="SSL Secured"/>
+            <LandingCertificationBox logo={LockGreySign} alt="Lock Grey Logo" caption="PCI DSS Compliant"/>
+            <LandingCertificationBox logo={LockGreySign} alt="Lock Grey Logo" caption="ISO 27001"/>
+            <LandingCertificationBox logo={LockGreySign} alt="Lock Grey Logo" caption="Sharia Compliant"/>
+
+          </div>
+        </div>
+
+      </div>
+
+      {/* --------------------------------- call to action (ready to make a difference?) ----------------------------- */}
+      <div className="flex flex-col justify-center items-center w-full h-[45vh] bg-[#07B0C8] m-4 rounded-2xl">
+
+        {/* title : Ready to make a difference? */}
+        <div className={`${plusJakartaSansFont.className} w-full h-[30%] flex justify-center items-end text-white font-bold text-[40px]`}>
+          Ready to Make a Difference?
+        </div>
+
+        {/* caption */}
+        <div className={`${plusJakartaSansFont.className} flex justify-center items-end w-[60%] h-[20%] text-center text-white font-light`}>
+          Whether you want to support a student's future or need financial help for your education, Rumah Amal Salman is here for you. Join our growing community of changemakers.
+        </div>
+
+        {/* cta : become a donor + apply for a loan */}
+        <div className="flex justify-center items-center w-full h-[55%]">
+
+          {/* CTA become a donor */}
+          <div className="flex justify-end items-start w-[30%] h-[60%] p-2">
+            <div className="bg-[#FCB82E] flex w-[80%] h-[70%] justify-center items-center shadow-lg rounded-2xl">
+
+              {/* arrow right */}
+              <div className="flex w-[20%] h-full justify-end items-center">
+                <Image
+                  src={HeartSign}
+                  alt="Heart Sign"
+                />
+              </div>
+
+              {/* caption */}
+              <div className={`${plusJakartaSansFont.className} flex w-[60%] h-full justify-center items-center text-[16px] text-black font-semibold`}>
+                Become a Donor
+              </div>
+
+              {/* arrow right */}
+              <div className="flex w-[20%] h-full justify-start items-center">
+                <Image
+                  src={BlackRightArrow}
+                  alt="Right Black Arrow"
+                />
+              </div>
+
+            </div>
+
+          </div>
+          
+          {/* CTA apply a loan */}
+          <div className="flex justify-start items-start w-[30%] h-[60%] p-2">
+            <div className="bg-[#07B0C8] flex w-[80%] h-[70%] justify-center items-center border border-white rounded-2xl">
+
+              {/* arrow right */}
+              <div className="flex w-[20%] h-full justify-end items-center">
+                <Image
+                  src={WhiteGraduationCapSign}
+                  alt="White Graduation Cap"
+                />
+              </div>
+
+              {/* caption */}
+              <div className={`${plusJakartaSansFont.className} flex w-[60%] h-full justify-center items-center text-[16px] text-white font-semibold`}>
+                Apply for a Loan
+              </div>
+
+              {/* arrow right */}
+              <div className="flex w-[20%] h-full justify-start items-center">
+                <Image
+                  src={ArrowRightWhite}
+                  alt="Right White Arrow"
+                />
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
   );
 }
