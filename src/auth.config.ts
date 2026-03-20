@@ -3,7 +3,7 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 
 export const authConfig: NextAuthConfig = {
-  secret: process.env.AUTH_SECRET || "WvjtXn9vyZ6NXrP7dp5s/73SCHrryA14liz8dj/XUZ8=",
+  secret: process.env.AUTH_SECRET,
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,

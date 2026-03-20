@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Dummy env vars required for build-time validation
-      DATABASE_URL: "postgresql://postgres.wzpttfhkiahplzpyezqu:Mj5qNUHRAaERP3dJ@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
-      AUTH_SECRET: "dummy-secret-at-least-32-chars-long"
-      NEXTAUTH_URL: "http://localhost:3000"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      NEXTAUTH_URL: ${{ github.ref == 'refs/heads/main' && 'https://loan-management-ras.vercel.app' || 'https://loan-ppl-dev.vercel.app' }}
 
     steps:
       - name: Checkout Code
