@@ -1,118 +1,129 @@
 import { PrismaClient } from "../src/generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
+import bcrypt from "bcryptjs";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  const password = await bcrypt.hash("admin123", 10);
+
+  /*
+  =====================
+  ROLES
+  =====================
+  */
   const adminRole = await prisma.role.create({
-    data: { name: "ADMIN" },
+    data: {
+      id: crypto.randomUUID(),
+      name: "ADMIN",
+    },
   });
 
   const donorRole = await prisma.role.create({
-    data: { name: "DONOR" },
+    data: {
+      id: crypto.randomUUID(),
+      name: "DONOR",
+    },
   });
 
   const borrowerRole = await prisma.role.create({
-    data: { name: "BORROWER" },
+    data: {
+      id: crypto.randomUUID(),
+      name: "BORROWER",
+    },
   });
+
+  /*
+  =====================
+  USERS
+  =====================
+  */
 
   const admin = await prisma.user.create({
     data: {
+      id: crypto.randomUUID(),
       name: "Admin",
       email: "admin@example.com",
-      password: "admin123",
+      password: password,
     },
   });
 
   const donor = await prisma.user.create({
     data: {
-      name: "Donor Satu",
+      id: crypto.randomUUID(),
+      name: "Donor User",
       email: "donor@example.com",
-      password: "donor123",
+      password: password,
     },
   });
 
   const borrower = await prisma.user.create({
     data: {
-      name: "Peminjam Satu",
+      id: crypto.randomUUID(),
+      name: "Borrower User",
       email: "borrower@example.com",
-      password: "borrower123",
+      password: password,
     },
   });
+
+  /*
+  =====================
+  USER ROLES
+  =====================
+  */
 
   await prisma.userRole.createMany({
     data: [
-      { userId: admin.id, roleId: adminRole.id },
-      { userId: donor.id, roleId: donorRole.id },
-      { userId: borrower.id, roleId: borrowerRole.id },
+      {
+        userId: admin.id,
+        roleId: adminRole.id,
+      },
+      {
+        userId: donor.id,
+        roleId: donorRole.id,
+      },
+      {
+        userId: borrower.id,
+        roleId: borrowerRole.id,
+      },
     ],
   });
+
+  /*
+  =====================
+  DONOR FUND
+  =====================
+  */
 
   const donorFund = await prisma.donorFund.create({
     data: {
+      id: crypto.randomUUID(),
       donorId: donor.id,
-      amount: 10000000,
-      remaining: 10000000,
+      amount: 1000,
+      remaining: 1000,
     },
   });
 
-  // const investorFund = await prisma.investorFund.create({
-  //   data: {
-  //     sourceName: "Investor Awal",
-  //     totalAmount: 2000000000,
-  //     remaining: 2000000000,
-  //   },
-  // });
+  /*
+  =====================
+  LOAN APPLICATION
+  =====================
+  */
 
   const application = await prisma.loanApplication.create({
     data: {
+      id: crypto.randomUUID(),
       borrowerId: borrower.id,
-      requestedAmount: 5000000,
-      description: "Modal usaha warung makan",
-      collateralUrl: "https://example-r2/collateral/jaminan1.jpg",
-      collateralDescription: "BPKB Motor Honda 2018",
+      requestedAmount: 500,
+      description: "Small business capital",
+      collateralUrl: "https://example.com/collateral.jpg",
+      collateralDescription: "Motorcycle BPKB",
     },
   });
 
-  const loan = await prisma.loan.create({
-    data: {
-      applicationId: application.id,
-      approvedAmount: 5000000,
-      status: "ACTIVE",
-      approvedAt: new Date(),
-      dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 90),
-    },
-  });
-
-  await prisma.loanFunding.createMany({
-    data: [
-      {
-        loanId: loan.id,
-        sourceType: "DONOR",
-        donorFundId: donorFund.id,
-        amount: 2000000,
-      },
-      // {
-      //   loanId: loan.id,
-      //   sourceType: "INVESTOR",
-      //   investorFundId: investorFund.id,
-      //   amount: 3000000,
-      // },
-    ],
-  });
-
-  await prisma.repayment.create({
-    data: {
-      loanId: loan.id,
-      amount: 1000000,
-      paidAt: new Date(),
-      status: "CONFIRMED",
-    },
-  });
-
-  console.log("Seed data created");
+  console.log("Seed completed");
 }
 
 main()
