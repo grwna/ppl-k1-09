@@ -43,8 +43,8 @@ export default function SignUpPage() {
             const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    email, 
+                body: JSON.stringify({
+                    email,
                     password,
                     name: email.split('@')[0], // Default name from email part
                 }),
@@ -182,7 +182,7 @@ export default function SignUpPage() {
                     </div>
 
                 </div>
-                
+
             </div>
 
         </div>
