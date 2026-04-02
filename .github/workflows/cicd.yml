@@ -21,7 +21,7 @@ on:
       - '.gitignore'
 
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-latest
     env:
       # Dummy env vars required for build-time validation
@@ -53,7 +53,7 @@ jobs:
 
   deploy:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
-    needs: build
+    needs: validate
     runs-on: ubuntu-latest
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
