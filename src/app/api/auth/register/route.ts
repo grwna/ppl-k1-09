@@ -1,48 +1,25 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { RegisterSchema } from "@/schemas/auth.schema";
+import { UserService } from "@/services/user.service";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, role } = await req.json();
+    const body = await req.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email dan password wajib diisi" }, { status: 400 });
+    const parsed = RegisterSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0].message },
+        { status: 400 }
+      );
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
+    const user = await UserService.register(parsed.data);
+    return NextResponse.json({ message: "Registrasi berhasil", user }, { status: 201 });
+  } catch (error) {
+    if (error instanceof Error && error.message === "EMAIL_TAKEN") {
       return NextResponse.json({ error: "Email sudah terdaftar" }, { status: 400 });
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const selectedRole = role || "DONATUR";
-
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        roles: {
-          create: {
-            role: {
-              connectOrCreate: {
-                where: { name: selectedRole },
-                create: { name: selectedRole }
-              }
-            }
-          }
-        },
-      },
-      include: {
-        roles: {
-          include: { role: true }
-        }
-      }
-    });
-
-    return NextResponse.json({ message: "Registrasi berhasil", user: newUser }, { status: 201 });
-  } catch (error) {
     console.error("Register error:", error);
     return NextResponse.json({ error: "Terjadi kesalahan sistem" }, { status: 500 });
   }
