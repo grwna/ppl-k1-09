@@ -22,8 +22,10 @@ export const authConfig: NextAuthConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        token.roles = (user as any).roles?.map((ur: any) => ur.role?.name || ur.role) || [];
+        // Handle both raw Prisma includes {role: {name: 'ADMIN'}} and flat arrays ['ADMIN'] safely
+        token.roles = (user as any).roles?.map((ur: any) => 
+          typeof ur === "string" ? ur : (ur.role?.name || ur.role)
+        ) || [];
       }
       return token;
     },

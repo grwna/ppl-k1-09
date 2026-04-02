@@ -19,7 +19,7 @@ export default auth((req) => {
     const isLoggedInRoute = pathname === "/logged-in";
 
     // 1. Redirect pengguna yang belum login ke login (untuk dashboard & root & logged-in)
-    if ((isDashboardRoute || isRootRoute || isLoggedInRoute) && !isLoggedIn) {
+    if ((isDashboardRoute || isLoggedInRoute) && !isLoggedIn) {
         return NextResponse.redirect(new URL("/login", req.nextUrl));
     }
 
