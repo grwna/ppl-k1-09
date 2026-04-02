@@ -8,6 +8,7 @@ on:
       - 'public/**'       # Ignore static assets (images, favicons, etc.)
       - '.vscode/**'      # Ignore VS Code settings
       - '.gitignore'      # Ignore git configuration
+      - '.github/**'
       - '.prettierrc'     # Ignore formatting configs (optional)
       - 'LICENSE'         # Ignore license files
   
@@ -18,6 +19,7 @@ on:
       - 'docs/**'
       - 'public/**'
       - '.vscode/**'
+      - '.github/**'
       - '.gitignore'
 
 jobs:
