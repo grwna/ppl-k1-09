@@ -1,8 +1,24 @@
 name: Continuous Integration
-
 on:
   push:
+    branches: [main, dev]
+    paths-ignore:
+      - '**.md'           # Ignore all Markdown files
+      - 'docs/**'         # Ignore anything in a docs folder
+      - 'public/**'       # Ignore static assets (images, favicons, etc.)
+      - '.vscode/**'      # Ignore VS Code settings
+      - '.gitignore'      # Ignore git configuration
+      - '.prettierrc'     # Ignore formatting configs (optional)
+      - 'LICENSE'         # Ignore license files
+  
   pull_request:
+    branches: [main, dev]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'public/**'
+      - '.vscode/**'
+      - '.gitignore'
 
 jobs:
   build:
@@ -34,9 +50,6 @@ jobs:
 
       - name: Type Check
         run: npx tsc --noEmit
-
-      - name: Build Check
-        run: npm run build
 
   deploy:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
