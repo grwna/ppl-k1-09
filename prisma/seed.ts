@@ -14,6 +14,7 @@ async function main() {
   ROLES
   =====================
   */
+  // Roles must match ROLES constants in src/lib/roles.ts
   const adminRole = await prisma.role.create({
     data: {
       id: crypto.randomUUID(),
