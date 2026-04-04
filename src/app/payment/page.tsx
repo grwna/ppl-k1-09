@@ -10,17 +10,28 @@ const plusJakartaSansFont = localFont({
   display: 'swap',
 });
 
-type PaymentMethod = 'qris' | 'bank_transfer' | null;
+type PaymentMethod = 'qris' | 'va' | null;
+type VABank =
+  | 'bca'
+  | 'bri'
+  | 'bni'
+  | 'permata'
+  | 'cimb'
+  | 'mandiri_bill'
+  | 'danamon'
+  | 'bsi'
+  | 'seabank';
 type TransactionType = 'donation' | 'repayment';
 
 export default function PaymentPage({
-  searchParams,
+  searchParams
 }: {
   searchParams: Promise<{ type?: 'donation' | 'repayment'; referenceId?: string }>;
 }) {
   const router = useRouter();
   const params = use(searchParams);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
+  const [vaBank, setVaBank] = useState<VABank>('bca');
   const [amount, setAmount] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -38,8 +49,7 @@ export default function PaymentPage({
     setError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError('');
 
     if (!paymentMethod) {
@@ -52,6 +62,11 @@ export default function PaymentPage({
       return;
     }
 
+    if (paymentMethod === 'qris' && parseFloat(amount) < 1500) {
+      setError('Minimum QRIS amount is IDR 1,500');
+      return;
+    }
+
     if (!referenceId) {
       setError('Reference ID is missing');
       return;
@@ -60,7 +75,7 @@ export default function PaymentPage({
     setLoading(true);
 
     try {
-      const response = await fetch('/api/payments/xendit/charge', {
+      const response = await fetch('/api/payments/midtrans/charge', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,8 +85,9 @@ export default function PaymentPage({
           transactionType,
           referenceId,
           paymentMethod,
+          vaBank: paymentMethod === 'va' ? vaBank : undefined,
           description: `${transactionType === 'donation' ? 'Donation via' : 'Loan Repayment via'} ${
-            paymentMethod === 'qris' ? 'QRIS' : 'Bank Transfer'
+            paymentMethod === 'qris' ? 'QRIS' : 'Virtual Account'
           }`,
         }),
       });
@@ -91,9 +107,11 @@ export default function PaymentPage({
         transactionType: transactionType,
         paymentMethod: paymentMethod,
         qrCodeUrl: data.qrCodeUrl || '',
-        invoiceUrl: data.invoiceUrl || '',
-        bankAccountNumber: data.bankAccountNumber || '',
+        vaNumber: data.vaNumber || '',
         bankCode: data.bankCode || '',
+        billerCode: data.billerCode || '',
+        billKey: data.billKey || '',
+        expiryTime: data.expiryTime || '',
       }).toString();
 
       router.push(`/payment/confirm?${redirectUrl}`);
@@ -168,9 +186,9 @@ export default function PaymentPage({
 
           {/* Bank Transfer Option */}
           <div
-            onClick={() => handlePaymentMethodSelect('bank_transfer')}
+            onClick={() => handlePaymentMethodSelect('va')}
             className={`p-4 border-2 rounded-lg cursor-pointer transition ${
-              paymentMethod === 'bank_transfer'
+              paymentMethod === 'va'
                 ? 'border-[#07B0C8] bg-[#07B0C8]/10'
                 : 'border-gray-200 bg-white hover:border-gray-300'
             }`}
@@ -178,22 +196,43 @@ export default function PaymentPage({
             <div className="flex items-center">
               <div
                 className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
-                  paymentMethod === 'bank_transfer'
+                  paymentMethod === 'va'
                     ? 'border-[#07B0C8] bg-[#07B0C8]'
                     : 'border-gray-300'
                 }`}
               >
-                {paymentMethod === 'bank_transfer' && (
+                {paymentMethod === 'va' && (
                   <div className="w-2 h-2 bg-white rounded-full" />
                 )}
               </div>
               <div>
-                <p className="font-medium text-gray-900">Bank Transfer (VA)</p>
-                <p className="text-xs text-gray-500">Transfer to virtual account</p>
+                <p className="font-medium text-gray-900">Virtual Account (VA)</p>
+                <p className="text-xs text-gray-500">Pay to bank VA number from Midtrans</p>
               </div>
             </div>
           </div>
         </div>
+
+        {paymentMethod === 'va' && (
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">VA Bank</label>
+            <select
+              value={vaBank}
+              onChange={(e) => setVaBank(e.target.value as VABank)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#07B0C8]"
+            >
+              <option value="bca">BCA</option>
+              <option value="bri">BRI</option>
+              <option value="bni">BNI</option>
+              <option value="permata">Permata</option>
+              <option value="cimb">CIMB</option>
+              <option value="mandiri_bill">Mandiri Bill</option>
+              <option value="danamon">Danamon</option>
+              <option value="bsi">BSI</option>
+              <option value="seabank">SeaBank</option>
+            </select>
+          </div>
+        )}
 
         {/* Amount Input */}
         <div className="mb-6">
@@ -205,12 +244,14 @@ export default function PaymentPage({
             value={amount}
             onChange={handleAmountChange}
             placeholder="Enter amount"
-            min="1000"
+            min={paymentMethod === 'qris' ? '1500' : '1000'}
             step="1000"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#07B0C8]"
             disabled={!paymentMethod}
           />
-          <p className="text-xs text-gray-500 mt-1">Minimum: IDR 1,000</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Minimum: {paymentMethod === 'qris' ? 'IDR 1,500 (QRIS)' : 'IDR 1,000'}
+          </p>
         </div>
 
         {/* Submit Button */}

@@ -95,12 +95,13 @@ model UserRole {
 model DonorFund {
   id           String        @id @default(uuid()) @db.Uuid
   donorId      String        @db.Uuid
+  paymentTransactionId String? @unique @db.Uuid
   amount       Decimal       @db.Decimal(12, 2)
   remaining    Decimal       @db.Decimal(12, 2)
   createdAt    DateTime      @default(now())
   donor        User          @relation(fields: [donorId], references: [id], onDelete: Cascade)
   loanFundings LoanFunding[]
-  paymentTransactions PaymentTransaction[]
+  paymentTransaction PaymentTransaction? @relation(fields: [paymentTransactionId], references: [id], onDelete: SetNull)
 }
 
 model LoanApplication {
@@ -143,11 +144,12 @@ model LoanFunding {
 model Repayment {
   id     String          @id @default(uuid()) @db.Uuid
   loanId String          @db.Uuid
+  paymentTransactionId String? @unique @db.Uuid
   amount Decimal         @db.Decimal(12, 2)
   paidAt DateTime
   status RepaymentStatus
   loan   Loan            @relation(fields: [loanId], references: [id], onDelete: Cascade)
-  paymentTransaction PaymentTransaction[]
+  paymentTransaction PaymentTransaction? @relation(fields: [paymentTransactionId], references: [id], onDelete: SetNull)
 }
 
 model Notification {
@@ -163,15 +165,16 @@ model Notification {
 model PaymentTransaction {
   id          String              @id @default(uuid()) @db.Uuid
   externalId  String
-  referenceRepayment String?              @db.Uuid
-  referenceDonorFund String?              @db.Uuid
+  referenceId String              @db.Uuid
   category    TransactionCategory
   amount      Decimal             @db.Decimal(12, 2)
   paymentType String
   status      TransactionStatus
   response    Json
-  repayment   Repayment?           @relation(fields: [referenceRepayment], references: [id], onDelete: Cascade)
-  donorFund   DonorFund?           @relation(fields: [referenceDonorFund], references: [id], onDelete: Cascade)
+  donorFund   DonorFund?
+  repayment   Repayment?
+
+  @@index([referenceId, category])
 }
 
 model ApplicationStatusHistory {
