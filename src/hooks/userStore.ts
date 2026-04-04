@@ -1,11 +1,7 @@
 
 
 import { create } from "zustand"
-
-type User = {
-    username : string,
-    email : string,
-}
+import { User }  from "@/types/user"
 
 type UserStore = {
     // these are the variables that the store store
