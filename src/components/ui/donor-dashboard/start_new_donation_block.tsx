@@ -31,7 +31,7 @@ export default function DonorDashboard_StartNewDonation() {
                 {/* input new donation amount */}
                 <input
                     value={donationAmount}
-                    onChange={(e) => useDonationStore((state) => state.setDonation(Number(e.target.value)))}
+                    onChange={(e) => useDonationStore((state) => state.setAmount(Number(e.target.value)))}
                     onKeyDown={(e) => e.key === "Enter"}
                     className="flex gap-2 border border-black/20 bg-white p-4 w-full h-[40%] rounded-2xl shadow-2xl"
                     placeholder="Rp0"

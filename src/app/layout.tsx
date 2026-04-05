@@ -40,6 +40,7 @@ export default function RootLayout({
                     <QueryClientProvider>
                         <main className="grow">
                             {children}
+                            <Footer />
                         </main>
                     </QueryClientProvider>
                 </AuthSessionProvider>
