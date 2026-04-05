@@ -10,23 +10,23 @@ import { useApplicationProgressStore } from "@/hooks/applicationProgressStore";
 
 export default function ApplicantForm_DocumentUploadSection() {
 
-    const handleUpload = async () => {
+    // const handleUpload = async () => {
 
-        // construct the object to be sent
-        const family_card_file = useApplicationProgressStore((state) => state.family_card)
-        const student_id_card_file = useApplicationProgressStore((state) => state.student_id_card)
+    //     // construct the object to be sent
+    //     const family_card_file = useApplicationProgressStore((state) => state.family_card)
+    //     const student_id_card_file = useApplicationProgressStore((state) => state.student_id_card)
         
-        if (!family_card_file || !student_id_card_file) return
+    //     if (!family_card_file || !student_id_card_file) return
 
-        const formData = new FormData()
-        formData.append("student_id_card_file", student_id_card_file)
-        formData.append("family_card_file", family_card_file)
+    //     const formData = new FormData()
+    //     formData.append("student_id_card_file", student_id_card_file)
+    //     formData.append("family_card_file", family_card_file)
 
-        await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-        })
-    }
+    //     await fetch("/api/upload", {
+    //         method: "POST",
+    //         body: formData,
+    //     })
+    // }
 
     return (
         // main container
@@ -111,7 +111,7 @@ export default function ApplicantForm_DocumentUploadSection() {
                 </div>
 
                 {/* continue button */}
-                <div onClick={handleUpload}>
+                <div>
                     Continue
                 </div>
             </div>

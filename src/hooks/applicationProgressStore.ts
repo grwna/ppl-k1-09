@@ -21,7 +21,11 @@ type ApplicationProgressStore = {
     student_id_card : File | null
     family_card : File | null
 
+    // terms and agreement
+    comply_to_terms_and_agreement : boolean 
+
     // these are functions to call and define the create() section of zustand
+    incrementStep : () => void
     setStep : (step : number) => void
 
     // personal information
@@ -37,9 +41,12 @@ type ApplicationProgressStore = {
     // document uploads
     setStudentIdCard : (student_id_card : File) => void
     setFamilyCard : (family_card : File) => void
+
+    // terms and agreement
+    switchComplyToTermsAndAgreement : () => void
 }
 
-export const useApplicationProgressStore = create<ApplicationProgressStore>((set) => ({
+export const useApplicationProgressStore = create<ApplicationProgressStore>((set, get) => ({
     application_progress : null,
     
     // personal information
@@ -56,8 +63,33 @@ export const useApplicationProgressStore = create<ApplicationProgressStore>((set
     student_id_card : null,
     family_card : null,
     
+    // terms and agreement
+    comply_to_terms_and_agreement : false,
+
+    incrementStep() {
+        set((state) => {
+            if (!state.application_progress) return state
+
+            return {
+            application_progress: {
+                ...state.application_progress,
+                step: state.application_progress.step + 1,
+            },
+            }
+        })
+    },
+
     setStep(step) {
-        set({ application_progress : {step} })
+        set((state) => {
+            if (!state.application_progress) return state
+
+            return {
+                application_progress: {
+                    ...state.application_progress,
+                    step,
+                },
+            }
+        })
     },
     
     // personal information
@@ -93,6 +125,11 @@ export const useApplicationProgressStore = create<ApplicationProgressStore>((set
     
     setFamilyCard(family_card) {
         set({ family_card : family_card })
+    },
+
+    // terms and agreement
+    switchComplyToTermsAndAgreement() {
+        set( {comply_to_terms_and_agreement : !this.comply_to_terms_and_agreement})
     },
 
 }))
