@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function DonorDashboard_StartNewDonation() {
 
     // initialize variables
-    const donationAmount = useDonationStore((state) => state.donation?.value)
+    const donationAmount = useDonationStore((state) => state.donation?.amount)
     
     return (
         // main container

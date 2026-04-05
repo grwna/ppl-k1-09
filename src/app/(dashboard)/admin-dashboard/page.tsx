@@ -23,16 +23,16 @@ export default function AdminDashboardPage(){
             <div className="flex justify-between items-center">
 
                 {/* summary of pool funds */}
-                <SummaryOfAspect title="Total Pool Funds" value="Rp 2.458.920.000" update_caption="+12.5% from last month" logo={DollarSign} alt="Dollar Sign"/>         
+                <SummaryOfAspect title="Total Pool Funds" value="Rp 2.458.920.000" update_caption="+12.5% from last month" logo={DollarSign} alt="Dollar Sign" value_color="07B0C8" update_caption_color="00A63E"/>         
 
                 {/* summary of total disbursed /payed for now */}
-                <SummaryOfAspect title="Total Pool Funds" value="Rp 2.458.920.000" update_caption="+12.5% from last month" logo={DollarSign} alt="Dollar Sign"/>
+                <SummaryOfAspect title="Total Pool Funds" value="Rp 2.458.920.000" update_caption="+12.5% from last month" logo={DollarSign} alt="Dollar Sign" value_color="000000" update_caption_color="00A63E"/>
 
                 {/* summaryof pending applications */}
-                <SummaryOfAspect title="Total Pool Funds" value="Rp 2.458.920.000" update_caption="+12.5% from last month" logo={DollarSign} alt="Dollar Sign"/>
+                <SummaryOfAspect title="Total Pool Funds" value="Rp 2.458.920.000" update_caption="+12.5% from last month" logo={DollarSign} alt="Dollar Sign" value_color="FCB82E" update_caption_color="00A63E"/>
 
                 {/* summary of defauhlt rate */}
-                <SummaryOfAspect title="Total Pool Funds" value="Rp 2.458.920.000" update_caption="+12.5% from last month" logo={DollarSign} alt="Dollar Sign"/>
+                <SummaryOfAspect title="Total Pool Funds" value="Rp 2.458.920.000" update_caption="+12.5% from last month" logo={DollarSign} alt="Dollar Sign" value_color="E7000B" update_caption_color="E7000B"/>
             
             </div>
 
