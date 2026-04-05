@@ -52,9 +52,7 @@ export default function ApplicantForm_DocumentUploadSection() {
 
                 {/* upload block */}
                 <div>
-
                     <ApplicantForm_StudentIdCardUploadBlock />
-
                 </div>
 
             </div>
@@ -69,9 +67,7 @@ export default function ApplicantForm_DocumentUploadSection() {
 
                 {/* upload block */}
                 <div>
-
                     <ApplicantForm_FamilyCardUploadBlock />
-
                 </div>
 
             </div>
