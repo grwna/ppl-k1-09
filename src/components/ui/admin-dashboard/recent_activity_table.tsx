@@ -1,4 +1,3 @@
-
 import {
   Table,
   TableBody,
@@ -9,70 +8,67 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-const invoices = [
+const activities = [
   {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    totalAmount: "$250.00",
-    paymentMethod: "Credit Card",
+    id: "1",
+    activity: "New Donation of Rp 1,000,000,000 from Fajar Kurniawan",
+    time: "2 hours ago",
+    amount: "+Rp 1,000,000,000",
+    type: "income",
   },
   {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    totalAmount: "$150.00",
-    paymentMethod: "PayPal",
+    id: "2",
+    activity: "Loan #12 Approved for Muhammad Fithra Rizki",
+    time: "4 hours ago",
+    amount: "-Rp 50,000,000",
+    type: "expense",
   },
   {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "$350.00",
-    paymentMethod: "Bank Transfer",
+    id: "3",
+    activity: "New Application Submitted from Felix Chandra",
+    time: "5 hours ago",
+    amount: "—",
+    type: "neutral",
   },
   {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
+    id: "4",
+    activity: "Loan #8 Disbursement Completed",
+    time: "1 day ago",
+    amount: "-Rp 25,000,000",
+    type: "expense",
   },
   {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
+    id: "5",
+    activity: "Payment Reminder Sent to Loan #45",
+    time: "1 day ago",
+    amount: "—",
+    type: "neutral",
   },
 ]
 
 export default function AdminDashboard_RecentActivityTable() {
   return (
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableCaption>A list of your recent activities.</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-25">Invoice</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Method</TableHead>
+          <TableHead>Activity</TableHead>
+          <TableHead>Time</TableHead>
           <TableHead className="text-right">Amount</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.slice(0, 3).map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell>{invoice.paymentMethod}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+        {activities.map((item) => (
+          <TableRow key={item.id}>
+            <TableCell className="font-medium">{item.activity}</TableCell>
+            <TableCell>{item.time}</TableCell>
+            <TableCell 
+              className={`text-right ${
+                item.type === "income" ? "text-green-600" : ""
+              }`}
+            >
+              {item.amount}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
