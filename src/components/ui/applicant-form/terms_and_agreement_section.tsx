@@ -30,7 +30,7 @@ export default function ApplicantForm_TermsAndAgreementSection() {
         formData.append("family_card_file", family_card_file)
         formData.append("terms_and_agreement_compliance", String(terms_and_agreement_compliance))
 
-        await fetch("/api/upload", {
+        await fetch("/api/documents/upload", {
             method: "POST",
             body: formData,
         })
