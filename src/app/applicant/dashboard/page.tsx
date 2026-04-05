@@ -7,6 +7,7 @@ import { useUserStore } from "@/hooks/userStore";
 import { useEffect, useState } from "react";
 import ApplicantDashboard_PaymentScheduleRow from "@/components/ui/applicant-dashboard/payment_schedule_block";
 import ApplicantDashboard_ApplicationProgressComponent from "@/components/ui/applicant-dashboard/application_progress_block";
+import ApplicantDashboard_ApplicantNavbar from "@/components/ui/applicant-dashboard/applicant_navbar";
 
 export default function ApplicantDashboardPage(){
     
@@ -42,6 +43,12 @@ export default function ApplicantDashboardPage(){
     return (
       // main container
       <div>
+
+        {/* nav bar */}
+        <div>
+          <ApplicantDashboard_ApplicantNavbar />
+        </div>
+
         {/* title */}
         <div>
           Welcome back, {username}
