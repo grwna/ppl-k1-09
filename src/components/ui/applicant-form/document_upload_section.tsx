@@ -28,6 +28,17 @@ export default function ApplicantForm_DocumentUploadSection() {
     //     })
     // }
 
+    const incrementStep = useApplicationProgressStore((state) => state.incrementStep)
+    const decrementStep = useApplicationProgressStore((state) => state.decrementStep)
+
+    const handleBack = async () => {
+        decrementStep()
+    }
+
+    const handleContinue = async () => {
+        incrementStep()
+    }
+
     return (
         // main container
         <div>
@@ -106,12 +117,12 @@ export default function ApplicantForm_DocumentUploadSection() {
             <div className="flex w-full h-fit">
 
                 {/* back button */}
-                <div>
+                <div onClick={handleBack}>
                     Back
                 </div>
 
                 {/* continue button */}
-                <div>
+                <div onClick={handleContinue}>
                     Continue
                 </div>
             </div>

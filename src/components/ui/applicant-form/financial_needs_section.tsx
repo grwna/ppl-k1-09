@@ -8,6 +8,17 @@ export default function ApplicantForm_FinancialNeedsSection() {
     const requested_amount = useApplicationProgressStore((state) => (state.requested_amount))
     const loan_purpose = useApplicationProgressStore((state) => (state.loan_purpose))
 
+    const incrementStep = useApplicationProgressStore((state) => state.incrementStep)
+    const decrementStep = useApplicationProgressStore((state) => state.decrementStep)
+
+    const handleBack = async () => {
+        decrementStep()
+    }
+
+    const handleContinue = async () => {
+        incrementStep()
+    }
+    
     return (
         <div>
 
@@ -85,12 +96,12 @@ export default function ApplicantForm_FinancialNeedsSection() {
             <div className="flex w-full h-fit">
 
                 {/* back button */}
-                <div>
+                <div onClick={handleBack}>
                     Back
                 </div>
 
                 {/* continue button */}
-                <div>
+                <div onClick={handleContinue}>
                     Continue
                 </div>
             </div>

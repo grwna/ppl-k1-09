@@ -1,4 +1,6 @@
 
+"use client"
+
 import ApplicantForm_PersonalInformationSection from "@/components/ui/applicant-form/personal_information_section";
 import ApplicantForm_FinancialNeedsSection from "@/components/ui/applicant-form/financial_needs_section";
 import ApplicantForm_DocumentUploadSection from "@/components/ui/applicant-form/document_upload_section";

@@ -11,7 +11,7 @@ import { useUserStore } from "@/hooks/userStore";
 
 // init fonts
 const plusJakartaSansFont = localFont({
-    src: "../../../public/fonts/PlusJakartaSans-VariableFont.ttf",
+    src: "../../../../public/fonts/PlusJakartaSans-VariableFont.ttf",
     display: 'swap',
 });
 

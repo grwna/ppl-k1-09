@@ -41,33 +41,33 @@ export default function ApplicantDashboard_PaymentScheduleRow(props : {installme
             {/* symbol */}
             <div className="flex justify-start items-center rounded-full">
                 <Image
-                    src={installmentStatusColor[props.installment_status]['logo']}
+                    src={installmentStatusColor[props.installment_status]["logo"]}
                     alt={installmentStatusColor[props.installment_status]["alt"]}
                 />
             </div>
 
             {/* content : date, installment, and status */}
-            <div className="flex flex-col h-fit w-[65%]">
+            <div className="flex flex-col h-fit w-[65%] p-2">
 
                 {/* date */}
-                <div className="flex justify-center items-start">
+                <div className="flex justify-start items-start p-0.5">
                     {props.installment_date.toDateString()}
                 </div>
 
                 {/* installment */}
-                <div className="flex justify-center items-start">
+                <div className="flex justify-start items-start p-0.5">
                     Installment #{props.installment_order}
                 </div>
 
                 {/* status */}
-                <div className={`flex justify-center items-start text-[#${installmentStatusColor[props.installment_status]['text-hex']}] bg-[#${installmentStatusColor[props.installment_status]['bg-hex']}]`}>
+                <div className={`flex justify-start items-start text-[#${installmentStatusColor[props.installment_status]['text-hex']}] bg-[#${installmentStatusColor[props.installment_status]['bg-hex']}] p-0.5`}>
                     {props.installment_status}
                 </div>
 
             </div>
 
             {/* value of payment */}
-            <div className="flex h-fit w-[25%]">
+            <div className="flex h-fit w-[25%] justify-end items-center">
                 Rp {props.installment_value.toString()}
             </div>
 

@@ -36,6 +36,13 @@ export default function ApplicantForm_TermsAndAgreementSection() {
         })
     }
 
+    const decrementStep = useApplicationProgressStore((state) => state.decrementStep)
+    const switchComplyToTermsAndAgreement = useApplicationProgressStore((state) => state.switchComplyToTermsAndAgreement)
+
+    const handleBack = async () => {
+        decrementStep()
+    }
+
     return (
 
         // main container
@@ -109,8 +116,8 @@ export default function ApplicantForm_TermsAndAgreementSection() {
 
                 {/* cta action */}
                 <input
-                    type="radio"
-                    onChange={(e) => useApplicationProgressStore((state) => {state.switchComplyToTermsAndAgreement()})}
+                    type="checkbox"
+                    onChange={(e) => {switchComplyToTermsAndAgreement()}}
                     onKeyDown={(e) => e.key === "Enter"}
                     className={ `flex gap-2 border border-black/20 bg-white p-4 w-full h-[40%] rounded-2xl shadow-2xl`}
                 />
@@ -126,7 +133,7 @@ export default function ApplicantForm_TermsAndAgreementSection() {
             <div className="flex w-full h-fit">
 
                 {/* back button */}
-                <div>
+                <div onClick={handleBack}>
                     Back
                 </div>
 

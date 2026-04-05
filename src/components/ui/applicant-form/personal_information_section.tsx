@@ -8,6 +8,17 @@ export default function ApplicantForm_PersonalInformationSection() {
     const university_name = useApplicationProgressStore((state) => (state.university_name))
     const student_id_number = useApplicationProgressStore((state) => (state.student_id_number))
 
+    const incrementStep = useApplicationProgressStore((state) => state.incrementStep)
+    const decrementStep = useApplicationProgressStore((state) => state.decrementStep)
+
+    const handleBack = async () => {
+        decrementStep()
+    }
+
+    const handleContinue = async () => {
+        incrementStep()
+    }
+    
     return (
         <div>
 
@@ -66,7 +77,7 @@ export default function ApplicantForm_PersonalInformationSection() {
                 
                 {/* title */}
                 <div>
-                    Full name
+                    Student Id Number
                 </div>
 
                 {/* input */}
@@ -85,12 +96,12 @@ export default function ApplicantForm_PersonalInformationSection() {
             <div className="flex w-full h-fit">
 
                 {/* back button */}
-                <div>
+                <div onClick={handleBack}>
                     Back
                 </div>
 
                 {/* continue button */}
-                <div>
+                <div onClick={handleContinue}>
                     Continue
                 </div>
             </div>

@@ -25,6 +25,7 @@ type ApplicationProgressStore = {
     comply_to_terms_and_agreement : boolean 
 
     // these are functions to call and define the create() section of zustand
+    decrementStep : () => void
     incrementStep : () => void
     setStep : (step : number) => void
 
@@ -47,7 +48,7 @@ type ApplicationProgressStore = {
 }
 
 export const useApplicationProgressStore = create<ApplicationProgressStore>((set, get) => ({
-    application_progress : null,
+    application_progress : ({ step : 1}),
     
     // personal information
     full_name : null,
@@ -66,15 +67,46 @@ export const useApplicationProgressStore = create<ApplicationProgressStore>((set
     // terms and agreement
     comply_to_terms_and_agreement : false,
 
+    decrementStep() {
+        set((state) => {
+            if (!state.application_progress) return state
+
+            if (state.application_progress.step > 1) {
+                return {
+                    application_progress: {
+                        ...state.application_progress,
+                        step: state.application_progress.step - 1,
+                    },
+                }
+            } else {
+                return {
+                    application_progress: {
+                        ...state.application_progress,
+                        step: state.application_progress.step,
+                    },
+                }
+            }
+        })
+    },
+
     incrementStep() {
         set((state) => {
             if (!state.application_progress) return state
 
-            return {
-            application_progress: {
-                ...state.application_progress,
-                step: state.application_progress.step + 1,
-            },
+            if (state.application_progress.step < 4) {
+                return {
+                    application_progress: {
+                        ...state.application_progress,
+                        step: state.application_progress.step + 1,
+                    },
+                }
+            } else {
+                return {
+                    application_progress: {
+                        ...state.application_progress,
+                        step: state.application_progress.step,
+                    },
+                }
             }
         })
     },

@@ -75,10 +75,10 @@ export default function ApplicantDashboardPage(){
         </div>
 
         {/* next due date */}
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center w-full h-fit">
 
             {/* symbol */}
-            <div>
+            <div className="flex justify-center items-center w-[5%]">
                 <Image
                     src={CalendarLogo}
                     alt="Calendar Logo"
@@ -86,7 +86,7 @@ export default function ApplicantDashboardPage(){
             </div>
 
             {/* title + caption */}
-            <div>
+            <div className="flex flex-col justify-center items-start w-[90%]">
 
                 {/* title */}
                 <div>
@@ -100,7 +100,7 @@ export default function ApplicantDashboardPage(){
             </div>
 
             {/* pay now button */}
-            <div>
+            <div className="flex justify-center items-end w-[5%]">
                 Pay Now
             </div>
 
@@ -110,15 +110,15 @@ export default function ApplicantDashboardPage(){
         <div className="flex justify-between items-center">
 
           {/* payment schedules  */}
-          <div className="flex h-full w-[50%] justify-center items-center">
-            <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2025, 11, 25, 23, 59)} installment_order={1} installment_status="Paid"/>
-            <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2026, 0, 25, 23, 59)} installment_order={2} installment_status="Paid"/>
-            <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2026, 1, 25, 23, 59)} installment_order={3} installment_status="Paid"/>
-            <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2026, 2, 25, 23, 59)} installment_order={4} installment_status="Paid"/>
+          <div className="flex flex-col h-full w-[65%] justify-start items-center">
+            <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2025, 11, 25, 23, 59)} installment_order={1} installment_status="paid"/>
+            <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2026, 0, 25, 23, 59)} installment_order={2} installment_status="due_soon"/>
+            <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2026, 1, 25, 23, 59)} installment_order={3} installment_status="pending"/>
+            <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2026, 2, 25, 23, 59)} installment_order={4} installment_status="pending"/>
           </div>
 
           {/* application progress */}
-          <div className="flex h-full w-[50%] justify-center items-center">
+          <div className="flex h-full w-[35%] justify-center items-center">
             <ApplicantDashboard_ApplicationProgressComponent />
           </div>
 
