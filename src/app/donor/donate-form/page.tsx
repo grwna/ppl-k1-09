@@ -165,7 +165,7 @@ export default function DonateFormPage({
             <div className='flex justify-center items-center bg-[#07B0C8] rounded-full'>
 
               {/* number */}
-              <div className='flex justify-center items-center p-2'>
+              <div className='flex justify-center items-center p-2 text-white'>
                 1
               </div>
 
@@ -185,7 +185,7 @@ export default function DonateFormPage({
             <div className='flex justify-center items-center bg-[#07B0C8] rounded-full'>
 
               {/* number */}
-              <div className='flex justify-center items-center p-2'>
+              <div className='flex justify-center items-center p-2 text-white'>
                 2
               </div>
               
@@ -205,7 +205,7 @@ export default function DonateFormPage({
             <div className='flex justify-center items-center bg-[#07B0C8] rounded-full'>
 
               {/* number */}
-              <div className='flex justify-center items-center p-2'>
+              <div className='flex justify-center items-center p-2 text-white'>
                 3
               </div>
               
