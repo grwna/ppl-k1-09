@@ -13,8 +13,5 @@ export type VABank =
   | 'bni'
   | 'permata'
   | 'cimb'
-  | 'mandiri_bill'
-  | 'danamon'
-  | 'bsi'
-  | 'seabank';
+  | 'mandiri_bill';
 export type TransactionType = 'donation' | 'repayment';

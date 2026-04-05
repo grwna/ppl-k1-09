@@ -1,23 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Prisma } from '@/generated/prisma';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import {
-  getTransactionStatus,
-  getMidtransSimulatorLink,
-  mapMidtransStatus,
-  type VABank,
-} from '@/services/midtrans.service';
-import { createBusinessRecordFromSettledPayment } from '@/services/payment-fulfillment.service';
+import { buildPaymentTransactionDetail } from '@/services/payment-transaction-presenter.service';
+import { validatePaymentTransactionAccess } from '@/services/midtrans-payment-request.service';
 
 /**
  * GET /api/payments/midtrans/payments/[orderId]
- * Fetch payment status/details and sync to local PaymentTransaction.
+ * Fetch payment status/details from local PaymentTransaction.
  */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
+    const session = await auth();
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { orderId } = await params;
 
     if (!orderId) {
@@ -28,57 +29,49 @@ export async function GET(
       where: { externalId: orderId },
     });
 
-    const statusResult = await getTransactionStatus(orderId);
-    const mappedStatus = mapMidtransStatus(statusResult.status);
-    const finalStatus =
-      paymentTransaction?.status === 'SETTLEMENT' ? paymentTransaction.status : mappedStatus;
-
-    if (paymentTransaction) {
-      await prisma.paymentTransaction.update({
-        where: { id: paymentTransaction.id },
-        data: {
-          status: finalStatus,
-          response: statusResult.rawResponse as Prisma.InputJsonValue,
-        },
-      });
-
-      if (finalStatus === 'SETTLEMENT') {
-        await createBusinessRecordFromSettledPayment({
-          ...paymentTransaction,
-          status: finalStatus,
-        });
-      }
+    if (!paymentTransaction) {
+      return NextResponse.json({ error: 'Payment transaction not found' }, { status: 404 });
     }
 
-    const vaBank = (statusResult.bankCode || undefined) as VABank | undefined;
+    const currentUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const accessCheck = await validatePaymentTransactionAccess({
+      category: paymentTransaction.category,
+      referenceId: paymentTransaction.referenceId,
+      currentUserId: currentUser.id,
+      findLoanBorrowerId: async (loanId) => {
+        const loan = await prisma.loan.findUnique({
+          where: { id: loanId },
+          select: {
+            application: {
+              select: {
+                borrowerId: true,
+              },
+            },
+          },
+        });
+
+        return loan?.application.borrowerId || null;
+      },
+    });
+
+    if (!accessCheck.ok) {
+      return NextResponse.json({ error: accessCheck.error }, { status: accessCheck.status });
+    }
+
+    const detail = buildPaymentTransactionDetail(paymentTransaction);
 
     return NextResponse.json(
       {
         success: true,
-        data: {
-          orderId: statusResult.orderId,
-          transactionId: statusResult.transactionId,
-          status: finalStatus,
-          rawMidtransStatus: statusResult.status,
-          amount: statusResult.amount,
-          expiryTime: statusResult.expiryTime,
-          paymentType: statusResult.paymentType,
-          qris: {
-            qrCodeImageUrl: statusResult.qrCodeUrl,
-          },
-          va: {
-            bankCode: statusResult.bankCode,
-            vaNumber: statusResult.vaNumber,
-            billerCode: statusResult.billerCode,
-            billKey: statusResult.billKey,
-          },
-          simulator: {
-            url:
-              statusResult.paymentType === 'qris'
-                ? getMidtransSimulatorLink('qris')
-                : getMidtransSimulatorLink('va', vaBank),
-          },
-        },
+        data: detail,
       },
       { status: 200 }
     );

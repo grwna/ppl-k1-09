@@ -2,6 +2,7 @@
 
 import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import localFont from 'next/font/local';
 
@@ -20,6 +21,7 @@ export default function DonateFormPage({
 }) {
   
   const router = useRouter();
+  const { data: session, status } = useSession();
   const params = use(searchParams);
   const paymentMethod = useDonationStore((state) => (state.donation?.payment_method))
   const vaBank = useDonationStore((state) => (state.donation?.va_bank))
@@ -31,7 +33,8 @@ export default function DonateFormPage({
   const [error, setError] = useState<string>('');
 
   const transactionType: TransactionType = (params.type as TransactionType) || 'donation';
-  const referenceId = params.referenceId || '';
+  const referenceId =
+    params.referenceId || (transactionType === 'donation' ? session?.user?.id || '' : '');
 
   const handlePaymentMethodSelect = (method: PaymentMethod) => {
     setPaymentMethod(String(method));
@@ -69,7 +72,7 @@ export default function DonateFormPage({
     setLoading(true);
 
     try {
-      const response = await fetch('/api/payments/midtrans/charge', {
+      const response = await fetch('/api/payments/midtrans/payments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,15 +145,17 @@ export default function DonateFormPage({
         </div> */}
 
         {/* Missing Reference ID Warning */}
-        {!referenceId && (
+        {!referenceId && status !== 'loading' && (
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-yellow-900 text-sm">
-              <span className="font-medium">No reference ID found.</span>
-              {' For testing, use the '}
-              <Link href="/payment-test" className="font-medium text-yellow-700 hover:underline">
-                test page
-              </Link>
-              .
+              <span className="font-medium">
+                {transactionType === 'donation'
+                  ? 'Unable to determine the donor account.'
+                  : 'No reference ID found.'}
+              </span>
+              {transactionType === 'donation'
+                ? ' Please sign in again before continuing.'
+                : ' This payment still needs a repayment reference ID.'}
             </p>
           </div>
         )}
@@ -245,12 +250,12 @@ export default function DonateFormPage({
             <div className='flex justify-center items-center w-full h-fit p-1'>
               
               {/* 50.000 */}
-              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={(e) => setAmount(50000)}>
+              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={() => setAmount(50000)}>
                 50.000
               </div>
               
               {/* 100.000 */}
-              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={(e) => setAmount(100000)}>
+              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={() => setAmount(100000)}>
                 100.000
               </div>
               
@@ -260,12 +265,12 @@ export default function DonateFormPage({
             <div className='flex justify-center items-center w-full h-fit p-1'>
               
               {/* 250.000 */}
-              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={(e) => setAmount(250000)}>
+              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={() => setAmount(250000)}>
                 250.000
               </div>
               
               {/* 500.000 */}
-              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={(e) => setAmount(500000)}>
+              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={() => setAmount(500000)}>
                 500.000
               </div>
 
@@ -375,9 +380,6 @@ export default function DonateFormPage({
               <option value="permata">Permata</option>
               <option value="cimb">CIMB</option>
               <option value="mandiri_bill">Mandiri Bill</option>
-              <option value="danamon">Danamon</option>
-              <option value="bsi">BSI</option>
-              <option value="seabank">SeaBank</option>
             </select>
           </div>
         )}

@@ -101,6 +101,17 @@ Monotonic settlement rule (important):
 
 Creates Midtrans charge and stores `PaymentTransaction` with `PENDING` status.
 
+### Authentication
+
+This endpoint is the single create-payment API and is session-only.
+
+Rules:
+
+- Caller must be a logged-in user in this app
+- Anonymous requests return `401`
+- Donation always uses the logged-in user as the donor intent reference
+- Repayment requires a loan ID and the backend verifies that the logged-in user owns that loan before creating the Midtrans charge
+
 ### Request body (QRIS example)
 
 ```json
@@ -118,6 +129,24 @@ Creates Midtrans charge and stores `PaymentTransaction` with `PENDING` status.
   }
 }
 ```
+
+### Manual testing note
+
+You can still use `curl` or Postman for debugging, but only if you first authenticate and send a valid session cookie from this app.
+
+### Local developer fallback polling
+
+By default, payment confirmation relies on:
+
+- Midtrans webhook updates local `PaymentTransaction`
+- live server updates push local status changes to the confirmation page
+
+Optional local fallback:
+
+- set `MIDTRANS_DEV_FALLBACK_POLLING=true` in `.env`
+- this enables developer-only periodic reconciliation from Midtrans while the payment is still `PENDING`
+- useful when a teammate is testing locally and does not control the callback URL in Midtrans dashboard
+- leave it `false` when webhook delivery is configured correctly
 
 ### Request body (VA example)
 
@@ -144,7 +173,7 @@ Creates Midtrans charge and stores `PaymentTransaction` with `PENDING` status.
   - `transactionType=repayment` -> `referenceId` must be `loans.id`
 - minimum QRIS amount: **1500**
 - if `paymentMethod=va`, `vaBank` must be one of:
-  - `bca`, `bri`, `bni`, `permata`, `cimb`, `mandiri_bill`, `danamon`, `bsi`, `seabank`
+  - `bca`, `bri`, `bni`, `permata`, `cimb`, `mandiri_bill`
 
 ### Success response (QRIS example)
 
@@ -241,7 +270,7 @@ kalau ini display billercode sama billkey
 
 ### VA values to display (important)
 
-- Non-Mandiri VA (`bca`, `bri`, `bni`, `permata`, `cimb`, `danamon`, `bsi`, `seabank`):
+- Non-Mandiri VA (`bca`, `bri`, `bni`, `permata`, `cimb`):
   - show `bankCode`
   - show `vaNumber` (main payment number)
 - Mandiri VA (`mandiri_bill`):
@@ -284,7 +313,7 @@ Key response fields:
 
 - `paymentMethod` (required): `qris` or `va`
 - `vaBank` (required if `paymentMethod=va`):
-  - `bca`, `bri`, `bni`, `permata`, `cimb`, `mandiri_bill`, `danamon`, `bsi`, `seabank`
+  - `bca`, `bri`, `bni`, `permata`, `cimb`, `mandiri_bill`
 
 ---
 
@@ -308,11 +337,11 @@ Also available for frontend compatibility:
 
 ---
 
-## Compatibility Endpoints
+## Operational Endpoints
 
-These routes are still kept for current frontend compatibility:
+Active related routes:
 
-- `POST /api/payments/midtrans/charge`
+- `POST /api/payments/midtrans/payments`
 - `GET /api/payments/midtrans/status/{transactionId}`
 - `POST /api/payments/midtrans/notification`
 - `POST /api/payments/midtrans/simulate`

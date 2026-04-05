@@ -36,10 +36,7 @@ export type VABank =
   | 'bni'
   | 'permata'
   | 'cimb'
-  | 'mandiri_bill'
-  | 'danamon'
-  | 'bsi'
-  | 'seabank';
+  | 'mandiri_bill';
 
 interface MidtransChargeResponse {
   order_id: string;
@@ -54,6 +51,33 @@ interface MidtransChargeResponse {
   bill_key?: string;
   payment_type?: string;
   [key: string]: unknown;
+}
+
+function getMidtransAxiosErrorMessage(error: unknown, fallback: string) {
+  if (!axios.isAxiosError(error)) {
+    return error instanceof Error ? error.message : fallback;
+  }
+
+  const responseData = error.response?.data;
+  if (typeof responseData === 'string' && responseData.trim()) {
+    return responseData;
+  }
+
+  if (responseData && typeof responseData === 'object') {
+    const statusMessage = (responseData as Record<string, unknown>).status_message;
+    if (typeof statusMessage === 'string' && statusMessage.trim()) {
+      return statusMessage;
+    }
+
+    const message = (responseData as Record<string, unknown>).message;
+    if (typeof message === 'string' && message.trim()) {
+      return message;
+    }
+
+    return JSON.stringify(responseData);
+  }
+
+  return error.message || fallback;
 }
 
 function extractQrCodeUrl(response: MidtransChargeResponse) {
@@ -134,9 +158,7 @@ export async function createQrisCharge(request: MidtransChargeRequest) {
     };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      const message =
-        (error.response?.data as Record<string, string> | undefined)?.status_message ||
-        error.message;
+      const message = getMidtransAxiosErrorMessage(error, 'Unknown Midtrans error');
       throw new Error(`Failed to create Midtrans QRIS charge: ${message}`);
     }
     throw new Error(
@@ -207,9 +229,7 @@ export async function createVaCharge(request: MidtransChargeRequest, bank: VABan
     };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      const message =
-        (error.response?.data as Record<string, string> | undefined)?.status_message ||
-        error.message;
+      const message = getMidtransAxiosErrorMessage(error, 'Unknown Midtrans error');
       throw new Error(`Failed to create Midtrans VA charge: ${message}`);
     }
     throw new Error(
@@ -241,9 +261,7 @@ export async function getTransactionStatus(orderId: string) {
     };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      const message =
-        (error.response?.data as Record<string, string> | undefined)?.status_message ||
-        error.message;
+      const message = getMidtransAxiosErrorMessage(error, 'Unknown Midtrans error');
       throw new Error(`Failed to check Midtrans transaction status: ${message}`);
     }
     throw new Error(
@@ -264,9 +282,7 @@ export async function simulateTransactionSettlement(orderId: string) {
     };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      const message =
-        (error.response?.data as Record<string, string> | undefined)?.status_message ||
-        error.message;
+      const message = getMidtransAxiosErrorMessage(error, 'Unknown Midtrans error');
       throw new Error(`Failed to simulate Midtrans transaction: ${message}`);
     }
     throw new Error(
@@ -336,12 +352,6 @@ export function getMidtransSimulatorLink(
       return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=cimb';
     case 'mandiri_bill':
       return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=mandiri';
-    case 'danamon':
-      return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=danamon';
-    case 'bsi':
-      return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=bsi';
-    case 'seabank':
-      return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=seabank';
     default:
       return 'https://simulator.sandbox.midtrans.com/';
   }

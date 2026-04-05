@@ -1,154 +1,109 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
 import { Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
 import {
   createQrisCharge,
   createVaCharge,
   getMidtransSimulatorLink,
-  type MidtransPaymentMethod,
-  type VABank,
 } from '@/services/midtrans.service';
-
-type TransactionType = 'donation' | 'repayment';
-
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-function isUuid(value: string) {
-  return UUID_REGEX.test(value);
-}
-
-interface CreatePaymentBody {
-  amount: number;
-  transactionType: TransactionType;
-  paymentMethod: MidtransPaymentMethod;
-  vaBank?: VABank;
-  referenceId: string;
-  customer?: {
-    userId?: string;
-    email?: string;
-    name?: string;
-    phone?: string;
-  };
-  metadata?: Record<string, unknown>;
-}
+import {
+  normalizePaymentRequest,
+  validateRepaymentOwnership,
+  type CreatePaymentBody,
+} from '@/services/midtrans-payment-request.service';
 
 /**
  * POST /api/payments/midtrans/payments
- * Backend-friendly Midtrans create payment endpoint.
+ * Session-authenticated Midtrans create payment endpoint.
  */
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = (await request.json()) as CreatePaymentBody;
+    const currentUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
 
-    const {
-      amount,
-      transactionType,
-      paymentMethod,
-      vaBank = 'bca',
-      referenceId,
-      customer,
-      metadata,
-    } = body;
-
-    if (!amount || Number(amount) <= 0) {
-      return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
+    if (!currentUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    if (!['donation', 'repayment'].includes(transactionType)) {
-      return NextResponse.json({ error: 'Invalid transaction type' }, { status: 400 });
+    const normalizedRequest = normalizePaymentRequest(body, {
+      id: currentUser.id,
+      email: currentUser.email,
+      name: currentUser.name,
+    });
+
+    if (!normalizedRequest.ok) {
+      return NextResponse.json({ error: normalizedRequest.error }, { status: normalizedRequest.status });
     }
 
-    if (!['qris', 'va'].includes(paymentMethod)) {
-      return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 });
+    const { data } = normalizedRequest;
+    const ownershipCheck = await validateRepaymentOwnership({
+      transactionType: data.transactionType,
+      referenceId: data.referenceId,
+      currentUserId: currentUser.id,
+      findLoanBorrowerId: async (loanId) => {
+        const loan = await prisma.loan.findUnique({
+          where: { id: loanId },
+          select: {
+            application: {
+              select: {
+                borrowerId: true,
+              },
+            },
+          },
+        });
+
+        return loan?.application.borrowerId || null;
+      },
+    });
+
+    if (!ownershipCheck.ok) {
+      return NextResponse.json({ error: ownershipCheck.error }, { status: ownershipCheck.status });
     }
 
-    if (!referenceId || typeof referenceId !== 'string' || !referenceId.trim()) {
-      return NextResponse.json({ error: 'referenceId is required' }, { status: 400 });
-    }
+    const orderId = `${data.transactionType.toUpperCase()}-${Date.now()}-${currentUser.id.slice(0, 8)}`;
 
-    if (!isUuid(referenceId.trim())) {
-      return NextResponse.json({ error: 'referenceId must be a valid UUID' }, { status: 400 });
-    }
-
-    if (customer?.userId && !isUuid(customer.userId.trim())) {
-      return NextResponse.json({ error: 'customer.userId must be a valid UUID' }, { status: 400 });
-    }
-
-    if (paymentMethod === 'qris' && Number(amount) < 1500) {
-      return NextResponse.json(
-        { error: 'Minimum QRIS amount is IDR 1,500' },
-        { status: 400 }
-      );
-    }
-
-    const allowedVaBanks: VABank[] = [
-      'bca',
-      'bri',
-      'bni',
-      'permata',
-      'cimb',
-      'mandiri_bill',
-      'danamon',
-      'bsi',
-      'seabank',
-    ];
-
-    if (paymentMethod === 'va' && !allowedVaBanks.includes(vaBank)) {
-      return NextResponse.json({ error: 'Invalid VA bank' }, { status: 400 });
-    }
-
-    const customerName = customer?.name || 'Customer';
-    const customerEmail = customer?.email;
-    const customerPhone = customer?.phone;
-
-    const orderId = `${transactionType.toUpperCase()}-${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2, 8)
-      .toUpperCase()}`;
-
-    const finalDescription = `${transactionType === 'donation' ? 'Donation' : 'Loan Repayment'} - ${orderId}`;
-
-    const commonMetadata: Record<string, unknown> = {
-      transactionType,
-      referenceId,
-      paymentMethod,
-      vaBank: paymentMethod === 'va' ? vaBank : null,
-      customerUserId: customer?.userId || null,
-      ...(metadata || {}),
-    };
+    const finalDescription = `${data.transactionType === 'donation' ? 'Donation' : 'Loan Repayment'} - ${orderId}`;
 
     const chargeResult =
-      paymentMethod === 'qris'
+      data.paymentMethod === 'qris'
         ? await createQrisCharge({
             orderId,
-            amount: Math.round(amount),
-            customerEmail,
-            customerName,
-            customerPhone,
+            amount: data.amount,
+            customerEmail: data.customerEmail,
+            customerName: data.customerName,
+            customerPhone: data.customerPhone,
             description: finalDescription,
-            metadata: commonMetadata,
+            metadata: data.metadata,
           })
         : await createVaCharge(
             {
               orderId,
-              amount: Math.round(amount),
-              customerEmail,
-              customerName,
-              customerPhone,
+              amount: data.amount,
+              customerEmail: data.customerEmail,
+              customerName: data.customerName,
+              customerPhone: data.customerPhone,
               description: finalDescription,
-              metadata: commonMetadata,
+              metadata: data.metadata,
             },
-            vaBank
+            data.vaBank
           );
 
     const paymentTransaction = await prisma.paymentTransaction.create({
       data: {
         externalId: chargeResult.orderId,
-        referenceId,
-        category: transactionType === 'donation' ? 'DONATION' : 'REPAYMENT',
-        paymentType: paymentMethod,
-        amount: Number(amount),
+        referenceId: data.referenceId,
+        category: data.transactionType === 'donation' ? 'DONATION' : 'REPAYMENT',
+        paymentType: data.paymentMethod,
+        amount: data.amount,
         status: 'PENDING',
         response: chargeResult.rawResponse as Prisma.InputJsonValue,
       },
@@ -157,35 +112,52 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
+        orderId: chargeResult.orderId,
+        transactionId: chargeResult.transactionId,
+        paymentType: data.paymentMethod,
+        amount: chargeResult.amount,
+        status: chargeResult.status,
+        expiryTime: chargeResult.expiryTime,
+        qrCodeUrl:
+          data.paymentMethod === 'qris' && 'qrCodeUrl' in chargeResult ? chargeResult.qrCodeUrl : null,
+        vaNumber: data.paymentMethod === 'va' && 'vaNumber' in chargeResult ? chargeResult.vaNumber : null,
+        bankCode: data.paymentMethod === 'va' && 'bankCode' in chargeResult ? chargeResult.bankCode : null,
+        billerCode:
+          data.paymentMethod === 'va' && 'billerCode' in chargeResult ? chargeResult.billerCode : null,
+        billKey: data.paymentMethod === 'va' && 'billKey' in chargeResult ? chargeResult.billKey : null,
+        paymentTransactionId: paymentTransaction.id,
         data: {
           paymentTransactionId: paymentTransaction.id,
           orderId: chargeResult.orderId,
           transactionId: chargeResult.transactionId,
-          transactionType,
-          paymentMethod,
-          vaBank: paymentMethod === 'va' ? vaBank : null,
+          transactionType: data.transactionType,
+          paymentMethod: data.paymentMethod,
+          vaBank: data.paymentMethod === 'va' ? data.vaBank : null,
           amount: chargeResult.amount,
           status: chargeResult.status,
           expiryTime: chargeResult.expiryTime,
           qris: {
             qrCodeImageUrl:
-              paymentMethod === 'qris' && 'qrCodeUrl' in chargeResult
+              data.paymentMethod === 'qris' && 'qrCodeUrl' in chargeResult
                 ? chargeResult.qrCodeUrl
                 : null,
           },
           va: {
-            bankCode: paymentMethod === 'va' && 'bankCode' in chargeResult ? chargeResult.bankCode : null,
-            vaNumber: paymentMethod === 'va' && 'vaNumber' in chargeResult ? chargeResult.vaNumber : null,
+            bankCode: data.paymentMethod === 'va' && 'bankCode' in chargeResult ? chargeResult.bankCode : null,
+            vaNumber: data.paymentMethod === 'va' && 'vaNumber' in chargeResult ? chargeResult.vaNumber : null,
             billerCode:
-              paymentMethod === 'va' && 'billerCode' in chargeResult
+              data.paymentMethod === 'va' && 'billerCode' in chargeResult
                 ? chargeResult.billerCode
                 : null,
-            billKey: paymentMethod === 'va' && 'billKey' in chargeResult ? chargeResult.billKey : null,
+            billKey: data.paymentMethod === 'va' && 'billKey' in chargeResult ? chargeResult.billKey : null,
           },
           simulator: {
-            url: getMidtransSimulatorLink(paymentMethod, paymentMethod === 'va' ? vaBank : undefined),
+            url: getMidtransSimulatorLink(
+              data.paymentMethod,
+              data.paymentMethod === 'va' ? data.vaBank : undefined
+            ),
           },
-          metadata: commonMetadata,
+          metadata: data.metadata,
         },
       },
       { status: 201 }

@@ -52,17 +52,28 @@ MIDTRANS_CLIENT_KEY=Mid-client-xxxx
 MIDTRANS_ENVIRONMENT=sandbox
 MIDTRANS_CALLBACK_URL=http://localhost:3000/api/payments/midtrans/notification
 MIDTRANS_EXPIRY_MINUTES=2
+MIDTRANS_DEV_FALLBACK_POLLING=false
 NEXTAUTH_URL=http://localhost:3000
 ```
 
 `MIDTRANS_EXPIRY_MINUTES` controls charge expiration for QRIS and VA (use a very short value such as `1` or `2` for testing).
+`MIDTRANS_DEV_FALLBACK_POLLING` is a local developer toggle. When set to `true`, the confirmation page's live update stream will occasionally reconcile pending payments directly with Midtrans if webhook delivery is not reaching the local machine. Leave it `false` for normal webhook-first behavior.
 
 ### API Endpoints
 
-- `POST /api/payments/midtrans/charge` → create QRIS/VA transaction
+- `POST /api/payments/midtrans/payments` → create QRIS/VA transaction
 - `GET /api/payments/midtrans/status/[orderId]` → poll transaction status
 - `POST /api/payments/midtrans/notification` → Midtrans webhook callback
 - `POST /api/payments/midtrans/simulate` → sandbox simulation helper
+
+### Payment Auth
+
+`POST /api/payments/midtrans/payments` is session-only.
+
+- The request must come from a logged-in user in this app.
+- Postman or `curl` will only work if they first obtain and send a valid app session cookie.
+- Donation requests always use the logged-in user as the donor reference.
+- Repayment requests are checked against the logged-in borrower before a charge is created.
 
 ### Midtrans Dashboard Configuration
 
@@ -86,6 +97,6 @@ Example local tunnel URL:
 ### Notes
 
 - Minimum QRIS amount is **IDR 1,500**.
-- For VA, supported banks are **BCA, BNI, BRI, Permata, CIMB, Mandiri Bill, Danamon, BSI, SeaBank**.
+- For VA, supported banks in this implementation are **BCA, BNI, BRI, Permata, CIMB, Mandiri Bill**.
 - `referenceId` is required and must be UUID, but it is not pre-validated against existing business records during create payment.
 - For full payment architecture, callback fulfillment flow, and schema behavior, see `MIDTRANS_BACKEND_API.md`.

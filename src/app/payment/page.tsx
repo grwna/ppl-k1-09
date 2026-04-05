@@ -2,6 +2,7 @@
 
 import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import localFont from 'next/font/local';
 
@@ -17,10 +18,7 @@ type VABank =
   | 'bni'
   | 'permata'
   | 'cimb'
-  | 'mandiri_bill'
-  | 'danamon'
-  | 'bsi'
-  | 'seabank';
+  | 'mandiri_bill';
 type TransactionType = 'donation' | 'repayment';
 
 export default function PaymentPage({
@@ -29,6 +27,7 @@ export default function PaymentPage({
   searchParams: Promise<{ type?: 'donation' | 'repayment'; referenceId?: string }>;
 }) {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const params = use(searchParams);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
   const [vaBank, setVaBank] = useState<VABank>('bca');
@@ -37,7 +36,8 @@ export default function PaymentPage({
   const [error, setError] = useState<string>('');
 
   const transactionType: TransactionType = (params.type as TransactionType) || 'donation';
-  const referenceId = params.referenceId || '';
+  const referenceId =
+    params.referenceId || (transactionType === 'donation' ? session?.user?.id || '' : '');
 
   const handlePaymentMethodSelect = (method: PaymentMethod) => {
     setPaymentMethod(method);
@@ -75,7 +75,7 @@ export default function PaymentPage({
     setLoading(true);
 
     try {
-      const response = await fetch('/api/payments/midtrans/charge', {
+      const response = await fetch('/api/payments/midtrans/payments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -134,15 +134,17 @@ export default function PaymentPage({
         </div>
 
         {/* Missing Reference ID Warning */}
-        {!referenceId && (
+        {!referenceId && status !== 'loading' && (
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-yellow-900 text-sm">
-              <span className="font-medium">No reference ID found.</span>
-              {' For testing, use the '}
-              <Link href="/payment-test" className="font-medium text-yellow-700 hover:underline">
-                test page
-              </Link>
-              .
+              <span className="font-medium">
+                {transactionType === 'donation'
+                  ? 'Unable to determine the donor account.'
+                  : 'No reference ID found.'}
+              </span>
+              {transactionType === 'donation'
+                ? ' Please sign in again before continuing.'
+                : ' This payment still needs a repayment reference ID.'}
             </p>
           </div>
         )}
@@ -227,9 +229,6 @@ export default function PaymentPage({
               <option value="permata">Permata</option>
               <option value="cimb">CIMB</option>
               <option value="mandiri_bill">Mandiri Bill</option>
-              <option value="danamon">Danamon</option>
-              <option value="bsi">BSI</option>
-              <option value="seabank">SeaBank</option>
             </select>
           </div>
         )}

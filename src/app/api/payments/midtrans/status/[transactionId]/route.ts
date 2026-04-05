@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '@/generated/prisma';
-import { getTransactionStatus, mapMidtransStatus } from '@/services/midtrans.service';
-import { createBusinessRecordFromSettledPayment } from '@/services/payment-fulfillment.service';
+import { validatePaymentTransactionAccess } from '@/services/midtrans-payment-request.service';
+import { syncPaymentTransactionFromMidtrans } from '@/services/payment-status-sync.service';
 
 /**
  * GET /api/payments/midtrans/status/[transactionId]
@@ -13,6 +13,12 @@ export async function GET(
   { params }: { params: Promise<{ transactionId: string }> }
 ) {
   try {
+    const session = await auth();
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { transactionId } = await params;
 
     if (!transactionId) {
@@ -23,26 +29,49 @@ export async function GET(
       where: { externalId: transactionId },
     });
 
-    const statusResult = await getTransactionStatus(transactionId);
-    const mappedStatus = mapMidtransStatus(statusResult.status);
-    const finalStatus =
-      paymentTransaction?.status === 'SETTLEMENT' ? paymentTransaction.status : mappedStatus;
+    if (!paymentTransaction) {
+      return NextResponse.json({ error: 'Payment transaction not found' }, { status: 404 });
+    }
 
-    if (paymentTransaction) {
-      await prisma.paymentTransaction.update({
-        where: { id: paymentTransaction.id },
-        data: {
-          status: finalStatus,
-          response: statusResult.rawResponse as Prisma.InputJsonValue,
-        },
-      });
+    const currentUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
 
-      if (finalStatus === 'SETTLEMENT') {
-        await createBusinessRecordFromSettledPayment({
-          ...paymentTransaction,
-          status: finalStatus,
+    if (!currentUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const accessCheck = await validatePaymentTransactionAccess({
+      category: paymentTransaction.category,
+      referenceId: paymentTransaction.referenceId,
+      currentUserId: currentUser.id,
+      findLoanBorrowerId: async (loanId) => {
+        const loan = await prisma.loan.findUnique({
+          where: { id: loanId },
+          select: {
+            application: {
+              select: {
+                borrowerId: true,
+              },
+            },
+          },
         });
-      }
+
+        return loan?.application.borrowerId || null;
+      },
+    });
+
+    if (!accessCheck.ok) {
+      return NextResponse.json({ error: accessCheck.error }, { status: accessCheck.status });
+    }
+
+    const syncResult = await syncPaymentTransactionFromMidtrans(transactionId);
+    const updatedPaymentTransaction = syncResult.paymentTransaction;
+    const statusResult = syncResult.detail;
+
+    if (!updatedPaymentTransaction || !statusResult) {
+      return NextResponse.json({ error: 'Payment transaction not found' }, { status: 404 });
     }
 
     return NextResponse.json(
@@ -50,7 +79,7 @@ export async function GET(
         success: true,
         transactionId,
         orderId: statusResult.orderId,
-        status: finalStatus,
+        status: updatedPaymentTransaction.status,
         amount: statusResult.amount,
         expiryTime: statusResult.expiryTime,
         paymentType: statusResult.paymentType,

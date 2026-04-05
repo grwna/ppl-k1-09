@@ -33,11 +33,10 @@ export default function PaymentConfirmPage({
 
   const [status, setStatus] = useState<PaymentStatus>(null);
   const [loading, setLoading] = useState(true);
-  const [pollingActive, setPollingActive] = useState(true);
   const [error, setError] = useState('');
-  const [simulateLoading, setSimulateLoading] = useState(false);
   const [simulateMessage, setSimulateMessage] = useState('');
   const [copyMessage, setCopyMessage] = useState('');
+  const [connectionMessage, setConnectionMessage] = useState('Connecting to live payment updates...');
 
   const [qrCodeUrl, setQrCodeUrl] = useState(params.qrCodeUrl || '');
   const [vaNumber, setVaNumber] = useState(params.vaNumber || '');
@@ -51,57 +50,111 @@ export default function PaymentConfirmPage({
   const amount = params.amount || '0';
   const transactionType = params.transactionType || 'donation';
   const paymentMethod: PaymentMethod = params.paymentMethod === 'va' ? 'va' : 'qris';
+  const simulateLoading = false;
 
   const sandboxMode = process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_APP_ENV !== 'production';
 
-  const checkStatus = async () => {
-    if (!orderId) {
-      setError('Order ID is missing');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/payments/midtrans/status/${orderId}`, {
-        method: 'GET',
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to check payment status');
-      }
-
-      setStatus(data.status);
-      if (data.qrCodeUrl) setQrCodeUrl(data.qrCodeUrl);
-      if (data.vaNumber) setVaNumber(data.vaNumber);
-      if (data.bankCode) setBankCode(data.bankCode);
-      if (data.billerCode) setBillerCode(data.billerCode);
-      if (data.billKey) setBillKey(data.billKey);
-      if (data.expiryTime) setExpiryTime(data.expiryTime);
-
-      if (['SETTLEMENT', 'EXPIRE', 'FAILURE'].includes(data.status)) {
-        setPollingActive(false);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to check payment status');
-    } finally {
-      setLoading(false);
-    }
+  const applyPaymentDetail = (data: {
+    status?: PaymentStatus;
+    qris?: { qrCodeImageUrl?: string | null };
+    va?: {
+      vaNumber?: string | null;
+      bankCode?: string | null;
+      billerCode?: string | null;
+      billKey?: string | null;
+    };
+    expiryTime?: string | null;
+  }) => {
+    if (data.status) setStatus(data.status);
+    if (data.qris?.qrCodeImageUrl) setQrCodeUrl(data.qris.qrCodeImageUrl);
+    if (data.va?.vaNumber) setVaNumber(data.va.vaNumber);
+    if (data.va?.bankCode) setBankCode(data.va.bankCode);
+    if (data.va?.billerCode) setBillerCode(data.va.billerCode);
+    if (data.va?.billKey) setBillKey(data.va.billKey);
+    if (data.expiryTime) setExpiryTime(data.expiryTime);
   };
 
   useEffect(() => {
-    checkStatus();
+    const loadPaymentDetail = async () => {
+      if (!orderId) {
+        setError('Order ID is missing');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/payments/midtrans/payments/${orderId}`, {
+          method: 'GET',
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to check payment status');
+        }
+
+        applyPaymentDetail(data.data || {});
+        setConnectionMessage('Live payment updates connected.');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to check payment status');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadPaymentDetail();
   }, [orderId]);
 
   useEffect(() => {
-    if (!pollingActive) return;
+    if (!orderId) return;
 
-    const interval = setInterval(() => {
-      checkStatus();
-    }, 5000);
+    const eventSource = new EventSource(`/api/payments/midtrans/payments/${orderId}/events`);
 
-    return () => clearInterval(interval);
-  }, [pollingActive, orderId]);
+    eventSource.addEventListener('connected', () => {
+      setConnectionMessage('Live payment updates connected.');
+      setError('');
+    });
+
+    eventSource.addEventListener('payment', (event) => {
+      const payload = JSON.parse((event as MessageEvent).data) as {
+        success: boolean;
+        data?: {
+          status?: PaymentStatus;
+          qris?: { qrCodeImageUrl?: string | null };
+          va?: {
+            vaNumber?: string | null;
+            bankCode?: string | null;
+            billerCode?: string | null;
+            billKey?: string | null;
+          };
+          expiryTime?: string | null;
+        };
+      };
+
+      if (payload.data) {
+        applyPaymentDetail(payload.data);
+        setError('');
+
+        if (['SETTLEMENT', 'EXPIRE', 'FAILURE'].includes(payload.data.status || '')) {
+          setConnectionMessage('Live payment updates completed.');
+          eventSource.close();
+        }
+      }
+    });
+
+    eventSource.addEventListener('payment-error', (event) => {
+      const payload = JSON.parse((event as MessageEvent).data) as { error?: string };
+      if (payload.error) setError(payload.error);
+      setConnectionMessage('Live payment updates disconnected.');
+      eventSource.close();
+    });
+
+    eventSource.onerror = () => {
+      setConnectionMessage('Live payment updates disconnected.');
+      eventSource.close();
+    };
+
+    return () => eventSource.close();
+  }, [orderId]);
 
   const formatCurrency = (value: string | number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -203,18 +256,6 @@ export default function PaymentConfirmPage({
 
     if (normalized === 'mandiri_bill' || normalized === 'mandiri' || normalized === 'echannel') {
       return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=mandiri';
-    }
-
-    if (normalized === 'danamon') {
-      return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=danamon';
-    }
-
-    if (normalized === 'bsi') {
-      return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=bsi';
-    }
-
-    if (normalized === 'seabank') {
-      return 'https://simulator.sandbox.midtrans.com/openapi/va/index?bank=seabank';
     }
 
     return 'https://simulator.sandbox.midtrans.com/';
@@ -426,8 +467,8 @@ export default function PaymentConfirmPage({
             </div>
           )}
 
-          {pollingActive && !loading && (
-            <div className="text-center text-sm text-gray-500">Checking payment status every 5 seconds...</div>
+          {!loading && (
+            <div className="text-center text-sm text-gray-500">{connectionMessage}</div>
           )}
         </div>
 
