@@ -9,6 +9,7 @@ import { useUserStore } from "@/hooks/userStore";
 import DonorDashboard_SummaryOfDonor from "@/components/ui/donor-dashboard/summary_of_donor_block";
 import DonorDashboard_StartNewDonation from "@/components/ui/donor-dashboard/start_new_donation_block";
 import DonorDashboard_RecentDistributionTable from "@/components/ui/donor-dashboard/recent_distribution_table";
+import DonorDashboard_DonorNavbar from "@/components/ui/donor-dashboard/donor_navbar";
 
 export default function DonorDashboardPage(){
     
@@ -18,6 +19,12 @@ export default function DonorDashboardPage(){
     return (
       // main container
       <div>
+
+        {/* navbar */}
+        <div className="flex justify-center items-center w-full h-fit">
+          <DonorDashboard_DonorNavbar />
+        </div>
+
         {/* title */}
         <div>
           Welvome back, {username}
