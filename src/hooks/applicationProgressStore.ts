@@ -17,6 +17,10 @@ type ApplicationProgressStore = {
     requested_amount : number | null
     loan_purpose : string | null
 
+    // document
+    student_id_card : File | null
+    family_card : File | null
+
     // these are functions to call and define the create() section of zustand
     setStep : (step : number) => void
 
@@ -29,6 +33,10 @@ type ApplicationProgressStore = {
     setLoanTitle : (loan_title : string) => void
     setRequestedAmount : (requested_amount : number) => void
     setLoanPurpose : (loan_purpose : string) => void
+
+    // document uploads
+    setStudentIdCard : (student_id_card : File) => void
+    setFamilyCard : (family_card : File) => void
 }
 
 export const useApplicationProgressStore = create<ApplicationProgressStore>((set) => ({
@@ -43,6 +51,10 @@ export const useApplicationProgressStore = create<ApplicationProgressStore>((set
     loan_title : null,
     requested_amount : null,
     loan_purpose : null,
+    
+    // financial needs
+    student_id_card : null,
+    family_card : null,
     
     setStep(step) {
         set({ application_progress : {step} })
@@ -73,6 +85,14 @@ export const useApplicationProgressStore = create<ApplicationProgressStore>((set
     setLoanPurpose(loan_purpose) {
         set({ loan_purpose : loan_purpose })
     },
-
+    
+    // document upload
+    setStudentIdCard(student_id_card) {
+        set({ student_id_card : student_id_card })
+    },
+    
+    setFamilyCard(family_card) {
+        set({ family_card : family_card })
+    },
 
 }))
