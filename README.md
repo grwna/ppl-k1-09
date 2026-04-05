@@ -27,3 +27,65 @@ Runs automatically on every push or pull request to `main`, `master`, and `dev` 
 - **Linting** — Runs ESLint on `src/` only, skipping library-generated code. (Currently disabled)
 - **Type Check** — Runs `tsc --noEmit` to catch type errors without emitting output files.
 - **Build Check** — Runs `next build` to verify the production build compiles successfully.
+
+## Midtrans Payment Setup (QRIS + VA)
+
+The project now uses **Midtrans Core API** for two payment methods only:
+- **QRIS**
+- **Virtual Account (VA)**
+
+Both payment methods are rendered directly in our app:
+- QRIS shows the QR image inside the payment confirmation page.
+- VA shows the VA number and bank details inside the payment confirmation page.
+
+### Required Environment Variables
+
+Set these variables in `.env`:
+
+Start quickly by copying the template:
+
+`cp .env.example .env`
+
+```env
+MIDTRANS_SERVER_KEY=Mid-server-xxxx
+MIDTRANS_CLIENT_KEY=Mid-client-xxxx
+MIDTRANS_ENVIRONMENT=sandbox
+MIDTRANS_CALLBACK_URL=http://localhost:3000/api/payments/midtrans/notification
+MIDTRANS_EXPIRY_MINUTES=2
+NEXTAUTH_URL=http://localhost:3000
+```
+
+`MIDTRANS_EXPIRY_MINUTES` controls charge expiration for QRIS and VA (use a very short value such as `1` or `2` for testing).
+
+### API Endpoints
+
+- `POST /api/payments/midtrans/charge` → create QRIS/VA transaction
+- `GET /api/payments/midtrans/status/[orderId]` → poll transaction status
+- `POST /api/payments/midtrans/notification` → Midtrans webhook callback
+- `POST /api/payments/midtrans/simulate` → sandbox simulation helper
+
+### Midtrans Dashboard Configuration
+
+In Midtrans dashboard (sandbox or production), set **Payment Notification URL** to:
+
+`<your-domain>/api/payments/midtrans/notification`
+
+Example local tunnel URL:
+
+`https://<your-tunnel-domain>/api/payments/midtrans/notification`
+
+### Local Testing Flow
+
+1. Run the app with `npm run dev`.
+2. Open payment flow (e.g. `/payment?...`) and choose either:
+	- `QRIS`: verify QR image appears on `/payment/confirm`.
+	- `VA`: verify VA number + bank info appears on `/payment/confirm`.
+3. In sandbox mode, use the **Simulate Payment (Sandbox)** button on confirm page.
+4. Confirm status changes to `SETTLEMENT` in UI and `payment_transactions` table.
+
+### Notes
+
+- Minimum QRIS amount is **IDR 1,500**.
+- For VA, supported banks are **BCA, BNI, BRI, Permata, CIMB, Mandiri Bill, Danamon, BSI, SeaBank**.
+- `referenceId` is required and must be UUID, but it is not pre-validated against existing business records during create payment.
+- For full payment architecture, callback fulfillment flow, and schema behavior, see `MIDTRANS_BACKEND_API.md`.

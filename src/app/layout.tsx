@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import Footer from "@/components/ui/footer";
 import "./globals.css";
 
 import QueryClientProvider from "@/providers/QueryClientProvider";
+import AuthSessionProvider from "@/providers/SessionProvider";
+
+const inter = Inter({
+    variable: "--font-inter",
+    subsets: ["latin"],
+});
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -30,14 +36,13 @@ export default function RootLayout({
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#F9FAFB] min-h-screen flex flex-col`}
             >
-                <QueryClientProvider>
-                    <main className="grow">
-                        {children}
-                    </main>
-                </QueryClientProvider>
-
-                <Footer/>
-
+                <AuthSessionProvider>
+                    <QueryClientProvider>
+                        <main className="grow">
+                            {children}
+                        </main>
+                    </QueryClientProvider>
+                </AuthSessionProvider>
             </body>
         </html>
     );

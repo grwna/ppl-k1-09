@@ -1,35 +1,41 @@
-/**
- * MIDDLEWARE TEMPLATE
- * Use this to protect routes and handle redirects based on auth status.
- */
-
 import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
 
-// Use the lightweight config — no Prisma, safe for Edge Runtime
-const { auth } = NextAuth(authConfig);
-
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  // const isLoggedIn = !!req.auth?.user;
-  const isDashboardRoute = req.nextUrl.pathname.startsWith("/dashboard");
-
-  // If trying to access dashboard but not logged in, redirect to login
-  if (isDashboardRoute && !isLoggedIn) {
-    console.log("Middleware: Unauthorized access to dashboard. Redirecting...");
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
-  }
-
-  // If already logged in and trying to access login page, redirect to dashboard
-  if (isLoggedIn && req.nextUrl.pathname === "/login") {
-    return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
-  }
-
-  return NextResponse.next();
+const { auth } = NextAuth({
+    ...authConfig,
+    secret: process.env.AUTH_SECRET,
 });
 
-// Configure which paths should trigger the middleware
+export default auth((req) => {
+    const isLoggedIn = !!req.auth?.user;
+    const roles = (req.auth?.user as any)?.roles || [];
+    const pathname = req.nextUrl.pathname;
+
+    const isDashboardRoute = pathname.startsWith("/dashboard");
+    const isAdminRoute = pathname.startsWith("/dashboard/admin");
+    const isAuthRoute = pathname === "/login" || pathname === "/register" || pathname === "/sign-up";
+    const isRootRoute = pathname === "/";
+    const isLoggedInRoute = pathname === "/logged-in";
+
+    // 1. Redirect pengguna yang belum login ke login (untuk dashboard & root & logged-in)
+    if ((isDashboardRoute || isLoggedInRoute) && !isLoggedIn) {
+        return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
+
+    // 2. Access Control: Hanya ADMIN yang bisa masuk ke area admin
+    if (isAdminRoute && !roles.includes("ADMIN")) {
+        return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
+    }
+
+    // 3. Jika sudah login, jauhkan dari halaman login/register/sign-up
+    if (isLoggedIn && isAuthRoute) {
+        return NextResponse.redirect(new URL("/logged-in", req.nextUrl));
+    }
+
+    return NextResponse.next();
+});
+
 export const config = {
-  matcher: ["/dashboard/:path*", "/login"],
+    matcher: ["/", "/dashboard/:path*", "/login", "/register", "/sign-up", "/logged-in"],
 };

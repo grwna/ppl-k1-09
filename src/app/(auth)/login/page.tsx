@@ -2,64 +2,89 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import localFont from 'next/font/local'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import { useState } from "react";
-
-import RumahAmalLogo from "../../../../public/rumah-amal-logo.svg"
-import AuthBg from "../../../../public/auth-bg.svg"
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 // init fonts
-const plusJakartaSansFont = localFont({
-    src: "../../../../public/fonts/PlusJakartaSans-VariableFont.ttf",
+const plusJakartaSansFont = Plus_Jakarta_Sans({
+    subsets: ['latin'],
     display: 'swap',
+    variable: '--font-plus-jakarta-sans',
 });
 
 export default function LoginPage() {
+    const router = useRouter();
 
-
-    // init variables (call for other api)
+    // init variables
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
-    // functions for submit actions
-    const submitActions = async () => {
-        // initinya ini bakal submit actions
-        console.log("Submit action activated!..")
-    }
+    // function for login action
+    const handleLogin = async () => {
+        setError(null);
+        setLoading(true);
+
+        try {
+            const res = await signIn("credentials", {
+                email,
+                password,
+                redirect: false,
+            });
+
+            if (res?.error) {
+                setError("Email atau password salah.");
+                setLoading(false);
+            } else {
+                router.push("/logged-in");
+                router.refresh();
+            }
+        } catch (err) {
+            console.error("Login error:", err);
+            setError("Terjadi kesalahan saat login.");
+            setLoading(false);
+        }
+    };
 
     return (
         // main container
-        <div className="flex-col w-full min-h-screen block overflow-hidden items-center justify-center">
+        <div className={`${plusJakartaSansFont.variable} font-sans flex flex-col w-full min-h-screen overflow-hidden items-center justify-center relative`}>
             <Image
-                src={AuthBg}
+                src="/auth-bg.svg"
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover -z-10"
+                fill
+                className="object-cover -z-10"
+                priority
             />
 
             {/* rumah amal salman logo */}
-            <div className="flex relative w-full justify-center items-center h-[30%]">
-                {/* <div> */}
+            <div className="flex relative w-full justify-center items-center h-[30%] mb-8">
                     <Image
-                        src={RumahAmalLogo}
+                        src="/rumah-amal-logo.svg"
                         alt="Logo Rumah Amal Salman"
+                        width={200}
+                        height={100}
+                        priority
                     />
-                {/* </div> */}
             </div>
 
             {/* login container */}
-            <div className="flex w-full h-[40%] justify-center items-center">
+            <div className="flex w-full justify-center items-center px-4">
 
-                <div className="border border-black/20 bg-white p-4 w-[30%] h-[40%] rounded-2xl shadow-2xl">
+                <div className="border border-black/20 bg-white p-8 w-full max-w-md rounded-2xl shadow-2xl flex flex-col gap-6">
 
                     {/* greeting container */}
-                    <div className="grid justify-center items-center gap-y-2">
+                    <div className="grid justify-center items-center gap-y-2 text-center">
                         {/* greeting caption container */}
-                        <div className={`${plusJakartaSansFont.className} flex justify-center items-center text-lg font-bold`}>
+                        <div className={`${plusJakartaSansFont.className} text-lg font-bold`}>
                             Selamat Datang di <span className="text-[#16C5DE]">Rumah Amal Salman!</span>
                         </div>
 
                         {/* sub greeting container */}
-                        <div className={`${plusJakartaSansFont.className} flex justify-center items-center text-sm`} >
+                        <div className={`${plusJakartaSansFont.className} text-sm text-gray-500`} >
                             Log In untuk melanjutkan
                         </div>
 
@@ -67,75 +92,72 @@ export default function LoginPage() {
 
 
                     {/* email container */}
-                    <div>
-
-                        {/* email prompt container */}
-                        <div className={`${plusJakartaSansFont.className} flex py-2`} >
+                    <div className="flex flex-col gap-2">
+                        <label className={`${plusJakartaSansFont.className} font-medium`}>
                             Email <span className="text-[#FF0000]">*</span>
-                        </div>
-
-                        {/* email textbox container */}
-                        <div className="flex w-full h-full">
-                            <input
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter"}
-                                className="flex gap-2 border border-black/20 bg-white p-4 w-full h-[40%] rounded-2xl shadow-2xl"
-                                placeholder="Masukkan Email..."
-                            />
-                        </div>
-
+                        </label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                            className="border border-black/20 bg-white p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#16C5DE]"
+                            placeholder="Masukkan Email..."
+                            disabled={loading}
+                        />
                     </div>
 
                     {/* password container */}
-                    <div>
-
-                        {/* password prompt container */}
-                        <div className={`${plusJakartaSansFont.className} flex py-2`} >
+                    <div className="flex flex-col gap-2">
+                        <label className={`${plusJakartaSansFont.className} font-medium`}>
                             Password <span className="text-[#FF0000]">*</span>
+                        </label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                            className="border border-black/20 bg-white p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#16C5DE]"
+                            placeholder="Masukkan Password..."
+                            disabled={loading}
+                        />
+                        <div className="flex justify-end mt-1">
+                            <Link href="/not-found" className="text-xs text-gray-500 hover:text-[#16C5DE] underline underline-offset-2">
+                                Lupa Password?
+                            </Link>
                         </div>
-
-                        {/* password textbox container */}
-                        <div className="flex w-full h-full">
-                            <input
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter"}
-                                className="flex gap-2 border border-black/20 bg-white p-4 w-full h-[40%] rounded-2xl shadow-2xl"
-                                placeholder="Masukkan Password..."
-                            />
-                        </div>
-
-                        {/* `lupa password?` container */}
-                        <div className="flex w-full h-full justify-end items-center text-xs py-2 underline">
-                            <Link href="/not-found" className="underline-offset-2">Lupa Password?</Link>
-                        </div>
-
                     </div>
 
-                    {/* submit buttons container */}
-                    <div className="flex items-center justify-center w-full h-full gap-x-2 py-2">
+                    {error && (
+                        <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded-lg border border-red-100">
+                            {error}
+                        </div>
+                    )}
 
-                        {/* sign up container */}
-                        <button
-                            onClick={() => submitActions()}
-                            className={`border-[#16C5DE] border flex w-[40%] h-full justify-center items-center rounded-2xl p-1 text-[#16C5DE] ${plusJakartaSansFont.className}`}
+                    {/* submit buttons container */}
+                    <div className="flex items-center justify-between gap-4 mt-2">
+
+                        {/* sign up button */}
+                        <Link
+                            href="/sign-up"
+                            className={`border-[#16C5DE] border flex-1 h-12 flex justify-center items-center rounded-xl text-[#16C5DE] hover:bg-[#16C5DE]/5 transition-colors ${plusJakartaSansFont.className}`}
                         >
                             Sign Up
-                        </button>
+                        </Link>
 
-                        {/* log in cntainer */}
+                        {/* log in button */}
                         <button
-                            onClick={() => submitActions()}
-                            className={`bg-[#16C5DE] border flex w-[40%] h-full justify-center items-center rounded-2xl p-1 text-white ${plusJakartaSansFont.className}`}
+                            onClick={handleLogin}
+                            disabled={loading}
+                            className={`bg-[#16C5DE] flex-1 h-12 flex justify-center items-center rounded-xl text-white hover:bg-[#13A6BB] transition-colors disabled:opacity-70 disabled:cursor-not-allowed ${plusJakartaSansFont.className}`}
                         >
-                            Log In
+                            {loading ? "Loading..." : "Log In"}
                         </button>
 
                     </div>
 
                     {/* minimal caption */}
-                    <div className={`${plusJakartaSansFont.className} text-xs flex items-center justify-center text-black/40 text-center`}>
+                    <div className={`${plusJakartaSansFont.className} text-xs text-center text-black/40 mt-4 leading-relaxed`}>
                         Dengan log in, kamu menyetujui Kebijakan Privasi dan Syarat & Ketentuan Rumah Amal Salman
                     </div>
 

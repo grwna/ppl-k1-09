@@ -1,27 +1,17 @@
 import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
-import Credentials from "next-auth/providers/credentials";
 
 /**
- * Lightweight auth config — no Prisma, safe for Edge Runtime (middleware).
- * Import this in middleware.ts instead of the full auth.ts.
+ * Edge-compatible auth config.
+ * Only include providers that do NOT require Node.js APIs (e.g. bcrypt, Prisma).
+ * The Credentials provider is added in src/auth.ts which runs in Node.js only.
  */
 export const authConfig: NextAuthConfig = {
+  secret: process.env.AUTH_SECRET,
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
-    }),
-    Credentials({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        console.log("Auth: Authorizing user with credentials:", credentials?.email);
-        return null;
-      },
     }),
   ],
   pages: {
@@ -29,9 +19,21 @@ export const authConfig: NextAuthConfig = {
     error: "/auth/error",
   },
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id;
+        // Handle both raw Prisma includes {role: {name: 'ADMIN'}} and flat arrays ['ADMIN'] safely
+        token.roles = (user as any).roles?.map((ur: any) => 
+          typeof ur === "string" ? ur : (ur.role?.name || ur.role)
+        ) || [];
+      }
+      return token;
+    },
     async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (session.user as any).roles = token.roles || [];
       }
       return session;
     },
