@@ -6,6 +6,7 @@ import ApplicantForm_TermsAndAgreementSection from "@/components/ui/applicant-fo
 import ApplicantForm_ApplicationProgressSection from "@/components/ui/applicant-form/application_progress_section";
 
 import { useApplicationProgressStore } from "@/hooks/applicationProgressStore";
+import ApplicantDashboard_ApplicantNavbar from "@/components/ui/applicant-dashboard/applicant_navbar";
 
 export default function ApplyLoanFormPage(){
 
@@ -14,6 +15,11 @@ export default function ApplyLoanFormPage(){
     return (
         // main container
         <div className="w-full h-full flex flex-col">
+
+            {/* nav bar */}
+            <div>
+                <ApplicantDashboard_ApplicantNavbar />
+            </div>
 
             {/* title */}
             <div className="flex justify-start items-center w-full h-fit">
