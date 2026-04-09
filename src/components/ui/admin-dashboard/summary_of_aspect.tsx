@@ -16,7 +16,7 @@ export default function SummaryOfAspect(props : {title: string, value : any, log
             {/* left : title, values, and difference from histories */}
             <div className={`font-sans ${plusJakartaSansFont.className}`}>
                 {/* title */}
-                <div className="font-bold text-sm">
+                <div className="font-bold text-lg">
                     {props.title}
                 </div>
 
@@ -31,7 +31,9 @@ export default function SummaryOfAspect(props : {title: string, value : any, log
                 </div>
 
                 {/* difference from histories */}
-                <div className={`text-[#${props.update_caption_color}] text-xs font-semibold`}>
+                <div className={`text-xs font-semibold`}
+                    style={{ color: `#${props.update_caption_color}` }}
+                >
                     {props.update_caption}
                 </div>
             </div>

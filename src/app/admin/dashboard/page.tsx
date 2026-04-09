@@ -10,13 +10,15 @@ import AdminDashboard_FinancialOverviewChart from "@/components/ui/admin-dashboa
 import AdminDashboard_RecentActivityTable from "@/components/ui/admin-dashboard/recent_activity_table";
 import AdminDashboard_AdminNavbar from "@/components/ui/admin-dashboard/admin_navbar";
 import { useAdminDashboardStore } from "@/hooks/adminDashboardStore";
+import LoadingPageComponent from "@/components/ui/loading";
+import ErrorComponent from "@/components/ui/error";
 
 const plusJakartaSansFont = localFont({
   src: '../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
   display: 'swap',
 });
 
-export default function DummyAdminDashboard() {
+export default function AdminDashboardPage() {
   const statistics = useAdminDashboardStore((state) => (state.statistics))
   // const analytics = useAdminDashboardStore((state) => (state.analytics)) // handled on the FinancialOverviewChart.tsx file
   // const pendingLogs = useAdminDashboardStore((state) => (state.pending_logs))
@@ -33,7 +35,7 @@ export default function DummyAdminDashboard() {
 
         store.setAnalytics(result.data.analytics);
         store.setStatistics(result.data.statistics);
-        store.setPendingLogs(result.data.pending_logs); // ⚠️ also fix naming
+        store.setPendingLogs(result.data.pending_logs); 
       } else {
         setError(result.error || "Gagal memuat data");
       }
@@ -48,8 +50,8 @@ export default function DummyAdminDashboard() {
     fetchDashboard();
   }, []);
 
-  if (loading) return <div className="text-center mt-20">Memuat Dashboard...</div>;
-  if (error) return <div className="text-center mt-20 text-red-500">Error: {error}</div>;
+  if (loading) return <div className="flex justify-center items-center w-full h-fit"><LoadingPageComponent /></div>;
+  if (error) return <div className="flex justify-center items-center w-full h-fit"><ErrorComponent message={error} /></div>;
 
   return (
     // main container
@@ -81,7 +83,7 @@ export default function DummyAdminDashboard() {
           </div>
 
           {/* financial overview */}
-          <div className="flex flex-col justify-center items-start w-full h-fit p-2 m-2 shadow-xl bg-white rounded-2xl">
+          <div className="flex flex-col justify-center items-start w-full h-fit p-4 m-2 shadow-xl bg-white rounded-2xl">
               {/* title */}
               <div className="flex justify-start items-center w-full h-fit text-xl font-bold">
                   Financial Overview
@@ -99,7 +101,7 @@ export default function DummyAdminDashboard() {
           </div>
 
           {/* recent activities */}
-          <div className="flex flex-col justify-center items-start w-full h-fit p-2 m-2 shadow-xl bg-white rounded-2xl">
+          <div className="flex flex-col justify-center items-start w-full h-fit p-4 m-2 shadow-xl bg-white rounded-2xl">
               {/* title */}
               <div className="flex justify-start items-center w-full h-fit font-bold text-lg">
                   Pending Loan Activities
