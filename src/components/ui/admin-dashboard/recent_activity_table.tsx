@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Table,
   TableBody,
@@ -7,49 +9,39 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useAdminDashboardStore } from "@/hooks/adminDashboardStore"
 
-const activities = [
-  {
-    id: "1",
-    activity: "New Donation of Rp 1,000,000,000 from Fajar Kurniawan",
-    time: "2 hours ago",
-    amount: "+Rp 1,000,000,000",
-    type: "income",
-  },
-  {
-    id: "2",
-    activity: "Loan #12 Approved for Muhammad Fithra Rizki",
-    time: "4 hours ago",
-    amount: "-Rp 50,000,000",
-    type: "expense",
-  },
-  {
-    id: "3",
-    activity: "New Application Submitted from Felix Chandra",
-    time: "5 hours ago",
-    amount: "—",
-    type: "neutral",
-  },
-  {
-    id: "4",
-    activity: "Loan #8 Disbursement Completed",
-    time: "1 day ago",
-    amount: "-Rp 25,000,000",
-    type: "expense",
-  },
-  {
-    id: "5",
-    activity: "Payment Reminder Sent to Loan #45",
-    time: "1 day ago",
-    amount: "—",
-    type: "neutral",
-  },
-]
+// ===============================
+// HELPERS
+// ===============================
+const formatRupiah = (amount: number) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+  }).format(amount)
 
+const timeAgo = (date: Date) => {
+  const now = new Date()
+  const diff = Math.floor((now.getTime() - new Date(date).getTime()) / 1000)
+
+  if (diff < 60) return `${diff} seconds ago`
+  if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`
+  return `${Math.floor(diff / 86400)} days ago`
+}
+
+// ===============================
+// COMPONENT
+// ===============================
 export default function AdminDashboard_RecentActivityTable() {
+  const pendingLogs = useAdminDashboardStore((state) => state.pending_logs)
+
+  if (!pendingLogs) return null
+
   return (
     <Table>
-      <TableCaption>A list of your recent activities.</TableCaption>
+      <TableCaption>Pending loan applications</TableCaption>
+
       <TableHeader>
         <TableRow>
           <TableHead>Activity</TableHead>
@@ -57,17 +49,21 @@ export default function AdminDashboard_RecentActivityTable() {
           <TableHead className="text-right">Amount</TableHead>
         </TableRow>
       </TableHeader>
+
       <TableBody>
-        {activities.map((item) => (
+        {pendingLogs.pendingRequests.map((item) => (
           <TableRow key={item.id}>
-            <TableCell className="font-medium">{item.activity}</TableCell>
-            <TableCell>{item.time}</TableCell>
-            <TableCell 
-              className={`text-right ${
-                item.type === "income" ? "text-green-600" : ""
-              }`}
-            >
-              {item.amount}
+            {/* Activity */}
+            <TableCell className="font-medium">
+              {item.borrower.name} applied for a loan
+            </TableCell>
+
+            {/* Time */}
+            <TableCell>{timeAgo(item.requestedAt)}</TableCell>
+
+            {/* Amount */}
+            <TableCell className="text-right text-orange-600">
+              {formatRupiah(item.requestedAmount)}
             </TableCell>
           </TableRow>
         ))}

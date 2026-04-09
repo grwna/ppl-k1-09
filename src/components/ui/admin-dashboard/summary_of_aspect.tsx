@@ -7,7 +7,7 @@ const plusJakartaSansFont = localFont({
   display: 'swap',
 });
 
-export default function SummaryOfAspect(props : {title: string, value : string, logo : string, alt: string, update_caption : string, value_color : string, update_caption_color : string}) {
+export default function SummaryOfAspect(props : {title: string, value : any, logo : string, alt: string, update_caption : string, value_color : string, update_caption_color : string}) {
 
     // initialize 
     return (
@@ -21,8 +21,9 @@ export default function SummaryOfAspect(props : {title: string, value : string, 
                 </div>
 
                 {/* value block */}
-                <div className={`text-xl text-[#${props.value_color}] font-bold`}>
-                    Rp
+                <div className={`text-xl font-bold`}
+                    style={{ color: `#${props.value_color}` }}
+                >
                     {/* real value */}
                     <div>
                         {props.value}
