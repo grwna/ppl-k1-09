@@ -45,12 +45,12 @@ export default function ApplicantForm_DocumentUploadSection() {
 
             {/* title */}
             <div className="flex w-full h-fit font-bold text-2xl">
-                Document Upload
+                Unggah Dokumen
             </div>
 
             {/* caption */}
             <div className="flex w-full h-fit font-light text-sm">
-                Please upload the required documents to verify your identity
+                Harap unggah dokumen yang diperlukan untuk melakukan verifikasi identitas Anda
             </div>
 
             {/* student id card / ktm container */}
@@ -58,7 +58,7 @@ export default function ApplicantForm_DocumentUploadSection() {
 
                 {/* title */}
                 <div className="flex w-full h-fit justify-start items-center font-bold">
-                    Student ID Card (KTM)
+                    Kartu Tanda Mahasiswa (KTM)
                 </div>
 
                 {/* upload block */}
@@ -73,7 +73,7 @@ export default function ApplicantForm_DocumentUploadSection() {
 
                 {/* title */}
                 <div className="flex w-full h-fit justify-start items-center font-bold">
-                    Family Card (KK)
+                    Kartu Keluarga (KK)
                 </div>
 
                 {/* upload block */}
@@ -102,15 +102,15 @@ export default function ApplicantForm_DocumentUploadSection() {
                 <div className="w-[90%] h-fit justify-start items-center">
                     {/* title */}
                     <div className="w-full h-fit font-bold">
-                        Document Requirements
+                        Syarat Dokumen
                     </div>
 
                     {/* points of document requirements */}
                     <div className="w-full h-fit justify-start items-center text-xs">
                         <ul >
-                            <li className="py-0.5">Files must be in JPG, PNG, or PDF format</li>
-                            <li className="py-0.5">Maximum file size: 5MB per document</li>
-                            <li className="py-0.5">Documents should be clear and readable</li>
+                            <li className="py-0.5">Berkas harus dalam format JPG, PNG, atau PDF</li>
+                            <li className="py-0.5">Ukuran maksimum berkas adalah 5MB per berkas</li>
+                            <li className="py-0.5">Berkas harus jelas dan dapat dibaca</li>
                         </ul>
                     </div>
                 </div>
@@ -121,12 +121,12 @@ export default function ApplicantForm_DocumentUploadSection() {
 
                 {/* back button */}
                 <div className="px-6 py-2 flex justify-center items-center text-gray-500 border border-gray-400 rounded-2xl" onClick={handleBack}>
-                    Back
+                    Kembali 
                 </div>
 
                 {/* continue button */}
                 <div className="px-6 py-2 flex justify-center items-center text-white border border-gray-009966 rounded-2xl bg-[#009966]/60" onClick={handleContinue}>
-                    Continue
+                    Lanjut
                 </div>
             </div>
 

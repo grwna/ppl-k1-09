@@ -39,12 +39,12 @@ export default function ApplicantForm_ApplicationProgressSection() {
 
                     {/* title */}
                     <div className="flex justify-start items-start font-bold text-md w-full h-fit">
-                        Personal Info
+                        Informasi Pribadi
                     </div>
 
                     {/* caption */}
                     <div className="flex justify-start items-start font-light text-sm w-full h-fit">
-                        Basic Information
+                        Informasi Dasar
                     </div>
 
                 </div>
@@ -76,12 +76,12 @@ export default function ApplicantForm_ApplicationProgressSection() {
 
                     {/* title */}
                     <div className="flex justify-start items-start font-bold text-md w-full h-fit">
-                        Financial Needs
+                        Kebutuhan Finansial
                     </div>
 
                     {/* caption */}
                     <div className="flex justify-start items-start font-light text-sm w-full h-fit">
-                        Loan Details
+                        Detail Pinjaman
                     </div>
 
                 </div>
@@ -114,12 +114,12 @@ export default function ApplicantForm_ApplicationProgressSection() {
 
                     {/* title */}
                     <div className="flex justify-start items-start font-bold text-md w-full h-fit">
-                        Document Upload
+                        Unggah Berkas
                     </div>
 
                     {/* caption */}
                     <div className="flex justify-start items-start font-light text-sm w-full h-fit">
-                        Required Documents
+                        Berkas yang diperlukan
                     </div>
 
                 </div>
@@ -152,12 +152,12 @@ export default function ApplicantForm_ApplicationProgressSection() {
 
                     {/* title */}
                     <div className="flex justify-start items-start font-bold text-md w-full h-fit">
-                        Agreement
+                        Perjanjian
                     </div>
 
                     {/* caption */}
                     <div className="flex justify-start items-start font-light text-sm w-full h-fit">
-                        Terms and Conditions
+                        Syarat dan Ketentuan
                     </div>
 
                 </div>

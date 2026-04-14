@@ -28,12 +28,12 @@ export default function ApplicantForm_PersonalInformationSection() {
 
             {/* title */}
             <div className="flex w-full h-fit font-bold text-2xl">
-                Personal Information
+                Informasi Pribadi
             </div>
 
             {/* caption */}
             <div className="flex w-full h-fit font-light text-sm">
-                Please provide your basic information as a student
+                Isi informasi yang dinyatakan dibawah
             </div>
 
             {/* full name section */}
@@ -101,12 +101,12 @@ export default function ApplicantForm_PersonalInformationSection() {
 
                 {/* back button */}
                 <div className="px-6 py-2 flex justify-center items-center text-gray-500 border border-gray-400 rounded-2xl" onClick={handleBack}>
-                    Back
+                    Kembali
                 </div>
 
                 {/* continue button */}
                 <div className="px-6 py-2 flex justify-center items-center text-white border border-gray-009966 rounded-2xl bg-[#009966]/60" onClick={handleContinue}>
-                    Continue
+                    Lanjut
                 </div>
             </div>
 

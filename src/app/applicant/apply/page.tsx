@@ -34,7 +34,7 @@ export default function ApplyLoanFormPage(){
             <div className={`flex justify-center items-center w-full h-fit text-3xl ${plusJakartaSansFont.className} p-4`}>
                 {/* title */}
                 <div className="flex justify-start items-center w-[60%] h-fit font-bold">
-                    Student Loan Application
+                    Pengajuan Pinjaman Mahasiswa
                 </div>
             </div>
 
@@ -42,7 +42,7 @@ export default function ApplyLoanFormPage(){
             <div className={`flex justify-center items-center w-full h-fit text-md ${plusJakartaSansFont.className} px-2 pb-2`}>
                 {/* caption */}
                 <div className="flex justify-start items-center w-[60%] h-fit">
-                    Complete all steps to submit your interest-free loan application
+                    Selesaikan seluruh tahap untuk mengajukan pinjaman tanpa bunga Anda
                 </div>
             </div>
 
@@ -54,7 +54,7 @@ export default function ApplyLoanFormPage(){
 
                     {/* /title */}
                     <div className="flex justify-start items-center px-2 font-bold w-full h-fit">
-                        Application Progress
+                        Progres Pengajuan
                     </div>
 
                     {/* coontent */}
