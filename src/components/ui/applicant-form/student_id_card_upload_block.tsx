@@ -11,13 +11,15 @@ export default function ApplicantForm_StudentIdCardUploadBlock() {
     const fileRef = useRef<HTMLInputElement>(null)
     const studentIdCard = useApplicationProgressStore((state) => (state.student_id_card))
 
+    const setStudentIdCard = useApplicationProgressStore((state) => (state.setStudentIdCard))
+
     const handleClick = () => {
         fileRef.current?.click()
     }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0]
-        if (selected) useApplicationProgressStore((state) => {state.setStudentIdCard(selected)})
+        if (selected) setStudentIdCard(selected)
     }
 
     return (

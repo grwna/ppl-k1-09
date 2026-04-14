@@ -11,13 +11,15 @@ export default function ApplicantForm_FamilyCardUploadBlock() {
     const fileRef = useRef<HTMLInputElement>(null)
     const familyCard = useApplicationProgressStore((state) => (state.family_card))
 
+    const setFamilyCard = useApplicationProgressStore((state) => (state.setFamilyCard))
+
     const handleClick = () => {
         fileRef.current?.click()
     }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0]
-        if (selected) useApplicationProgressStore((state) => {state.setFamilyCard(selected)})
+        if (selected) setFamilyCard(selected)
     }
 
     return (

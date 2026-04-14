@@ -9,8 +9,8 @@ export const LoanService = {
           borrowerId: userId,
           requestedAmount: data.requestedAmount,
           description: data.description,
-          collateralUrl: data.collateralUrl,
-          collateralDescription: data.collateralDescription,
+          collateralUrl : "",
+          collateralDescription : "",
           status: "PENDING",
         },
       });

@@ -42,9 +42,29 @@ export default function ApplicantForm_TermsAndAgreementSection() {
         formData.append("family_card_file", family_card)
         formData.append("terms_and_agreement_compliance", String(comply_to_terms_and_agreement))
 
-        await fetch("/api/upload", {
+        await fetch("/api/loans", {
             method: "POST",
             body: formData,
+        })
+        
+        const familyCardFormData = new FormData()
+        familyCardFormData.append("file", family_card)
+        familyCardFormData.append("documentType", "png")
+        familyCardFormData.append("applicationId", "xxxx")
+
+        await fetch("/api/documents/upload", {
+            method: "POST",
+            body: familyCardFormData,
+        })
+        
+        const studentIdCardFormData = new FormData()
+        studentIdCardFormData.append("file", student_id_card)
+        studentIdCardFormData.append("documentType", "png")
+        studentIdCardFormData.append("applicationId", "xxxx")
+
+        await fetch("/api/documents/upload", {
+            method: "POST",
+            body: studentIdCardFormData,
         })
     }
 
