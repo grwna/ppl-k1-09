@@ -12,13 +12,13 @@ export default function ApplicantForm_ApplicationProgressSection() {
 
     return (
         // main container
-        <div>
+        <div className="flex flex-col justify-center items-start gap-2 h-full w-full bg-white p-4">
 
             {/* personal info part */}
-            <div>
+            <div className="flex justify-start items-center w-full h-fit gap-2">
 
                 {/* number container */}
-                <div>
+                <div className="flex justify-center items-center w-[10%] h-fit">
 
                     {Number(applicationProgress?.step) < 1 ? 
                         <span>1</span> : 
@@ -26,6 +26,8 @@ export default function ApplicantForm_ApplicationProgressSection() {
                             <Image 
                                 src={GreenChecklist}
                                 alt="Green checklist"
+                                width={25}
+                                height={25}
                             />
                         </div>
                     }
@@ -33,15 +35,15 @@ export default function ApplicantForm_ApplicationProgressSection() {
                 </div>
 
                 {/* content container : title and caption */}
-                <div>
+                <div className="flex flex-col justify-start items-center w-full h-fit">
 
                     {/* title */}
-                    <div>
+                    <div className="flex justify-start items-start font-bold text-md w-full h-fit">
                         Personal Info
                     </div>
 
                     {/* caption */}
-                    <div>
+                    <div className="flex justify-start items-start font-light text-sm w-full h-fit">
                         Basic Information
                     </div>
 
@@ -50,10 +52,10 @@ export default function ApplicantForm_ApplicationProgressSection() {
             </div>
 
             {/* financial needs part */}
-            <div>
+            <div className="flex justify-start items-center w-full h-fit gap-2">
 
                 {/* number container */}
-                <div>
+                <div className="flex justify-center items-center w-[10%] h-fit">
 
                     {Number(applicationProgress?.step) < 2 ? 
                         <span>2</span> : 
@@ -61,6 +63,8 @@ export default function ApplicantForm_ApplicationProgressSection() {
                             <Image 
                                 src={GreenChecklist}
                                 alt="Green checklist"
+                                width={25}
+                                height={25}
                             />
                         </div>
                     }
@@ -68,16 +72,16 @@ export default function ApplicantForm_ApplicationProgressSection() {
                 </div>
 
                 {/* content container : title and caption */}
-                <div>
+                <div className="flex flex-col justify-start items-center w-full h-fit">
 
                     {/* title */}
-                    <div>
+                    <div className="flex justify-start items-start font-bold text-md w-full h-fit">
                         Financial Needs
                     </div>
 
                     {/* caption */}
-                    <div>
-                        Loan details
+                    <div className="flex justify-start items-start font-light text-sm w-full h-fit">
+                        Loan Details
                     </div>
 
                 </div>
@@ -86,10 +90,10 @@ export default function ApplicantForm_ApplicationProgressSection() {
             
 
             {/* personal info part */}
-            <div>
+            <div className="flex justify-start items-center w-full h-fit gap-2">
 
                 {/* number container */}
-                <div>
+                <div className="flex justify-center items-center w-[10%] h-fit">
 
                     {Number(applicationProgress?.step) < 3 ? 
                         <span>3</span> : 
@@ -97,6 +101,8 @@ export default function ApplicantForm_ApplicationProgressSection() {
                             <Image 
                                 src={GreenChecklist}
                                 alt="Green checklist"
+                                width={25}
+                                height={25}
                             />
                         </div>
                     }
@@ -104,16 +110,16 @@ export default function ApplicantForm_ApplicationProgressSection() {
                 </div>
 
                 {/* content container : title and caption */}
-                <div>
+                <div className="flex flex-col justify-start items-center w-full h-fit">
 
                     {/* title */}
-                    <div>
+                    <div className="flex justify-start items-start font-bold text-md w-full h-fit">
                         Document Upload
                     </div>
 
                     {/* caption */}
-                    <div>
-                        Required documents
+                    <div className="flex justify-start items-start font-light text-sm w-full h-fit">
+                        Required Documents
                     </div>
 
                 </div>
@@ -122,10 +128,10 @@ export default function ApplicantForm_ApplicationProgressSection() {
             
 
             {/* Agreement part */}
-            <div>
+            <div className="flex justify-start items-center w-full h-fit gap-2">
 
                 {/* number container */}
-                <div>
+                <div className="flex justify-center items-center w-[10%] h-fit">
 
                     {Number(applicationProgress?.step) < 4 ? 
                         <span>4</span> : 
@@ -133,6 +139,8 @@ export default function ApplicantForm_ApplicationProgressSection() {
                             <Image 
                                 src={GreenChecklist}
                                 alt="Green checklist"
+                                width={25}
+                                height={25}
                             />
                         </div>
                     }
@@ -140,16 +148,16 @@ export default function ApplicantForm_ApplicationProgressSection() {
                 </div>
 
                 {/* content container : title and caption */}
-                <div>
+                <div className="flex flex-col justify-start items-center w-full h-fit">
 
                     {/* title */}
-                    <div>
+                    <div className="flex justify-start items-start font-bold text-md w-full h-fit">
                         Agreement
                     </div>
 
                     {/* caption */}
-                    <div>
-                        Terms and conditions
+                    <div className="flex justify-start items-start font-light text-sm w-full h-fit">
+                        Terms and Conditions
                     </div>
 
                 </div>

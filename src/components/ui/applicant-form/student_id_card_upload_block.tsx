@@ -21,30 +21,30 @@ export default function ApplicantForm_StudentIdCardUploadBlock() {
     }
 
     return (
-        <div className="flex flex-col gap-4 items-center">
+        <div className="w-full h-full flex flex-col gap-4 items-center">
         
-        {/* Hidden input */}
-        <input
-            type="file"
-            ref={fileRef}
-            onChange={handleFileChange}
-            className="hidden"
-        />
+            {/* Hidden input */}
+            <input
+                type="file"
+                ref={fileRef}
+                onChange={handleFileChange}
+                className="hidden"
+            />
 
-        {/* Custom upload button */}
-        <div
-            onClick={handleClick}
-            className="w-40 h-40 border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100"
-        >
-            Upload
-        </div>
-
-        {/* Preview */}
-        {studentIdCard && (
-            <div className="text-sm">
-            Selected: {studentIdCard.name}
+            {/* Custom upload button */}
+            <div
+                onClick={handleClick}
+                className="w-full h-40 border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100"
+            >
+                Upload
             </div>
-        )}
+
+            {/* Preview */}
+            {studentIdCard && (
+                <div className="text-sm">
+                Selected: {studentIdCard.name}
+                </div>
+            )}
 
     </div>
   )

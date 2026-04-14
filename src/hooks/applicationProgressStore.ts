@@ -51,14 +51,14 @@ export const useApplicationProgressStore = create<ApplicationProgressStore>((set
     application_progress : ({ step : 1}),
     
     // personal information
-    full_name : null,
-    university_name : null,
-    student_id_number : null,
+    full_name : "",
+    university_name : "",
+    student_id_number : "",
     
     // financial needs
-    loan_title : null,
-    requested_amount : null,
-    loan_purpose : null,
+    loan_title : "",
+    requested_amount : 0,
+    loan_purpose : "",
     
     // financial needs
     student_id_card : null,
@@ -161,7 +161,7 @@ export const useApplicationProgressStore = create<ApplicationProgressStore>((set
 
     // terms and agreement
     switchComplyToTermsAndAgreement() {
-        set( {comply_to_terms_and_agreement : !this.comply_to_terms_and_agreement})
+        set( { comply_to_terms_and_agreement : !get().comply_to_terms_and_agreement })
     },
 
 }))

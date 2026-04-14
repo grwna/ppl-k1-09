@@ -21,7 +21,7 @@ export default function ApplicantForm_FamilyCardUploadBlock() {
     }
 
     return (
-        <div className="flex flex-col gap-4 items-center">
+        <div className="w-full h-full flex flex-col gap-4 items-center">
         
         {/* Hidden input */}
         <input
@@ -34,7 +34,7 @@ export default function ApplicantForm_FamilyCardUploadBlock() {
         {/* Custom upload button */}
         <div
             onClick={handleClick}
-            className="w-40 h-40 border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100"
+            className="w-full h-40 border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100"
         >
             Upload
         </div>
