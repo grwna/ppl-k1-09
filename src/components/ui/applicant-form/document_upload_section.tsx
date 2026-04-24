@@ -22,7 +22,7 @@ export default function ApplicantForm_DocumentUploadSection() {
     //     formData.append("student_id_card_file", student_id_card_file)
     //     formData.append("family_card_file", family_card_file)
 
-    //     await fetch("/api/upload", {
+    //     await fetch("/api/documents/upload", {
     //         method: "POST",
     //         body: formData,
     //     })

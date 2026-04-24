@@ -7,8 +7,14 @@ export async function POST(req: Request) {
   try {
     // Verify Authentication
     const session = await auth();
-    if (!session?.user?.id) {
+    if (!session?.user?.id && !session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userId = session.user?.id || (session.user as any).sub;
+    if (!userId) {
+      return NextResponse.json({ error: "User ID not found in session" }, { status: 401 });
     }
 
     // Parse FormData

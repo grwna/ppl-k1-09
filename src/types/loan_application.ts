@@ -3,7 +3,8 @@ import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
 export type LoanApplication = {
   loanApplicationId : string,
-  name: string;
+  name: string,
+  image : string,
   idNumber: string;
   institution : string,
   intakeYear: number,

@@ -7,6 +7,7 @@ import Google from "next-auth/providers/google";
  * The Credentials provider is added in src/auth.ts which runs in Node.js only.
  */
 export const authConfig: NextAuthConfig = {
+  trustHost: true,
   secret: process.env.AUTH_SECRET,
   providers: [
     Google({

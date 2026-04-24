@@ -18,6 +18,7 @@ export const useLoanRequestStore = create<LoanRequestStore>((set) => ({
         name: "",
         idNumber: "",
         institution: "",
+        image: "",
         intakeYear: 2026,
         address: "",
 
