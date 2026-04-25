@@ -1,29 +1,50 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { useLoanRequestStore } from "@/hooks/loanRequestStore";
-
-// Mock Data
-const DONOR_POOL = [
-  { id: 1, name: "Fajar Kurniawan", available: 1000000000, fund: "General Fund" },
-  { id: 2, name: "Siti Aminah", available: 500000000, fund: "Special Fund" },
-  { id: 3, name: "Budi Santoso", available: 250000000, fund: "Tech Grant" },
-  { id: 4, name: "Yayasan ABC", available: 750000000, fund: "Education Pool" },
-];
 
 export default function MapFundsModal() {
   const [allocations, setAllocations] = useState<any[]>([]); // Array of {donor, amount}
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [donorPool, setDonorPool] = useState<any[]>([])
+
+    // fetch the donor pools
+  useEffect(() => {
+
+    const fetchDonations = async () => {
+
+
+      // 1. Define the base URL
+      const baseUrl = 'http://localhost:3000/api/donations';
+
+      try {
+        const response = await fetch(`${baseUrl}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        setDonorPool(result.data.donations);
+      } catch (error) {
+        console.error("Fetch error at admin/loan-request/page.tsx:", error);
+      }
+      
+    }
+    fetchDonations()
+
+  }, [])
 
   // Filter out donors already added to the list
   const availableDonors = useMemo(() => {
-    const selectedIds = allocations.map((a) => a.donor.id);
-    return DONOR_POOL.filter(
-      (d) => !selectedIds.includes(d.id) && d.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [allocations, searchTerm]);
+  const selectedIds = allocations.map((a) => a.donor.id);
+  return donorPool.filter(
+    (d) => !selectedIds.includes(d.id) && 
+           d.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}, [allocations, searchTerm, donorPool]);
 
   const isAllocationFundModalOpen = useLoanRequestStore((state) => state.isAllocationFundModalOpen)
   const setAllocationFundModalOpen = useLoanRequestStore((state) => (state.setAllocationFundModalOpen))

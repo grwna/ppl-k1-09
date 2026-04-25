@@ -35,7 +35,7 @@ export default function AdminLoanRequestPage() {
 
 
       // 1. Define the base URL
-      const baseUrl = 'https://localhost:3000/loan/requests';
+      const baseUrl = 'https://localhost:3000/api/loan/requests';
 
       // 2. Build the query string
       const params = new URLSearchParams({
