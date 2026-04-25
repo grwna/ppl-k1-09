@@ -8,6 +8,7 @@ import { time, timeStamp } from "console";
 import localFont from "next/font/local";
 import Image from "next/image";
 import AdminDashboard_AdminNavbar from "@/components/ui/admin-dashboard/admin_navbar";
+import MapFundsModal from "@/components/ui/loan-request/fund_allocation_card";
 
 const plusJakartaSansFont = localFont({
   src: '../../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
@@ -51,23 +52,31 @@ export default function ReviewLoanApplicationPage() {
     const studentIdCard = selectedLoan?.studentIdCard
     const transcriptFile = selectedLoan?.transcriptFile
     const documents : (File | string | null | undefined)[] = [ studentIdCard , transcriptFile ]
+    const isAllocationFundModalOpen = useLoanRequestStore((state) => (state.isAllocationFundModalOpen))
 
     const setApprovedAmount = useLoanRequestStore((state) => (state.setApprovedAmount))
     const setRejectionApprovalNote = useLoanRequestStore((state) => (state.setRejectionApprovalNote))
+    const setAllocationFundModalOpen = useLoanRequestStore((state) => (state.setAllocationFundModalOpen))
+
 
     const dummyDescription = `Lorem ipsum dolor sit amet consectetur adipisicing elit. 
         Praesentium magni, facere, est laborum cumque expedita sed saepe dignissimos aliquam, 
         hic quam quis dicta harum veniam nihil tempora rerum sequi consectetur.
     `
-
     return (
         <div className={`${plusJakartaSansFont.className} flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB]`}>
-        
+
+            { isAllocationFundModalOpen ? 
+                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+                    <MapFundsModal /> 
+                </div> 
+            : 
+                <></>
+            }
             {/* navbar */}
             <div className="flex justify-center items-center w-full h-fit">
                 <AdminDashboard_AdminNavbar />
             </div>
-        
             
             {/* title */}
             <div className="flex flex-col justify-center items-center w-[90%] h-fit gap-4 py-10">
@@ -401,7 +410,7 @@ export default function ReviewLoanApplicationPage() {
                     </div>
 
                     {/* approve loan button */}
-                    <div className="flex w-full h-fit p-4 bg-[#07B0C8] text-white justify-center items-center rounded-lg">
+                    <div className="flex w-full h-fit p-4 bg-[#07B0C8] text-white justify-center items-center rounded-lg" onClick={() => setAllocationFundModalOpen(!isAllocationFundModalOpen)}>
                         Setujui Pinjaman
                     </div>
 

@@ -4,11 +4,13 @@ import { LoanApplication } from "@/types/loan_application"
 type LoanRequestStore = {
     loans: LoanApplication[]
     selected_loan: LoanApplication 
+    isAllocationFundModalOpen : boolean
 
     setLoans: (loans: LoanApplication[]) => void
     setSelectedLoan: (loan: LoanApplication) => void
     setApprovedAmount: (amount: number) => void
     setRejectionApprovalNote: (note: string) => void
+    setAllocationFundModalOpen : (isModalOpen : boolean) => void
 }
 
 export const useLoanRequestStore = create<LoanRequestStore>((set) => ({
@@ -34,6 +36,7 @@ export const useLoanRequestStore = create<LoanRequestStore>((set) => ({
         approvedAmount: 0,
         rejectionApprovalNotes: ""
     },
+    isAllocationFundModalOpen : false,
 
     setLoans: (loans) => set({ loans }),
 
@@ -54,4 +57,8 @@ export const useLoanRequestStore = create<LoanRequestStore>((set) => ({
                 rejectionApprovalNotes: note
             }
         })),
+
+    setAllocationFundModalOpen: (isModalOpen) => 
+        set({isAllocationFundModalOpen : isModalOpen}),
+    
 }))
