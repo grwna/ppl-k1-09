@@ -5,19 +5,31 @@ import { useApplicationProgressStore } from "@/hooks/applicationProgressStore"
 export default function ApplicantForm_TermsAndAgreementSection() {
 
     const handleSubmitApplication = async () => {
-    
-        // construct the object to be sent
-        const full_name = useApplicationProgressStore((state) => state.full_name)
-        const university_name = useApplicationProgressStore((state) => state.university_name)
-        const student_id_number = useApplicationProgressStore((state) => state.student_id_number)
-        const loan_title = useApplicationProgressStore((state) => state.loan_title)
-        const requested_amount = useApplicationProgressStore((state) => state.requested_amount)
-        const loan_purpose = useApplicationProgressStore((state) => state.loan_purpose)
-        const family_card_file = useApplicationProgressStore((state) => state.family_card)
-        const student_id_card_file = useApplicationProgressStore((state) => state.student_id_card)
-        const terms_and_agreement_compliance = useApplicationProgressStore((state) => state.comply_to_terms_and_agreement)
-        
-        if (!full_name || !university_name || !student_id_number || !loan_title || !requested_amount || !loan_purpose || !family_card_file || !student_id_card_file) return
+        const state = useApplicationProgressStore.getState()
+
+        const {
+            full_name,
+            university_name,
+            student_id_number,
+            loan_title,
+            requested_amount,
+            loan_purpose,
+            family_card,
+            student_id_card,
+            comply_to_terms_and_agreement
+        } = state
+
+        if (
+            !full_name ||
+            !university_name ||
+            !student_id_number ||
+            !loan_title ||
+            !requested_amount ||
+            !loan_purpose ||
+            !family_card ||
+            !student_id_card ||
+            !comply_to_terms_and_agreement
+        ) return
 
         const formData = new FormData()
         formData.append("full_name", full_name)
@@ -26,123 +38,119 @@ export default function ApplicantForm_TermsAndAgreementSection() {
         formData.append("loan_title", loan_title)
         formData.append("requested_amount", String(requested_amount))
         formData.append("loan_purpose", loan_purpose)
-        formData.append("student_id_card_file", student_id_card_file)
-        formData.append("family_card_file", family_card_file)
-        formData.append("terms_and_agreement_compliance", String(terms_and_agreement_compliance))
+        formData.append("student_id_card_file", student_id_card)
+        formData.append("family_card_file", family_card)
+        formData.append("terms_and_agreement_compliance", String(comply_to_terms_and_agreement))
 
         await fetch("/api/documents/upload", {
             method: "POST",
             body: formData,
+        })
+        
+        const familyCardFormData = new FormData()
+        familyCardFormData.append("file", family_card)
+        familyCardFormData.append("documentType", "png")
+        familyCardFormData.append("applicationId", "xxxx")
+
+        await fetch("/api/documents/upload", {
+            method: "POST",
+            body: familyCardFormData,
+        })
+        
+        const studentIdCardFormData = new FormData()
+        studentIdCardFormData.append("file", student_id_card)
+        studentIdCardFormData.append("documentType", "png")
+        studentIdCardFormData.append("applicationId", "xxxx")
+
+        await fetch("/api/documents/upload", {
+            method: "POST",
+            body: studentIdCardFormData,
         })
     }
 
     const decrementStep = useApplicationProgressStore((state) => state.decrementStep)
     const switchComplyToTermsAndAgreement = useApplicationProgressStore((state) => state.switchComplyToTermsAndAgreement)
 
-    const handleBack = async () => {
-        decrementStep()
-    }
-
     return (
+        <div className="flex flex-col gap-4 w-full h-full bg-white p-6 rounded-2xl">
 
-        // main container
-        <div className="flex flex-col w-full h-fit">
-
-            {/* title */}
-            <div>
-                Terms & Agreement
+            {/* Title */}
+            <div className="text-2xl font-bold">
+                Syarat & Ketentuan
             </div>
 
-            {/* captions */}
-            <div>
-                Please review and accept the loan agreement terms
+            {/* Subtitle */}
+            <div className="text-sm text-gray-500">
+                Mohon baca dan setujui ketentuan berikut sebelum melanjutkan
             </div>
 
-            {/* terms and agreement */}
-            <div>
+            {/* Document */}
+            <div className="w-full max-h-[300px] overflow-y-auto border rounded-xl p-4 bg-gray-50 text-sm leading-relaxed space-y-4">
 
-                {/* title */}
-                <div>
-                    Interest-Free Loan Agreement
-                </div>
+                <h2 className="font-semibold text-base">
+                    Perjanjian Pinjaman Tanpa Bunga
+                </h2>
 
-                {/* intro agreement part */}
-                <div>
-                    By submitting this application, you acknowledge and agree to the following terms and conditions of the Rumah Amal Salman interest-free student loan program:
-                </div>
+                <p>
+                    Dengan mengajukan permohonan ini, Anda menyatakan telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan dalam program pinjaman mahasiswa tanpa bunga yang diselenggarakan oleh Rumah Amal Salman.
+                </p>
 
-                {/* 1 : principles */}
-                <div>
+                <p>
+                    Pinjaman ini merupakan pinjaman tanpa bunga (Qardhul Hasan) yang diberikan untuk mendukung kebutuhan pendidikan melalui prinsip filantropi Islam.
+                </p>
 
-                    {/* statement */}
-                    <div>
-                        This is an interest-free loan (Qardhul Hasan) provided to support your education through Islamic philanthropy principles.
-                    </div>
+                <ul className="list-disc pl-5 space-y-1">
+                    <li>Anda bersedia mengembalikan dana pinjaman dalam bentuk cicilan bulanan sesuai kesepakatan setelah pinjaman disetujui.</li>
+                    <li>Tidak dikenakan bunga maupun biaya tambahan dalam bentuk apa pun. Total pengembalian sama dengan jumlah pinjaman.</li>
+                    <li>Seluruh informasi yang Anda berikan dalam pengajuan ini adalah benar dan dapat dipertanggungjawabkan.</li>
+                    <li>Anda memberikan izin kepada Rumah Amal Salman untuk melakukan verifikasi atas data dan dokumen yang telah Anda kirimkan.</li>
+                    <li>Dana pinjaman akan digunakan sepenuhnya untuk keperluan pendidikan sesuai dengan tujuan yang Anda ajukan.</li>
+                </ul>
 
-                    {/* points of document requirements */}
-                    <div>
-                        <ul>
-                            <li>You agree to repay the loan amount in monthly installments as agreed upon after loan approval.</li>
-                            <li>No interest or additional fees will be charged on this loan. The repayment amount equals the borrowed amount.</li>
-                            <li>All information provided in this application is accurate and truthful to the best of your knowledge.</li>
-                            <li>You authorize Rumah Amal Salman to verify the information and documents provided.</li>
-                            <li>You commit to using the loan funds solely for educational purposes as stated in your application.</li>
-                        </ul>
-                    </div>
+                <p>
+                    Apabila Anda mengalami kesulitan finansial di kemudian hari, Anda bersedia untuk segera berkomunikasi dengan pihak Rumah Amal Salman guna membahas kemungkinan penyesuaian skema pembayaran.
+                </p>
 
-                </div>
-
-                {/* 2 : other stuffs */}
-                <div>
-
-                    {/* statement */}
-                    <div>
-                        In case of financial hardship, you agree to communicate promptly with Rumah Amal Salman to discuss alternative repayment arrangements.
-                    </div>
-
-                    {/* points of document requirements */}
-                    <div>
-                        <ul>
-                            <li>You understand that this loan is a trust (amanah) and you are morally and ethically obligated to repay it.</li>
-                        </ul>
-                    </div>
-
-                </div>
+                <ul className="list-disc pl-5 space-y-1">
+                    <li>Anda memahami bahwa pinjaman ini merupakan bentuk amanah yang harus dijaga dan dikembalikan secara bertanggung jawab, baik secara moral maupun etika.</li>
+                </ul>
 
             </div>
 
-            {/* compliance from the user section */}
-            <div className="flex justify-center items-center w-full h-fit">
+            {/* Agreement */}
+            <div className="flex items-start gap-3">
 
-                {/* cta action */}
                 <input
                     type="checkbox"
-                    onChange={(e) => {switchComplyToTermsAndAgreement()}}
-                    onKeyDown={(e) => e.key === "Enter"}
-                    className={ `flex gap-2 border border-black/20 bg-white p-4 w-full h-[40%] rounded-2xl shadow-2xl`}
+                    onChange={switchComplyToTermsAndAgreement}
+                    className="mt-1 w-4 h-4 accent-[#009966]"
                 />
 
-                {/* statement */}
-                <div>
-                    I have read and agree to the interest-free loan agreement terms and conditions. I confirm that all information provided is accurate and I commit to fulfilling my repayment obligations.
-                </div>
+                <p className="text-sm text-gray-700">
+                    Saya telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan yang berlaku. Saya menyatakan bahwa seluruh data yang saya berikan adalah benar dan saya bersedia memenuhi kewajiban pengembalian pinjaman sesuai ketentuan.
+                </p>
 
             </div>
 
-            {/* cta button */}
-            <div className="flex w-full h-fit">
+            {/* Buttons */}
+            <div className="flex justify-end gap-4 pt-2">
 
-                {/* back button */}
-                <div onClick={handleBack}>
-                    Back
-                </div>
+                <button
+                    onClick={decrementStep}
+                    className="px-6 py-2 text-gray-500 border border-gray-300 rounded-xl hover:bg-gray-100"
+                >
+                    Kembali
+                </button>
 
-                {/* continue button */}
-                <div onClick={handleSubmitApplication}>
-                    Submit Application
-                </div>
+                <button
+                    onClick={handleSubmitApplication}
+                    className="px-6 py-2 text-white bg-[#009966] rounded-xl hover:bg-[#007a4d]"
+                >
+                    Ajukan
+                </button>
+
             </div>
 
         </div>
-    );
+    )
 }

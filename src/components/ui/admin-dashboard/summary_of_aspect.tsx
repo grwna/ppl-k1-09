@@ -1,48 +1,44 @@
+import { type LucideIcon } from "lucide-react";
 
-import Image from "next/image";
-import localFont from "next/font/local";
+type SummaryOfAspectProps = {
+  title: string;
+  value: string | number;
+  update_caption: string;
+  icon: LucideIcon;
+  icon_bg_color: string;
+  value_color: string;
+  update_caption_color: string;
+};
 
-const plusJakartaSansFont = localFont({
-  src: '../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
+export default function SummaryOfAspect({
+  title,
+  value,
+  update_caption,
+  icon: Icon,
+  icon_bg_color,
+  value_color,
+  update_caption_color,
+}: SummaryOfAspectProps) {
+  return (
+    <div className="flex justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex-1">
+      {/* Left: text info */}
+      <div className="flex flex-col gap-1">
+        <span className="text-xs text-gray-500 font-medium">{title}</span>
+        <span className="text-xl font-bold leading-tight" style={{ color: value_color }}>
+          {value}
+        </span>
+        <span className="text-xs font-semibold" style={{ color: update_caption_color }}>
+          {update_caption}
+        </span>
+      </div>
 
-export default function SummaryOfAspect(props : {title: string, value : string, logo : string, alt: string, update_caption : string, value_color : string, update_caption_color : string}) {
-
-    // initialize 
-    return (
-        <div className="flex justify-between items-center bg-white p-2 rounded-2xl shadow-xl">
-                    
-            {/* left : title, values, and difference from histories */}
-            <div className={`font-sans ${plusJakartaSansFont.className}`}>
-                {/* title */}
-                <div className="font-bold text-sm">
-                    {props.title}
-                </div>
-
-                {/* value block */}
-                <div className={`text-xl text-[#${props.value_color}] font-bold`}>
-                    Rp
-                    {/* real value */}
-                    <div>
-                        {props.value}
-                    </div>
-                </div>
-
-                {/* difference from histories */}
-                <div className={`text-[#${props.update_caption_color}] text-xs font-semibold`}>
-                    {props.update_caption}
-                </div>
-            </div>
-
-            {/* right : symbols */}
-            <div className="flex justify-center items-start">
-                <Image
-                    src={props.logo}
-                    alt={props.alt}
-                    className="m-2"
-                />
-            </div>
-        </div>
-    );
+      {/* Right: icon in colored circle */}
+      <div
+        className="flex justify-center items-center w-11 h-11 rounded-xl flex-shrink-0"
+        style={{ backgroundColor: icon_bg_color }}
+      >
+        <Icon className="w-5 h-5 text-white" strokeWidth={2.2} />
+      </div>
+    </div>
+  );
 }

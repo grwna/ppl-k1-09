@@ -8,6 +8,10 @@ export default function ApplicantForm_FinancialNeedsSection() {
     const requested_amount = useApplicationProgressStore((state) => (state.requested_amount))
     const loan_purpose = useApplicationProgressStore((state) => (state.loan_purpose))
 
+    const setLoanTitle = useApplicationProgressStore((state) => (state.setLoanTitle))
+    const setLoanPurpose = useApplicationProgressStore((state) => (state.setLoanPurpose))
+    const setRequestedAmount = useApplicationProgressStore((state) => (state.setRequestedAmount))
+
     const incrementStep = useApplicationProgressStore((state) => state.incrementStep)
     const decrementStep = useApplicationProgressStore((state) => state.decrementStep)
 
@@ -20,31 +24,31 @@ export default function ApplicantForm_FinancialNeedsSection() {
     }
     
     return (
-        <div>
+        <div className="flex flex-col justify-center items-start gap-2 h-full w-full bg-white p-4 rounded-2xl">
 
             {/* title */}
-            <div className="flex w-full h-fit">
-                Financial Needs
+            <div className="flex w-full h-fit font-bold text-2xl">
+                Kebutuhan Finansial
             </div>
 
             {/* caption */}
-            <div className="flex w-full h-fit">
-                Tell us about your loan requirements
+            <div className="flex w-full h-fit font-light text-sm">
+                Jelaskan mengenai pengajuan pinjaman Anda
             </div>
 
             {/* full name section */}
-            <div className="flex w-full h-fit">
+            <div className="flex flex-col w-full h-fit gap-2">
                 
                 {/* title */}
-                <div>
-                    Loan Title
+                <div className="flex w-full h-fit justify-start items-center font-bold">
+                    Judul Pinjaman *
                 </div>
 
                 {/* input */}
                 <div>
                     <input
                         value={String(loan_title)}
-                        onChange={(e) => useApplicationProgressStore((state) => {state.setLoanTitle(e.target.value)})}
+                        onChange={(e) => setLoanTitle(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter"}
                         className={ `flex gap-2 border border-black/20 bg-white p-4 w-full h-[40%] rounded-2xl shadow-2xl`}
                         placeholder="Masukkan nama pinjaman anda..."
@@ -53,10 +57,10 @@ export default function ApplicantForm_FinancialNeedsSection() {
             </div>
 
             {/* requested amount section */}
-            <div className="flex w-full h-fit">
+            <div className="flex flex-col w-full h-fit gap-2">
                 
                 {/* title */}
-                <div>
+                <div className="flex w-full h-fit justify-start items-center font-bold">
                     Jumlah yang diajukan (Rp)
                 </div>
 
@@ -64,45 +68,44 @@ export default function ApplicantForm_FinancialNeedsSection() {
                 <div>
                     <input
                         value={String(requested_amount)}
-                        onChange={(e) => useApplicationProgressStore((state) => {state.setRequestedAmount(Number(e.target.value))})}
+                        onChange={(e) => setRequestedAmount(Number(e.target.value))}
                         onKeyDown={(e) => e.key === "Enter"}
                         className={ `flex gap-2 border border-black/20 bg-white p-4 w-full h-[40%] rounded-2xl shadow-2xl`}
-                        placeholder="Masukkan universitas anda..."
+                        placeholder="Masukkan jumlah pinjaman anda..."
                     />
                 </div>
             </div>
 
             {/* loan purpose section */}
-            <div className="flex w-full h-fit">
+            <div className="flex flex-col w-full h-[40%] gap-2">
                 
                 {/* title */}
-                <div>
-                    Loan Purpose
+                <div className="flex w-full h-fit justify-start items-center font-bold">
+                    Tujuan Pinjaman *
                 </div>
 
                 {/* input */}
-                <div>
-                    <input
+                <div className="flex w-full h-[40%] justify-center items-center">
+                    <textarea
                         value={String(loan_purpose)}
-                        onChange={(e) => useApplicationProgressStore((state) => {state.setLoanPurpose(e.target.value)})}
-                        onKeyDown={(e) => e.key === "Enter"}
-                        className={ `flex gap-2 border border-black/20 bg-white p-4 w-full h-[40%] rounded-2xl shadow-2xl`}
+                        onChange={(e) => setLoanPurpose(e.target.value)}
+                        className="w-full min-h-40 border border-black/20 bg-white p-4 rounded-2xl shadow-2xl resize-none"
                         placeholder="Jelaskan tujuan pengajuan pinjaman anda..."
                     />
                 </div>
             </div>
 
             {/* cta button */}
-            <div className="flex w-full h-fit">
+            <div className="flex w-full h-fit justify-end items-center gap-4 p-2">
 
                 {/* back button */}
-                <div onClick={handleBack}>
-                    Back
+                <div className="px-6 py-2 flex justify-center items-center text-gray-500 border border-gray-400 rounded-2xl" onClick={handleBack}>
+                    Kembali 
                 </div>
 
                 {/* continue button */}
-                <div onClick={handleContinue}>
-                    Continue
+                <div className="px-6 py-2 flex justify-center items-center text-white border border-gray-009966 rounded-2xl bg-[#009966]/60" onClick={handleContinue}>
+                    Lanjut
                 </div>
             </div>
 

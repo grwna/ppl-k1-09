@@ -1,12 +1,5 @@
 
 import Image from "next/image";
-import localFont from "next/font/local";
-
-// init fonts
-const plusJakartaSansFont = localFont({
-    src: "../../../public/fonts/PlusJakartaSans-VariableFont.ttf",
-    display: 'swap',
-});
 
 export default function LandingImpactInNumberBox(props : {logo : string, alt : string, title: string, subtitle: string, caption : string}){
     return (
@@ -21,17 +14,17 @@ export default function LandingImpactInNumberBox(props : {logo : string, alt : s
             </div>
 
             {/* title */}
-            <div className={`${plusJakartaSansFont.className} font-bold text-[48px] text-white w-full h-[20%] flex justify-center items-center`}>
+            <div className="font-bold text-[48px] text-white w-full h-[20%] flex justify-center items-center">
                 {props.title}
             </div>
 
             {/* subtitle */}
-            <div className={`${plusJakartaSansFont.className} text-lg font-medium text-white flex justify-center items-center h-[20%] w-[80%]`}>
+            <div className="text-lg font-medium text-white flex justify-center items-center h-[20%] w-[80%]">
                 {props.subtitle}
             </div>
 
             {/* caption */}
-            <div className={`${plusJakartaSansFont.className} font-extralight text-white flex justify-center items-center text-center h-[20%] w-[80%]`}>
+            <div className="font-extralight text-white flex justify-center items-center text-center h-[20%] w-[80%]">
                 {props.caption}
             </div>
 
