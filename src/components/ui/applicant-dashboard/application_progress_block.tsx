@@ -7,26 +7,13 @@ import { useUserStore } from "@/hooks/userStore";
 
 export default function ApplicantDashboard_ApplicationProgressComponent(props: {submitTime : Date, verifiedTime : Date, disbursedTime : Date}){
 
-    
-
-    // fetch conditions from the db
-    useEffect(() => {
-
-        // fetch all loans connected to current user
-        const fetchAllLoans = async () => {
-
-        }
-
-
-    }, [])
-
     return (
 
         // main container
         <div className="flex flex-col w-full h-full justify-center items-start gap-2 p-2">
             
             {/* title */}
-            <div className="flex justify-start items-center w-full h-fit px-2 font-semibold text-lg">
+            <div className="flex justify-start items-center w-full h-fit px-2 pt-2 font-semibold text-lg">
                 Application Progress
             </div>
 

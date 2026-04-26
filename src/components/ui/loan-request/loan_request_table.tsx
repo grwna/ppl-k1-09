@@ -1,138 +1,164 @@
 "use client"
 
 import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table"
 import { useLoanRequestStore } from "@/hooks/loanRequestStore"
 import Image from "next/image"
-import Link from "next/link"
+import { useRouter } from "next/navigation" // Import the router
+import DefaultAvatarLogo from  "../../../../public/default-avatar.svg"
 
 // ===============================
 // HELPERS
 // ===============================
 const StatusActionDict = {
-    "PENDING" : {
-        "status_color" : "#FEF3C6",
-        "text_color" : "#BB4D00",
-        "action_caption" : "Review",
-        "action_color" : "#00B5D8",
-        "action_caption_color" : "#00B5D8",
-        // "path" : "/admin/loan"
+    "PENDING": {
+        "status_bg": "#FEF3C6",
+        "status_text": "#BB4D00",
+        "action_caption": "Review",
+        "action_bg": "#E0F7FA",
+        "action_text": "#00B5D8",
     },
-    "APPROVED" : {
-        "status_color" : "#D0FAE5",
-        "text_color" : "#007A55",
-        "action_caption" : "See Detail",
-        "action_color" : "#FCB82E",
-        "action_caption_color" : "#FCB82E",
-        // "path" : "/admin/loan-reque/st/review"
+    "APPROVED": {
+        "status_bg": "#D0FAE5",
+        "status_text": "#007A55",
+        "action_caption": "See Detail",
+        "action_bg": "#FEFCE8",
+        "action_text": "#FCB82E",
     },
-    "REJECTED" : {
-        "status_color" : "#FFE2E2",
-        "text_color" : "#C10007",
-        "action_caption" : "See Detail",
-        "action_color" : "#FCB82E",
-        "action_caption_color" : "#FCB82E",
-        // "path" : '/admin/loan-request/review'
+    "REJECTED": {
+        "status_bg": "#FFE2E2",
+        "status_text": "#C10007",
+        "action_caption": "See Detail",
+        "action_bg": "#FEFCE8",
+        "action_text": "#FCB82E",
     },
 }
 
+const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(amount).replace("IDR", "Rp");
+};
+
+const formatDate = (dateInput: string | number | Date) => {
+    const date = new Date(dateInput);
+    return `Today, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+};
 
 // ===============================
 // COMPONENT
 // ===============================
 export default function LoanRequest_LoanRequestsTable() {
-    const loans = useLoanRequestStore((state) => (state.loans))
-    const selectedLoan = useLoanRequestStore((state) => (state.selected_loan))
-    const submitTime = new Date(Date.now() - Number(selectedLoan?.createdAt)).toLocaleString()
+    const router = useRouter(); // Initialize router
+    const loans = useLoanRequestStore((state) => state.loans);
+    const setSelectedLoan = useLoanRequestStore((state) => state.setSelectedLoan);
 
-  if (!loans) return <div>Tidak ada pengajuan pinjaman yang perlu diperhatikan</div>
+    // Wrapper function to handle both actions
+    const handleActionClick = (loan: any) => {
+        setSelectedLoan(loan);
+        router.push("/admin/loan-request/review");
+    };
 
-  return (
-    <Table>
-      {/* <TableCaption>Pending loan applications</TableCaption> */}
+    if (!loans || loans.length === 0) {
+        return <div className="p-10 text-center text-gray-500">Tidak ada pengajuan pinjaman yang perlu diperhatikan</div>
+    }
 
-      <TableHeader>
-        <TableRow>
-          <TableHead>Applicant Details</TableHead>
-          <TableHead>Institution</TableHead>
-          <TableHead>Requested Amount</TableHead>
-          <TableHead>Date Submitted</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Action</TableHead>
-        </TableRow>
-      </TableHeader>
+    return (
+        <div className="w-full border-t border-gray-100 bg-white rounded-xl shadow-sm overflow-hidden">
+            <Table>
+                <TableHeader className="bg-[#F9FAFB]">
+                    <TableRow>
+                        <TableHead className="text-[#64748B] font-semibold text-xs uppercase px-6">Applicant Details</TableHead>
+                        <TableHead className="text-[#64748B] font-semibold text-xs uppercase">Institution</TableHead>
+                        <TableHead className="text-[#64748B] font-semibold text-xs uppercase">Requested Amount</TableHead>
+                        <TableHead className="text-[#64748B] font-semibold text-xs uppercase">Date Submitted</TableHead>
+                        <TableHead className="text-[#64748B] font-semibold text-xs uppercase text-center">Status</TableHead>
+                        <TableHead className="text-[#64748B] font-semibold text-xs uppercase text-center">Action</TableHead>
+                    </TableRow>
+                </TableHeader>
 
-      <TableBody>
-        {loans.map((loan) => (
-          <TableRow key={loan.loanApplicationId}>
+                <TableBody>
+                    {loans.map((loan : any) => {
+                        const statusKey = (loan.status || "PENDING").toUpperCase() as keyof typeof StatusActionDict;
+                        const config = StatusActionDict[statusKey];
 
-            {/* applicant details */}
-            <TableCell className="font-medium">
-                {/* section for image + its details */}
-                <div className="flex h-fit">
+                        return (
+                            <TableRow key={loan.id || loan.loanApplicationId} className="hover:bg-gray-50 border-b border-gray-50 transition-colors">
+                                
+                                {/* Applicant Details */}
+                                <TableCell className="py-4 px-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-100 flex-shrink-0">
+                                            <Image 
+                                                src={loan.image || DefaultAvatarLogo} 
+                                                alt="Profile" 
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-[#1E293B] text-sm">{loan.borrower?.name || "Muhammad Fithra Rizki"}</span>
+                                            <span className="text-[#64748B] text-[11px] font-medium uppercase tracking-tight">
+                                                REQ-2023-089 • {loan.idNumber || "13523049"}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </TableCell>
 
-                    {/* image */}
-                    <div>
-                        <Image 
-                            src={loan.image}
-                            alt="User profile image"
-                        />
-                    </div>
+                                {/* Institution */}
+                                <TableCell className="text-[#475569] text-sm font-medium">
+                                    {loan.institution || "Institut Teknologi Bandung (ITB)"}
+                                </TableCell>
 
-                    {/* name + application id */}
-                    <div>
+                                {/* Requested Amount */}
+                                <TableCell className="font-bold text-[#1E293B] text-sm">
+                                    {formatCurrency(Number(loan.requestedAmount))}
+                                </TableCell>
 
-                        {/* name content */}
-                        <div>
-                            {selectedLoan.name}
-                        </div>
+                                {/* Date Submitted */}
+                                <TableCell className="text-[#64748B] text-sm">
+                                    {formatDate(loan.createdAt)}
+                                </TableCell>
 
-                        {/* application id + nim */}
-                        <div>
-                            {selectedLoan.loanApplicationId} &bull; {selectedLoan.idNumber}
-                        </div>
+                                {/* Status Pill */}
+                                <TableCell>
+                                    <div className="flex justify-center">
+                                        <div 
+                                            className="px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5"
+                                            style={{ backgroundColor: config.status_bg, color: config.status_text }}
+                                        >
+                                            <span className="w-1 h-1 rounded-full" style={{ backgroundColor: config.status_text }}></span>
+                                            {loan.status}
+                                        </div>
+                                    </div>
+                                </TableCell>
 
-                    </div>
+                                {/* Action Button */}
+                                <TableCell>
+                                    <div className="flex justify-center">
+                                        <button 
+                                            onClick={() => handleActionClick(loan)}
+                                            className="px-5 py-1.5 rounded-lg text-xs font-bold transition-all hover:brightness-95 active:scale-95 shadow-sm"
+                                            style={{ backgroundColor: config.action_bg, color: config.action_text }}
+                                        >
+                                            {config.action_caption}
+                                        </button>
+                                    </div>
+                                </TableCell>
 
-                </div>
-            </TableCell>
-
-            {/* institution */}
-            <TableCell>{selectedLoan.institution}</TableCell>
-
-            {/* request amount */}
-            <TableCell>{selectedLoan.requestedAmount}</TableCell>
-
-            {/* date submitted */}
-            <TableCell>{submitTime}</TableCell>
-
-            {/* status */}
-            <TableCell className={`p-2 flex justify-center items-center`} 
-                style={{ color: `${StatusActionDict[selectedLoan.status.toUpperCase() as keyof typeof StatusActionDict]["status_color"]}` }}
-            >
-                <div>
-                    {selectedLoan.status}
-                </div>
-            </TableCell>
-
-            {/* action */}
-            <TableCell className="p-2 flex justify-center items-center ">
-                <Link href={"/admin/loan-request/review"}></Link>
-                <div>
-                    {StatusActionDict[selectedLoan.status.toUpperCase() as keyof typeof StatusActionDict]["action_caption"]}
-                </div>
-            </TableCell>
-
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  )
+                            </TableRow>
+                        );
+                    })}
+                </TableBody>
+            </Table>
+        </div>
+    );
 }
