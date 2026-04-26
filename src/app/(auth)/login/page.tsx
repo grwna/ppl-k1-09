@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -31,7 +31,19 @@ export default function LoginPage() {
                 setError("Email atau password salah.");
                 setLoading(false);
             } else {
-                router.push("/logged-in");
+                const session = await getSession();
+                const roles = ((session?.user as any)?.roles || []) as string[];
+
+                if (roles.includes("DONOR")) {
+                    router.push("/donor/dashboard");
+                } else if (roles.includes("ADMIN")) {
+                    router.push("/dashboard");
+                } else if (roles.includes("BORROWER")) {
+                    router.push("/applicant/dashboard");
+                } else {
+                    router.push("/dashboard");
+                }
+
                 router.refresh();
             }
         } catch (err) {

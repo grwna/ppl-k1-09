@@ -1,69 +1,72 @@
 
+"use client";
+
 import { useDonationStore } from "@/hooks/donationStore";
 import Link from "next/link";
 
-export default function DonorDashboard_StartNewDonation() {
+type DonorDashboardStartNewDonationProps = {
+    quickSelectAmounts: number[];
+};
 
-    // initialize variables
-    const donationAmount = useDonationStore((state) => state.donation?.amount)
+const formatCurrencyCompact = (amount: number) => {
+    if (amount % 1000000 === 0) {
+        return `Rp${amount / 1000000} Juta`;
+    }
+
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0,
+    }).format(amount);
+};
+
+export default function DonorDashboard_StartNewDonation({ quickSelectAmounts }: DonorDashboardStartNewDonationProps) {
+
+    const donationAmount = useDonationStore((state) => state.donation?.amount);
+    const setAmount = useDonationStore((state) => state.setAmount);
     
     return (
-        // main container
-        <div className=" flex flex-col items-start justify-start bg-[#07B0C8] rounded-2xl p-2">
-        
-            {/* title */}
-            <div className="text-white flex justify-start items-center h-[10%] w-full font-sans font-bold">
-                Start New Donation
-            </div>
+        <aside className="h-full rounded-xl bg-[#07B0C8] p-4 shadow-[0_8px_16px_rgba(2,132,199,0.22)] md:p-5">
+            <h2 className="text-[2.1rem] font-semibold leading-none tracking-tight text-white md:text-[2.2rem]">Start New Donation</h2>
 
-            {/* introduction */}
-            <div className="text-white flex justify-start items-start h-[20%] w-[80%] text-start font-sans">
+            <p className="mt-3 max-w-[38ch] text-[13px] leading-relaxed text-[#DDF6FB]">
                 Your contribution helps students achieve their educational dreams without the burden of interest.
-            </div>
+            </p>
 
-            {/* donation amount */}
-            <div className="flex flex-col justify-center items-center w-full h-[20%] ">
-                {/* title */}
-                <div className="flex justify-start items-center w-full text-white">
-                    Donation Amount
-                </div>
+            <div className="mt-4">
+                <p className="text-[12.5px] font-medium text-white">Donation Amount</p>
 
-                {/* input new donation amount */}
                 <input
-                    value={donationAmount}
-                    onChange={(e) => useDonationStore((state) => state.setAmount(Number(e.target.value)))}
-                    onKeyDown={(e) => e.key === "Enter"}
-                    className="flex gap-2 border border-black/20 bg-white p-4 w-full h-[40%] rounded-2xl shadow-2xl"
-                    placeholder="Rp0"
+                    value={donationAmount || ""}
+                    onChange={(e) => setAmount(Number(e.target.value || 0))}
+                    inputMode="numeric"
+                    className="mt-2 h-11 w-full rounded-md border border-white/25 bg-[#10AEC4] px-4 text-[13px] text-white placeholder:text-[#B8E8F0] focus:outline-none focus:ring-2 focus:ring-white/45"
+                    placeholder="Rp 0"
                 />
-            </div>
-            
-            {/* quick select */}
-            <div className="flex justify-between items-center h-[20%] w-full">
-                
-                {/* 1 juta */}
-                <div className="flex justify-center items-center text-white">
-                    Rp1 Juta
-                </div>
 
-                {/* 5 juta */}
-                <div className="flex justify-center items-center text-white">
-                    Rp5 Juta
-                </div>
-
-                {/* 10 juta */}
-                <div className="flex justify-center items-center text-white">
-                    Rp10 Juta
+                <p className="mt-3 text-[12px] text-[#DDF6FB]">Quick select:</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                    {quickSelectAmounts.map((amount) => (
+                        <button
+                            key={amount}
+                            type="button"
+                            onClick={() => setAmount(amount)}
+                            className="rounded-md border border-white/30 bg-[#12AFC5] px-3 py-1.5 text-[11.5px] font-medium text-white transition hover:bg-[#14BDD6]"
+                        >
+                            {formatCurrencyCompact(amount)}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            {/* call to action (make donation) */}
-            <div className="flex justify-center items-center h-[30%] w-full text-white">
-                <Link href={"/d"}>
+            <div className="mt-5">
+                <Link
+                    href="/donor/donate-form"
+                    className="inline-flex h-10 w-full items-center justify-center rounded-full bg-white text-[13px] font-medium text-[#0E8FA3] transition hover:bg-[#ECFEFF]"
+                >
                     Make Donation
                 </Link>
             </div>
-
-        </div>
+        </aside>
     );
 }
