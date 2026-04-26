@@ -9,6 +9,7 @@ import UserPersonaLogo from "../../../../public/user_persona.svg"
 import ChevronDownLogo from "../../../../public/chevron-down.svg"
 
 import { useUserStore } from "@/hooks/userStore";
+import localFont from "next/font/local";
 
 type NotificationItem = {
     id: string;
@@ -383,3 +384,4 @@ export default function ApplicantDashboard_ApplicantNavbar() {
         </div>
     );
 }
+
