@@ -6,6 +6,7 @@ import DummyDocsLogo from "../../../../../public/dummy-docs.svg"
 import ArrowRightGreyLogo from "../../../../../public/arrow-right-grey.svg"
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import AdminDashboard_AdminNavbar from "@/components/ui/admin-dashboard/admin_navbar";
 import MapFundsModal from "@/components/ui/loan-request/fund_allocation_card";
 import { FileText } from "lucide-react";
@@ -73,11 +74,14 @@ function DocumentCard({ label, file }: { label: string, file?: string | File | n
 export default function ReviewLoanApplicationPage() {
     const selectedLoan = useLoanRequestStore((state) => state.selected_loan);
     const isAllocationFundModalOpen = useLoanRequestStore((state) => state.isAllocationFundModalOpen);
+    const [actionError, setActionError] = useState("");
+    const [isRejecting, setIsRejecting] = useState(false);
     
     // Actions
     const setApprovedAmount = useLoanRequestStore((state) => state.setApprovedAmount);
     const setRejectionApprovalNote = useLoanRequestStore((state) => state.setRejectionApprovalNote);
     const setAllocationFundModalOpen = useLoanRequestStore((state) => state.setAllocationFundModalOpen);
+    const setSelectedLoan = useLoanRequestStore((state) => state.setSelectedLoan);
 
     // Derived Data
     const submitTime = selectedLoan?.createdAt ? new Date(selectedLoan.createdAt).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' }) : "Recently";
@@ -91,6 +95,43 @@ export default function ReviewLoanApplicationPage() {
     ];
 
     if (!selectedLoan) return <div className="p-20 text-center">Loading application data...</div>
+
+    const handleRejectApplication = async () => {
+        const applicationId = selectedLoan.id || selectedLoan.loanApplicationId;
+        if (!applicationId) {
+            setActionError("Application id tidak ditemukan.");
+            return;
+        }
+
+        setIsRejecting(true);
+        setActionError("");
+
+        try {
+            const response = await fetch(`/api/applications/${applicationId}/reject`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    notes: rejectionApprovalNote || undefined,
+                }),
+            });
+
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(result.error || "Gagal menolak pengajuan");
+            }
+
+            setSelectedLoan({
+                ...selectedLoan,
+                status: "REJECTED",
+            });
+        } catch (error) {
+            setActionError(error instanceof Error ? error.message : "Gagal menolak pengajuan");
+        } finally {
+            setIsRejecting(false);
+        }
+    };
 
     return (
         <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB] pb-20">
@@ -207,14 +248,26 @@ export default function ReviewLoanApplicationPage() {
                     </div>
 
                     <div className="flex flex-col gap-3 mt-4">
+                        {actionError && (
+                            <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+                                {actionError}
+                            </p>
+                        )}
                         <button 
-                            onClick={() => setAllocationFundModalOpen(true)}
+                            onClick={() => {
+                                setActionError("");
+                                setAllocationFundModalOpen(true);
+                            }}
                             className="w-full py-4 bg-[#07B0C8] hover:bg-[#06a0b5] text-white font-bold rounded-xl transition-all shadow-md shadow-cyan-100"
                         >
                             Setujui Pinjaman
                         </button>
-                        <button className="w-full py-4 border-2 border-red-100 text-red-500 hover:bg-red-50 font-bold rounded-xl transition-all">
-                            Tolak Pengajuan
+                        <button
+                            onClick={handleRejectApplication}
+                            disabled={isRejecting}
+                            className="w-full py-4 border-2 border-red-100 text-red-500 hover:bg-red-50 font-bold rounded-xl transition-all disabled:opacity-50"
+                        >
+                            {isRejecting ? "Menolak..." : "Tolak Pengajuan"}
                         </button>
                     </div>
                 </div>

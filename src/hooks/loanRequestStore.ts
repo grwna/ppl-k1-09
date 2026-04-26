@@ -31,6 +31,8 @@ export const useLoanRequestStore = create<LoanRequestStore>((set) => ({
         collateralDescription: "",
         status: "",
         createdAt: 0,
+        loanId: "",
+        loan: null,
         attachments: [],
         studentIdCard: new File([], ""),
         transcriptFile: new File([], ""),

@@ -1,7 +1,8 @@
-import { LoanApplicationStatus } from "@/generated/prisma";
+import { LoanApplicationStatus, LoanStatus, Prisma } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import { supabaseAdmin } from "@/lib/supabase";
 import { LoanApplicationInput } from "@/schemas/loan.schema";
+import { NotificationService } from "@/services/notification.service";
 
 const BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME || "loan-documents";
 
@@ -72,6 +73,13 @@ export const LoanService = {
             requestedAmount: true,
             createdAt: true,
             status: true,
+            loan: {
+              select: {
+                id: true,
+                approvedAmount: true,
+                status: true,
+              },
+            },
             attachments: {
               select: {
                 id: true,
@@ -117,6 +125,13 @@ export const LoanService = {
             requestedAmount: true,
             createdAt: true,
             status: true,
+            loan: {
+              select: {
+                id: true,
+                approvedAmount: true,
+                status: true,
+              },
+            },
             attachments: {
               select: {
                 id: true,
@@ -220,5 +235,145 @@ export const LoanService = {
       console.error("Error in getLoanApplicationsByUserId:", error);
       throw new Error("Failed to fetch user loan statistics.");
     }
-  }
+  },
+
+  async approveLoanApplication(input: {
+    applicationId: string;
+    adminId: string;
+    approvedAmount: number;
+    notes?: string | null;
+  }) {
+    const approvedAmount = new Prisma.Decimal(input.approvedAmount);
+    const approvedAt = new Date();
+    const dueDate = new Date(approvedAt);
+    dueDate.setFullYear(dueDate.getFullYear() + 1);
+
+    return prisma.$transaction(async (tx) => {
+      const application = await tx.loanApplication.findUnique({
+        where: { id: input.applicationId },
+        select: {
+          id: true,
+          borrowerId: true,
+          status: true,
+          loan: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      if (!application) {
+        throw new Error("APPLICATION_NOT_FOUND");
+      }
+
+      const updatedApplication = await tx.loanApplication.update({
+        where: { id: input.applicationId },
+        data: {
+          status: LoanApplicationStatus.APPROVED,
+        },
+      });
+
+      if (application.status !== LoanApplicationStatus.APPROVED) {
+        await tx.applicationStatusHistory.create({
+          data: {
+            applicationId: input.applicationId,
+            adminId: input.adminId,
+            fromStatus: application.status,
+            toStatus: LoanApplicationStatus.APPROVED,
+            notes: input.notes || null,
+          },
+        });
+      }
+
+      const loan = await tx.loan.upsert({
+        where: {
+          applicationId: input.applicationId,
+        },
+        update: {
+          approvedAmount,
+          status: LoanStatus.ACTIVE,
+        },
+        create: {
+          applicationId: input.applicationId,
+          approvedAmount,
+          status: LoanStatus.ACTIVE,
+          approvedAt,
+          dueDate,
+        },
+      });
+
+      if (application.status !== LoanApplicationStatus.APPROVED) {
+        await NotificationService.createLoanApprovalNotification(
+          {
+            borrowerId: application.borrowerId,
+            applicationId: input.applicationId,
+            approvedAmount: input.approvedAmount,
+          },
+          tx
+        );
+      }
+
+      return {
+        application: updatedApplication,
+        loan: {
+          ...loan,
+          approvedAmount: Number(loan.approvedAmount),
+        },
+      };
+    });
+  },
+
+  async rejectLoanApplication(input: {
+    applicationId: string;
+    adminId: string;
+    notes?: string | null;
+  }) {
+    return prisma.$transaction(async (tx) => {
+      const application = await tx.loanApplication.findUnique({
+        where: { id: input.applicationId },
+        select: {
+          id: true,
+          borrowerId: true,
+          status: true,
+        },
+      });
+
+      if (!application) {
+        throw new Error("APPLICATION_NOT_FOUND");
+      }
+
+      const updatedApplication = await tx.loanApplication.update({
+        where: { id: input.applicationId },
+        data: {
+          status: LoanApplicationStatus.REJECTED,
+        },
+      });
+
+      if (application.status !== LoanApplicationStatus.REJECTED) {
+        await tx.applicationStatusHistory.create({
+          data: {
+            applicationId: input.applicationId,
+            adminId: input.adminId,
+            fromStatus: application.status,
+            toStatus: LoanApplicationStatus.REJECTED,
+            notes: input.notes || null,
+          },
+        });
+      }
+
+      if (application.status !== LoanApplicationStatus.REJECTED) {
+        await NotificationService.createLoanRejectionNotification(
+          {
+            borrowerId: application.borrowerId,
+            applicationId: input.applicationId,
+            reason: input.notes,
+          },
+          tx
+        );
+      }
+
+      return updatedApplication;
+    });
+  },
 };
