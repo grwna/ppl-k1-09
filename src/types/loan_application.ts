@@ -24,6 +24,18 @@ export type LoanApplication = {
     id: string;
     approvedAmount: string | number;
     status: string;
+    fundings?: {
+      id: string;
+      amount: string | number;
+      donorFundId: string | null;
+      sourceType: string;
+      donorFund?: {
+        donor?: {
+          name?: string | null;
+          email?: string | null;
+        } | null;
+      } | null;
+    }[];
   } | null;
   attachments?: {
     id: string;

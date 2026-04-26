@@ -41,6 +41,11 @@ export default function MapFundsModal() {
   const borrowerName = selectedLoan.name || selectedLoan.borrower?.name || "Borrower";
   const targetAmount = Number(selectedLoan.approvedAmount || selectedLoan.requestedAmount || 0);
   const currentLoanId = selectedLoan.loanId || selectedLoan.loan?.id || "";
+  const existingAllocated = (selectedLoan.loan?.fundings || []).reduce(
+    (total, funding) => total + (Number(funding.amount) || 0),
+    0
+  );
+  const remainingToAllocate = Math.max(targetAmount - existingAllocated, 0);
   const totalAllocation = allocations.reduce((total, item) => total + (Number(item.amount) || 0), 0);
 
   // fetch the donor pools
@@ -102,49 +107,14 @@ export default function MapFundsModal() {
     setAllocations((current) => current.filter((_, itemIndex) => itemIndex !== index));
   };
 
-  const approveLoanIfNeeded = async () => {
-    if (currentLoanId) return currentLoanId;
-
-    const response = await fetch(`/api/applications/${applicationId}/approve`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        approvedAmount: targetAmount,
-        notes: selectedLoan.rejectionApprovalNotes || undefined,
-      }),
-    });
-
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(result.error || "Gagal menyetujui pinjaman");
-    }
-
-    const loanId = result.data?.loan?.id;
-    if (!loanId) {
-      throw new Error("Loan id tidak ditemukan setelah approval");
-    }
-
-    setSelectedLoan({
-      ...selectedLoan,
-      status: "APPROVED",
-      loanId,
-      loan: result.data.loan,
-      approvedAmount: Number(result.data.loan.approvedAmount || targetAmount),
-    });
-
-    return loanId;
-  };
-
   const handleConfirmAllocation = async () => {
     if (!applicationId) {
       setErrorMessage("Application id tidak ditemukan.");
       return;
     }
 
-    if (targetAmount <= 0) {
-      setErrorMessage("Isi jumlah disetujui lebih dulu sebelum alokasi dana.");
+    if (!currentLoanId) {
+      setErrorMessage("Loan belum disetujui. Setujui pinjaman sebelum alokasi dana.");
       return;
     }
 
@@ -165,8 +135,8 @@ export default function MapFundsModal() {
       }
     }
 
-    if (totalAllocation > targetAmount) {
-      setErrorMessage("Total alokasi melebihi jumlah pinjaman yang disetujui.");
+    if (totalAllocation > remainingToAllocate) {
+      setErrorMessage("Total alokasi melebihi sisa pinjaman yang belum dialokasikan.");
       return;
     }
 
@@ -174,7 +144,18 @@ export default function MapFundsModal() {
     setErrorMessage("");
 
     try {
-      const loanId = await approveLoanIfNeeded();
+      const createdFundings: {
+        id: string;
+        loanId: string;
+        donorFundId: string;
+        sourceType: string;
+        amount: number;
+        donorFund?: {
+          donor?: {
+            name?: string | null;
+          } | null;
+        } | null;
+      }[] = [];
 
       for (const allocation of allocations) {
         const response = await fetch("/api/loan-fundings", {
@@ -183,7 +164,7 @@ export default function MapFundsModal() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            loanId,
+            loanId: currentLoanId,
             donorFundId: allocation.donor.id,
             amount: Number(allocation.amount),
           }),
@@ -193,7 +174,35 @@ export default function MapFundsModal() {
         if (!response.ok) {
           throw new Error(result.error || "Gagal mengalokasikan dana");
         }
+
+        createdFundings.push({
+          ...result.data,
+          donorFund: {
+            donor: {
+              name: allocation.donor.name,
+            },
+          },
+        });
       }
+
+      setSelectedLoan({
+        ...selectedLoan,
+        loan: selectedLoan.loan
+          ? {
+              ...selectedLoan.loan,
+              fundings: [
+                ...(selectedLoan.loan.fundings || []),
+                ...createdFundings.map((funding) => ({
+                  id: funding.id,
+                  amount: funding.amount,
+                  donorFundId: funding.donorFundId,
+                  sourceType: funding.sourceType,
+                  donorFund: funding.donorFund,
+                })),
+              ],
+            }
+          : selectedLoan.loan,
+      });
 
       closeModal(true);
     } catch (error) {
@@ -225,6 +234,16 @@ export default function MapFundsModal() {
             <div className="flex justify-between items-end mt-1">
               <p className="text-xs text-slate-400">{selectedLoan.institution || "Institution not provided"}</p>
               <p className="text-slate-600 font-medium">{formatCurrency(targetAmount)}</p>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
+              <div className="rounded-xl bg-white p-3">
+                <p className="text-slate-400">Sudah dialokasikan</p>
+                <p className="font-bold text-emerald-600">{formatCurrency(existingAllocated)}</p>
+              </div>
+              <div className="rounded-xl bg-white p-3">
+                <p className="text-slate-400">Sisa belum dialokasikan</p>
+                <p className="font-bold text-amber-600">{formatCurrency(remainingToAllocate)}</p>
+              </div>
             </div>
           </div>
         </div>
