@@ -43,7 +43,7 @@ export default function AdminDashboard_AdminNavbar() {
 
                 {/* Donate */}
                 <div className={`${plusJakartaSansFont.className} font-bold`}>
-                    <Link href={'/admin/load-request'}>Load Request</Link>
+                    <Link href={'/admin/loan-request'}>Loan Request</Link>
                 </div>
 
                 {/* History */}
