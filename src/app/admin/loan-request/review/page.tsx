@@ -4,419 +4,208 @@ import { useLoanRequestStore } from "@/hooks/loanRequestStore";
 import DummyUserLogo from "../../../../../public/dummy-user.svg"
 import DummyDocsLogo from "../../../../../public/dummy-docs.svg"
 import ArrowRightGreyLogo from "../../../../../public/arrow-right-grey.svg"
-import { time, timeStamp } from "console";
 import Image from "next/image";
+import Link from "next/link";
 import AdminDashboard_AdminNavbar from "@/components/ui/admin-dashboard/admin_navbar";
 import MapFundsModal from "@/components/ui/loan-request/fund_allocation_card";
 
 const StatusActionDict = {
-    "PENDING" : {
-        "status_color" : "#FEF3C6",
-        "text_color" : "#BB4D00",
-        "action_caption" : "Review",
-        "action_color" : "#00B5D8",
-        "action_caption_color" : "#00B5D8",
-        // "path" : "/admin/loan"
-    },
-    "APPROVED" : {
-        "status_color" : "#D0FAE5",
-        "text_color" : "#007A55",
-        "action_caption" : "See Detail",
-        "action_color" : "#FCB82E",
-        "action_caption_color" : "#FCB82E",
-        // "path" : "/admin/loan-reque/st/review"
-    },
-    "REJECTED" : {
-        "status_color" : "#FFE2E2",
-        "text_color" : "#C10007",
-        "action_caption" : "See Detail",
-        "action_color" : "#FCB82E",
-        "action_caption_color" : "#FCB82E",
-        // "path" : '/admin/loan-request/review'
-    },
+    "PENDING": { "status_color": "#FEF3C6", "text_color": "#BB4D00" },
+    "APPROVED": { "status_color": "#D0FAE5", "text_color": "#007A55" },
+    "REJECTED": { "status_color": "#FFE2E2", "text_color": "#C10007" },
+}
+
+const formatCurrency = (val: any) => {
+    const num = Number(val) || 0;
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num).replace("IDR", "Rp");
+}
+
+
+// Sub-components for cleaner code
+function InfoBlock({ label, value }: { label: string, value: any }) {
+    return (
+        <div className="flex flex-col gap-1">
+            <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">{label}</span>
+            <span className="font-semibold text-slate-700">{value || "—"}</span>
+        </div>
+    );
+}
+
+function DocumentCard({ label, file }: { label: string, file: any }) {
+    const isPlaceholder = !file;
+    return (
+        <div className="border border-gray-200 rounded-xl overflow-hidden group hover:border-[#07B0C8] transition-colors bg-white">
+            <div className="h-40 bg-gray-50 relative flex items-center justify-center">
+                {isPlaceholder ? (
+                    <Image src={DummyDocsLogo} alt="Placeholder" width={60} height={60} className="opacity-20" />
+                ) : (
+                    <Image src={typeof file === 'string' ? file : URL.createObjectURL(file)} alt={label} fill className="object-cover" />
+                )}
+            </div>
+            <div className="p-3 bg-white flex justify-between items-center">
+                <div className="flex flex-col">
+                    <span className="text-sm font-bold text-slate-700">{label}</span>
+                    <span className="text-[10px] text-gray-400 uppercase font-bold">{isPlaceholder ? "Missing" : "Uploaded"}</span>
+                </div>
+                {!isPlaceholder && (
+                    <button className="p-2 hover:bg-cyan-50 rounded-lg text-[#07B0C8]">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </button>
+                )}
+            </div>
+        </div>
+    );
 }
 
 export default function ReviewLoanApplicationPage() {
+    const selectedLoan = useLoanRequestStore((state) => state.selected_loan);
+    const isAllocationFundModalOpen = useLoanRequestStore((state) => state.isAllocationFundModalOpen);
+    
+    // Actions
+    const setApprovedAmount = useLoanRequestStore((state) => state.setApprovedAmount);
+    const setRejectionApprovalNote = useLoanRequestStore((state) => state.setRejectionApprovalNote);
+    const setAllocationFundModalOpen = useLoanRequestStore((state) => state.setAllocationFundModalOpen);
 
-    // get the loan application selected before
-    const selectedLoan = useLoanRequestStore((state) => (state.selected_loan))
-    const submitTime = new Date(Date.now() - Number(selectedLoan?.createdAt)).toLocaleString()
-    const approvedAmount = useLoanRequestStore((state) => (state.selected_loan?.approvedAmount))
-    const rejectionApprovalNote = useLoanRequestStore((state) => (state.selected_loan.rejectionApprovalNotes))
-    const studentIdCard = selectedLoan?.studentIdCard
-    const transcriptFile = selectedLoan?.transcriptFile
-    const documents : (File | string | null | undefined)[] = [ studentIdCard , transcriptFile ]
-    const isAllocationFundModalOpen = useLoanRequestStore((state) => (state.isAllocationFundModalOpen))
+    // Derived Data
+    const submitTime = selectedLoan?.createdAt ? new Date(selectedLoan.createdAt).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' }) : "Recently";
+    const approvedAmount = selectedLoan?.approvedAmount || "";
+    const rejectionApprovalNote = selectedLoan?.rejectionApprovalNotes || "";
+    
+    // Supporting Docs Logic
+    const documents = [
+        { label: "KTM / ID Card", file: selectedLoan?.studentIdCard },
+        { label: "Transcript", file: selectedLoan?.transcriptFile }
+    ];
 
-    const setApprovedAmount = useLoanRequestStore((state) => (state.setApprovedAmount))
-    const setRejectionApprovalNote = useLoanRequestStore((state) => (state.setRejectionApprovalNote))
-    const setAllocationFundModalOpen = useLoanRequestStore((state) => (state.setAllocationFundModalOpen))
+    if (!selectedLoan) return <div className="p-20 text-center">Loading application data...</div>
 
-
-    const dummyDescription = `Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-        Praesentium magni, facere, est laborum cumque expedita sed saepe dignissimos aliquam, 
-        hic quam quis dicta harum veniam nihil tempora rerum sequi consectetur.
-    `
     return (
-        <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB]">
-
-            { isAllocationFundModalOpen ? 
-                (<div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-                    <MapFundsModal /> 
-                </div>) 
-            : 
-                <></>
-            }
-            {/* navbar */}
-            <div className="flex justify-center items-center w-full h-fit">
-                <AdminDashboard_AdminNavbar />
-            </div>
-            
-            {/* title */}
-            <div className="flex flex-col justify-center items-center w-[90%] h-fit gap-4 py-10">
-
-                {/* back to requests */}
-                <div className="flex w-full h-fit justify-start items-center pt-4 gap-2 px-2">
-
-                    {/* arrow left grey logo */}
-                    <div className="w-fit h-fit justify-start items-center">
-                        <Image
-                            src={ArrowRightGreyLogo}
-                            alt="Left Arrow"
-                            height={20}
-                            width={20}
-                            className="rotate-180"
-                        />
-                    </div>
-
-                    {/* caption */}
-                    <div className="w-fit h-fit justify-start items-center">
-                        Kembali ke daftar pengajuan pinjaman
-                    </div>
+        <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB] pb-20">
+            {isAllocationFundModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+                    <MapFundsModal />
                 </div>
+            )}
 
-                {/* main title */}
-                <div className="flex w-full h-fit justify-start items-center font-bold text-4xl">
-                    Tinjau Pengajuan Pinjaman
-                </div>
+            <AdminDashboard_AdminNavbar />
 
-                {/* id + status loan application */}
-                <div className="flex w-full h-fit justify-between items-center">
+            {/* Header / Breadcrumb */}
+            <div className="flex flex-col w-[90%] gap-4 py-8">
+                <Link href="/admin/loan-request" className="flex items-center gap-2 text-gray-500 hover:text-gray-800 transition-colors w-fit">
+                    <Image src={ArrowRightGreyLogo} alt="Back" height={18} width={18} className="rotate-180" />
+                    <span className="text-sm font-medium">Kembali ke daftar pengajuan pinjaman</span>
+                </Link>
 
-                    {/* application id + how recent */}
-                    <div className="font-light text-sm text-gray-500">
-                        Pengajuan {selectedLoan?.loanApplicationId || "YYYYY-ZZZZZ"} &bull; Diajukan pada {submitTime}
+                <div className="flex justify-between items-end w-full">
+                    <div className="flex flex-col gap-1">
+                        <h1 className="font-bold text-4xl text-slate-900">Tinjau Pengajuan Pinjaman</h1>
+                        <p className="text-gray-500 text-sm">
+                            Pengajuan {selectedLoan.loanApplicationId} • Diajukan pada {submitTime}
+                        </p>
                     </div>
 
-                    {/* status tag */}
                     {(() => {
-                        const statusKey = (selectedLoan?.status?.toUpperCase() || "PENDING") as keyof typeof StatusActionDict;
+                        const statusKey = (selectedLoan.status?.toUpperCase() || "PENDING") as keyof typeof StatusActionDict;
                         const config = StatusActionDict[statusKey];
-
                         return (
-                            <div 
-                                className="py-2 px-6 font-semibold flex justify-center items-center rounded-full text-xs border" 
-                                style={{ 
-                                    color: config.text_color,
-                                    backgroundColor: config.status_color,
-                                    borderColor: config.text_color // You can use borderColor specifically
-                                }}
-                            >
-                                {selectedLoan?.status || "PENDING"}
+                            <div className="py-2 px-6 font-bold rounded-full text-xs border" 
+                                 style={{ color: config.text_color, backgroundColor: config.status_color, borderColor: config.text_color }}>
+                                {selectedLoan.status || "PENDING"}
                             </div>
                         );
                     })()}
-
                 </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="flex justify-center items-start w-[90%] gap-6">
                 
-            </div>
-            
-
-            {/* main section container */}
-            <div className="flex justify-center items-start w-[90%] h-fit gap-4 pb-10">
-
-                {/* applicant information + supporting docs + reason for loan section */}
-                <div className="flex flex-col w-[75%] h-fit gap-6">
+                {/* Left Column: Details */}
+                <div className="flex flex-col w-[70%] gap-6">
                     
-                    {/* applicant information */}
-                    <div className="flex flex-col justify-center items-center w-full h-fit p-4 rounded-2xl shadow-xl bg-white">
-
-                        {/* title */}
-                        <div className="flex justify-start items-center font-bold w-full h-fit">
-                            Informasi Pengaju Pinjaman
-                        </div>
-
-                        {/* photo + personal information */}
-                        <div className="flex justify-center items-center w-full h-fit">
-
-                            {/* photo section */}
-                            <div className="flex justify-center items-center w-[25%] h-fit">
-                                <Image 
-                                    src={DummyUserLogo}
-                                    alt="Dummy user logo"
-                                />
-                            </div>
-
-                            {/* personal information section */}
-                            <div className="w-[75%] h-fit justify-start items-center flex flex-col gap-2">
-                                
-                                {/* full name + student number id container*/}
-                                <div className="flex w-full justify-center items-center h-fit">
-                                    
-                                    {/* full name section */}
-                                    <div className="flex flex-col gap-2 justify-center items-center w-[40%] h-fit">
-
-                                        {/* title */}
-                                        <div className="w-full h-fit justify-start items-center flex text-gray-400 text-sm">
-                                            Nama Lengkap
-                                        </div>
-
-                                        {/* content */}
-                                        <div className="w-full h-fit justify-start items-center flex font-semibold">
-                                            {selectedLoan?.name || "DUMMY NAME"}
-                                        </div>
-                                        
-                                    </div>
-                                    
-                                    {/* full name section */}
-                                    <div className="flex flex-col gap-2 justify-center items-center w-[60%] h-fit">
-
-                                        {/* title */}
-                                        <div className="w-full h-fit justify-start items-center flex text-gray-400 text-sm">
-                                            Nomor Induk Mahasiswa / Nomor Induk Pegawai (NIM/NIP)
-                                        </div>
-
-                                        {/* content */}
-                                        <div className="w-full h-fit justify-start items-center flex font-semibold">
-                                            {selectedLoan?.idNumber || "XXXXXX"}
-                                        </div>
-
-                                    </div>
-                                    
-                                </div>
-
-                                {/* institution section */}
-                                <div className="flex flex-col w-full justify-center items-center h-fit gap-2">
-
-                                    {/* institution title */}
-                                    <div className="w-full h-fit justify-start items-center flex text-gray-400 text-sm">
-                                        Institusi
-                                    </div>
-
-                                    {/* institution name */}
-                                    <div className="w-full h-fit justify-start items-center flex font-semibold">
-                                        {selectedLoan?.institution || "Institut Teknologi Bandung"}
-                                    </div>
-
-                                </div>
-
-                                {/* intake year + current address section */}
-                                <div className="flex w-full justify-center items-center h-fit">
-                                    
-                                    {/* tahun ajaran section */}
-                                    <div className="flex flex-col gap-2 justify-center items-center w-[40%] h-fit">
-
-                                        {/* title */}
-                                        <div className="w-full h-fit justify-start items-center flex text-gray-400 text-sm">
-                                            Tahun Ajaran
-                                        </div>
-
-                                        {/* content */}
-                                        <div className="w-full h-fit justify-start items-center flex font-semibold">
-                                            {selectedLoan?.intakeYear || 2026}
-                                        </div>
-                                        
-                                    </div>
-                                    
-                                    {/* alamat terkini section */}
-                                    <div className="flex flex-col gap-2 justify-center items-center w-[60%] h-fit">
-
-                                        {/* title */}
-                                        <div className="w-full h-fit justify-start items-center flex text-gray-400 text-sm">
-                                            Alamat Terkini
-                                        </div>
-
-                                        {/* content */}
-                                        <div className="w-full h-fit justify-start items-center flex font-semibold">
-                                            {selectedLoan?.address || "Jl. Tubagus Ismail Raya No. 12, Bandung"}
-                                        </div>
-
-                                    </div>
-        
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    {/* Supporting Documents Section */}
-                    <div className="flex flex-col w-full h-fit p-6 rounded-2xl shadow-sm border border-gray-100 bg-white gap-6">
-                    
-                    {/* Title */}
-                    <div className="text-lg font-bold text-slate-800">
-                        Supporting Documents
-                    </div>
-
-                    {/* Grid of documents */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {documents.filter(Boolean).map((doc, index) => {
-                            // 1. Determine if it's a File object or a String URL
-                            const isFileObject = doc instanceof File;
-                            const isImage = isFileObject 
-                            ? doc.type.startsWith('image/') 
-                            : typeof doc === 'string' && (doc.match(/\.(jpeg|jpg|gif|png)$/) != null);
-
-                            // 2. Resolve the source
-                            // If it's a File, create a blob. If it's a string, use it directly.
-                            const imgSrc = isFileObject ? URL.createObjectURL(doc) : (doc as string);
-
-                            return (
-                            <div key={index} className="flex flex-col border border-gray-200 rounded-2xl overflow-hidden bg-white">
-                                
-                                {/* Top Section: Thumbnail */}
-                                <div className="relative w-full h-52 bg-gray-50 flex items-center justify-center">
-                                {isImage ? (
-                                    <Image 
-                                    src={imgSrc} 
-                                    alt={`Document ${index}`} 
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                    className="object-cover" // This makes it fill the container
-                                    onLoad={() => {
-                                        if (isFileObject) URL.revokeObjectURL(imgSrc);
-                                    }}
-                                    />
-                                ) : (
-                                    <div className="flex flex-col items-center gap-2">
-                                        <Image src={DummyDocsLogo} alt="File icon" className="w-full h-full flex justify-center items-center object-cover" fill />
-                                        <span className="text-xs text-gray-400">PDF Document</span>
-                                    </div>
-                                )}
-                                </div>
-
-                                {/* Bottom Section: Details */}
-                                <div className="p-4 flex justify-between items-center bg-white border-t border-gray-100">
-                                    <div className="flex flex-col gap-1 overflow-hidden">
-                                        <span className="font-semibold text-sm text-slate-700 truncate">
-                                            {(isFileObject && doc.name) ? doc.name : `Document_1`}
-                                        </span>
-                                        <span className="text-xs text-gray-400">
-                                            {(isFileObject && doc.size) ? `${(doc.size / (1024 * 1024)).toFixed(1)} MB` : "1.2 MB"} &bull; Uploaded 2h ago
-                                        </span>
-                                    </div>
-
-                                    <button className="p-2 hover:bg-gray-100 rounded-full shrink-0 transition-colors">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4" />
-                                        <polyline points="7 10 12 15 17 10" />
-                                        <line x1="12" y1="15" x2="12" y2="3" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                
-                            </div>
-                            );
-                        })}
-                        </div>
-                    </div>
-
-                    {/* reason for loan section */}
-                    <div className="flex flex-col justify-center items-center w-full h-fit p-4 rounded-2xl shadow-2xl bg-white gap-2">
-
-                        {/* title */}
-                        <div className="flex justify-start items-center w-full h-fit font-bold">
-                            Deskripsi Pinjaman
-                        </div>
-
-                        {/* reason gor loan content */}
-                        <div className="w-full h-fit p-4 bg-[#F1F5F9] justify-center items-center rounded-2xl">
-                            {selectedLoan?.description || dummyDescription}
-                        </div>
+                    {/* Applicant Info Card */}
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6">
+                        <h3 className="font-bold text-lg text-slate-800">Informasi Pengaju Pinjaman</h3>
                         
+                        <div className="flex gap-8 items-start">
+                            <div className="relative w-32 h-32 rounded-2xl overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
+                                <Image src={selectedLoan.image || DummyUserLogo} alt="Profile" fill className="object-cover" />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-y-6 gap-x-12 w-full">
+                                <InfoBlock label="Nama Lengkap" value={selectedLoan.name} />
+                                <InfoBlock label="NIM / NIP" value={selectedLoan.idNumber} />
+                                <InfoBlock label="Institusi" value={selectedLoan.institution || "Institut Teknologi Bandung"} />
+                                <InfoBlock label="Tahun Ajaran / Angkatan" value={selectedLoan.intakeYear || "2022"} />
+                                <div className="col-span-2">
+                                    <InfoBlock label="Alamat Terkini" value={selectedLoan.address || "Alamat tidak tersedia"} />
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
+                    {/* Supporting Docs */}
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6">
+                        <h3 className="font-bold text-lg text-slate-800">Dokumen Pendukung</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            {documents.map((doc, i) => (
+                                <DocumentCard key={i} label={doc.label} file={doc.file} />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4">
+                        <h3 className="font-bold text-lg text-slate-800">Deskripsi Pinjaman</h3>
+                        <div className="p-4 bg-slate-50 rounded-xl text-slate-600 leading-relaxed text-sm italic border border-slate-100">
+                            "{selectedLoan.description || "Tidak ada deskripsi tambahan yang diberikan oleh pengaju."}"
+                        </div>
+                    </div>
                 </div>
 
-                {/* admin actions section */}
-                <div className="flex flex-col w-[25%] h-fit justify-center items-center p-4 rounded-2xl bg-white shadow-2xl gap-4">
-                            
-                    {/* title */}
-                    <div className="flex justify-start items-center w-full h-fit font-bold p-2">
-                        Aksi Admin
+                {/* Right Column: Admin Actions */}
+                <div className="flex flex-col w-[30%] gap-4 bg-white p-6 rounded-2xl shadow-lg border border-gray-100 sticky top-4">
+                    <h3 className="font-bold text-lg text-slate-800">Aksi Admin</h3>
+
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <p className="text-xs text-slate-500 font-medium uppercase mb-1">Jumlah Diajukan</p>
+                        <p className="text-3xl font-black text-[#07B0C8]">{formatCurrency(selectedLoan.requestedAmount)}</p>
                     </div>
 
-                    {/* requested amount section */}
-                    <div className="flex flex-col justify-center items-center w-full h-fit bg-[#F1F5F9] rounded-2xl p-4">
-                        
-                        {/* title */}
-                        <div className="w-full h-fit justify-start items-center flex text-gray-400 text-sm">
-                            Jumlah pinjaman yang diajukan
-                        </div>
-
-                        {/* request amount content */}
-                        <div className="flex justify-start items-center w-full h-fit font-bold text-3xl">
-                            {selectedLoan?.requestedAmount}
-                        </div>
-                        
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-bold text-slate-700">Jumlah Disetujui</label>
+                        <input
+                            type="number"
+                            value={approvedAmount}
+                            onChange={(e) => setApprovedAmount(Number(e.target.value))}
+                            className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#07B0C8] outline-none font-bold text-lg"
+                            placeholder="Rp 0"
+                        />
                     </div>
 
-                    {/* approved amount section */}
-                    <div className="flex flex-col justify-center items-center w-full h-fit p-2 gap-2">
-
-                        {/* title */}
-                        <div className="w-full h-fit justify-start items-center flex text-sm font-semibold">
-                            Jumlah yang disetujui
-                        </div>
-
-                        {/* approved amount input */}
-                        <div className="flex justify-start items-center w-full h-fit font-bold text-xl">
-                            <input
-                                value={approvedAmount}
-                                onChange={(e) => setApprovedAmount(Number(e.target.value))}
-                                onKeyDown={(e) => e.key === "Enter"}
-                                className="border border-black/20 bg-white p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#16C5DE]"
-                                placeholder="Masukkan nilai yang disetujui..."
-                            />
-                        </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-bold text-slate-700">Catatan Keputusan</label>
+                        <textarea
+                            value={rejectionApprovalNote}
+                            onChange={(e) => setRejectionApprovalNote(e.target.value)}
+                            className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#07B0C8] outline-none min-h-[120px] text-sm"
+                            placeholder="Berikan alasan atau catatan tambahan..."
+                        />
                     </div>
 
-                    {/* rejection / approval notes section */}
-                    <div className="flex flex-col justify-center items-center w-full h-fit pb-2 px-2 gap-2">
-                        
-                        {/* title */}
-                        <div className="w-full h-fit justify-start items-center flex text-sm font-semibold">
-                            Alasan Penerimaan / Penolakan
-                        </div>
-
-                        {/* rejection / approval notes input */}
-                        <div className="w-full min-h-24 flex justify-center items-center">
-                            <textarea
-                                value={rejectionApprovalNote}
-                                onChange={(e) => setRejectionApprovalNote(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter"}
-                                className="border border-black/20 bg-white p-3 rounded-xl w-full h-48 focus:outline-none focus:ring-2 focus:ring-[#16C5DE]"
-                                placeholder="Masukkan alasan untuk keputusan yang diambil..."
-                            />
-                        </div>
-
+                    <div className="flex flex-col gap-3 mt-4">
+                        <button 
+                            onClick={() => setAllocationFundModalOpen(true)}
+                            className="w-full py-4 bg-[#07B0C8] hover:bg-[#06a0b5] text-white font-bold rounded-xl transition-all shadow-md shadow-cyan-100"
+                        >
+                            Setujui Pinjaman
+                        </button>
+                        <button className="w-full py-4 border-2 border-red-100 text-red-500 hover:bg-red-50 font-bold rounded-xl transition-all">
+                            Tolak Pengajuan
+                        </button>
                     </div>
-
-                    {/* approve loan button */}
-                    <div className="flex w-full h-fit p-4 bg-[#07B0C8] text-white justify-center items-center rounded-lg" onClick={() => setAllocationFundModalOpen(!isAllocationFundModalOpen)}>
-                        Setujui Pinjaman
-                    </div>
-
-                    {/* reject application button */}
-                    <div className="flex w-full h-fit p-4 border border-red-500 text-red-500 justify-center items-center rounded-lg font-semibold">
-                        Tolak Pengajuan Pinjaman
-                    </div>
-
                 </div>
-
             </div>
-
         </div>
     );
 }
