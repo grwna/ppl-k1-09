@@ -5,23 +5,27 @@ import CalendarLogo from "../../../../public/calendar.svg"
 
 import { useUserStore } from "@/hooks/userStore";
 import { useEffect, useState } from "react";
-import localFont from "next/font/local";
 import ApplicantDashboard_PaymentScheduleRow from "@/components/ui/applicant-dashboard/payment_schedule_block";
 import ApplicantDashboard_ApplicationProgressComponent from "@/components/ui/applicant-dashboard/application_progress_block";
 import ApplicantDashboard_ApplicantNavbar from "@/components/ui/applicant-dashboard/applicant_navbar";
 
+type LoanSummary = {
+  id: string;
+  requestedAmount?: number;
+  due_date?: string;
+};
+
 export default function ApplicantDashboardPage(){
     
     // init variables
-    const installmentFreq = 4 // number of installments
-    const [currentLoanValue, setCurrentLoanValue] = useState<Number>(45000000)
-    const [installmentValue, setInstallmentValue] = useState<Number>(0)
-    const [nearestDueDateInstallment, setNearestDueDateInstallment] = useState()
-    const [currentLoan, setCurrentLoan] = useState()
-    const [loans, setLoans] = useState()
-    const [submitTime, setSubmitTime] = useState<Date>(new Date(2026, 12, 21, 12, 20))
-    const [verifiedTime, setVerifiedTime] = useState<Date>(new Date(2026, 12, 21, 12, 20))
-    const [disbursedTime, setDisbursedTime] = useState<Date>(new Date(2026, 12, 21, 12, 20))
+    const [currentLoanValue, setCurrentLoanValue] = useState<number>(45000000)
+    const [installmentValue] = useState<number>(0)
+    const submitTime = new Date(2026, 7, 15, 12, 20)
+    const verifiedTime = new Date(2026, 7, 18, 12, 20)
+    const disbursedTime = new Date(2026, 7, 20, 12, 20)
+    const [, setNearestDueDateInstallment] = useState<string | null>(null)
+    const [, setCurrentLoan] = useState<LoanSummary | null>(null)
+    const [, setLoans] = useState<LoanSummary[]>([])
     const username = useUserStore((state) => (state.user?.username)) || "Rayhan Farrukh"
     const userId = useUserStore((state) => (state.user?.id))
 
@@ -30,32 +34,27 @@ export default function ApplicantDashboardPage(){
 
         // fetch all loans connected to current user
         const fetchAllLoans = async () => {
+            if (!userId) return
 
-            // base api
-            const BASE_API = "localhost:3000/api/loans"
+            const params = new URLSearchParams({ user_id: String(userId) });
 
-            const params = new URLSearchParams({
-                user_id: useUserStore((state) => String(state.user?.id))
-            });
 
             try {
-                const response = await fetch(`${BASE_API}?${params}`);
+                const response = await fetch(`/api/loans?${params}`);
 
                 if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const result = await response.json();
+                const fetchedLoans = result.data?.data?.loans ?? result.data?.loans ?? []
                 // take the first one for the loan
-                setLoans(result.data.loans)
-                setCurrentLoanValue(result.data.currentLoanValue)
-                setCurrentLoan(result.data[0])
+                setLoans(fetchedLoans)
+                setCurrentLoanValue(result.data?.currentLoanValue ?? fetchedLoans[0]?.requestedAmount ?? 0)
+                setCurrentLoan(fetchedLoans[0] ?? null)
 
                 // take the nearest due date installment
-                
-                setNearestDueDateInstallment(result.data.loans.forEach((element : any) => {
-                  Math.min(element.due_date)
-                }))
+                setNearestDueDateInstallment(fetchedLoans[0]?.due_date ?? null)
 
             } catch (error) {
                 console.error("Fetch error at applicant/dashboard/page.tsx:", error);
@@ -64,7 +63,7 @@ export default function ApplicantDashboardPage(){
 
         fetchAllLoans()
 
-    }, [])
+    }, [userId])
 
     return (
 
