@@ -78,6 +78,24 @@ export const LoanService = {
                 id: true,
                 approvedAmount: true,
                 status: true,
+                fundings: {
+                  select: {
+                    id: true,
+                    donorFundId: true,
+                    sourceType: true,
+                    amount: true,
+                    donorFund: {
+                      select: {
+                        donor: {
+                          select: {
+                            name: true,
+                            email: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
             attachments: {
@@ -130,6 +148,24 @@ export const LoanService = {
                 id: true,
                 approvedAmount: true,
                 status: true,
+                fundings: {
+                  select: {
+                    id: true,
+                    donorFundId: true,
+                    sourceType: true,
+                    amount: true,
+                    donorFund: {
+                      select: {
+                        donor: {
+                          select: {
+                            name: true,
+                            email: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
             attachments: {

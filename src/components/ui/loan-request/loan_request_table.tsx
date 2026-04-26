@@ -82,6 +82,18 @@ type LoanRequestRow = {
         id: string;
         approvedAmount: string | number;
         status: string;
+        fundings?: {
+            id: string;
+            amount: string | number;
+            donorFundId: string | null;
+            sourceType: string;
+            donorFund?: {
+                donor?: {
+                    name?: string | null;
+                    email?: string | null;
+                } | null;
+            } | null;
+        }[];
     } | null;
     attachments?: LoanAttachment[];
     approvedAmount?: number;
@@ -100,6 +112,10 @@ export default function LoanRequest_LoanRequestsTable() {
     const handleActionClick = (loan: LoanRequestRow) => {
         const studentIdAttachment = loan.attachments?.find((attachment) => attachment.documentType === "student_id_card");
         const familyCardAttachment = loan.attachments?.find((attachment) => attachment.documentType === "family_card");
+        const status = loan.status || "PENDING";
+        const approvedAmount = status === "APPROVED"
+            ? Number(loan.loan?.approvedAmount || loan.approvedAmount || 0)
+            : 0;
 
         setSelectedLoan({
             id: loan.id,
@@ -113,14 +129,14 @@ export default function LoanRequest_LoanRequestsTable() {
             requestedAmount: Number(loan.requestedAmount),
             description: loan.description || "",
             collateralDescription: loan.collateralDescription || "",
-            status: loan.status || "PENDING",
+            status,
             createdAt: loan.createdAt,
             loanId: loan.loan?.id || "",
             loan: loan.loan || null,
             attachments: loan.attachments || [],
             studentIdCard: studentIdAttachment?.fileUrl || "",
             transcriptFile: familyCardAttachment?.fileUrl || "",
-            approvedAmount: Number(loan.loan?.approvedAmount || loan.approvedAmount || 0),
+            approvedAmount,
             rejectionApprovalNotes: loan.rejectionApprovalNotes || "",
         });
         router.push("/admin/loan-request/review");
