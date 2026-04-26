@@ -53,6 +53,36 @@ const formatDate = (dateInput: string | number | Date) => {
     return `Today, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
 };
 
+type LoanAttachment = {
+    id: string;
+    documentType: string;
+    fileUrl: string;
+    uploadedAt: string | Date;
+};
+
+type LoanRequestRow = {
+    id?: string;
+    loanApplicationId?: string;
+    borrower?: {
+        name?: string | null;
+        email?: string | null;
+        image?: string | null;
+    } | null;
+    image?: string;
+    idNumber?: string;
+    institution?: string;
+    intakeYear?: number;
+    address?: string;
+    requestedAmount: number | string;
+    description?: string | null;
+    collateralDescription?: string | null;
+    status?: string;
+    createdAt: string | number | Date;
+    attachments?: LoanAttachment[];
+    approvedAmount?: number;
+    rejectionApprovalNotes?: string;
+};
+
 // ===============================
 // COMPONENT
 // ===============================
@@ -62,8 +92,30 @@ export default function LoanRequest_LoanRequestsTable() {
     const setSelectedLoan = useLoanRequestStore((state) => state.setSelectedLoan);
 
     // Wrapper function to handle both actions
-    const handleActionClick = (loan: any) => {
-        setSelectedLoan(loan);
+    const handleActionClick = (loan: LoanRequestRow) => {
+        const studentIdAttachment = loan.attachments?.find((attachment) => attachment.documentType === "student_id_card");
+        const familyCardAttachment = loan.attachments?.find((attachment) => attachment.documentType === "family_card");
+
+        setSelectedLoan({
+            id: loan.id,
+            loanApplicationId: loan.id || loan.loanApplicationId || "",
+            name: loan.borrower?.name || "—",
+            image: loan.borrower?.image || "",
+            idNumber: loan.borrower?.email || "—",
+            institution: loan.institution || "Institut Teknologi Bandung",
+            intakeYear: loan.intakeYear || 2022,
+            address: loan.address || "",
+            requestedAmount: Number(loan.requestedAmount),
+            description: loan.description || "",
+            collateralDescription: loan.collateralDescription || "",
+            status: loan.status || "PENDING",
+            createdAt: loan.createdAt,
+            attachments: loan.attachments || [],
+            studentIdCard: studentIdAttachment?.fileUrl || "",
+            transcriptFile: familyCardAttachment?.fileUrl || "",
+            approvedAmount: loan.approvedAmount || 0,
+            rejectionApprovalNotes: loan.rejectionApprovalNotes || "",
+        });
         router.push("/admin/loan-request/review");
     };
 
@@ -86,7 +138,7 @@ export default function LoanRequest_LoanRequestsTable() {
                 </TableHeader>
 
                 <TableBody>
-                    {loans.map((loan : any) => {
+                    {loans.map((loan) => {
                         const statusKey = (loan.status || "PENDING").toUpperCase() as keyof typeof StatusActionDict;
                         const config = StatusActionDict[statusKey];
 

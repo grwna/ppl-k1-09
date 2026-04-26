@@ -33,12 +33,12 @@ export default function LoginPage() {
                 setLoading(false);
             } else {
                 const session = await getSession();
-                const roles = ((session?.user as any)?.roles || []) as string[];
+                const roles = ((session?.user as { roles?: string[] })?.roles || []) as string[];
 
                 if (roles.includes("DONOR")) {
                     router.push("/donor/dashboard");
                 } else if (roles.includes("ADMIN")) {
-                    router.push("/dashboard");
+                    router.push("/admin/dashboard");
                 } else if (roles.includes("BORROWER")) {
                     router.push("/applicant/dashboard");
                 } else {

@@ -16,6 +16,7 @@ type LoanRequestStore = {
 export const useLoanRequestStore = create<LoanRequestStore>((set) => ({
     loans: [],
     selected_loan: {
+        id: "",
         loanApplicationId: "",
         name: "",
         idNumber: "",
@@ -27,8 +28,10 @@ export const useLoanRequestStore = create<LoanRequestStore>((set) => ({
         // loan details
         requestedAmount: 0,
         description: "",
+        collateralDescription: "",
         status: "",
         createdAt: 0,
+        attachments: [],
         studentIdCard: new File([], ""),
         transcriptFile: new File([], ""),
 
