@@ -1,11 +1,5 @@
 
 import Image from "next/image";
-import localFont from "next/font/local";
-
-const plusJakartaSansFont = localFont({
-  src: '../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
 
 export default function SummaryOfAspect(props : {title: string, value : any, logo : string, alt: string, update_caption : string, value_color : string, update_caption_color : string}) {
 
@@ -14,7 +8,7 @@ export default function SummaryOfAspect(props : {title: string, value : any, log
         <div className="flex justify-between items-center bg-white p-2 rounded-2xl shadow-xl">
                     
             {/* left : title, values, and difference from histories */}
-            <div className={`font-sans ${plusJakartaSansFont.className}`}>
+            <div className="font-sans">
                 {/* title */}
                 <div className="font-bold text-lg">
                     {props.title}

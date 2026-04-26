@@ -1,19 +1,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import localFont from "next/font/local";
 
 import RumahAmalHorizontalLogo from "../../../../public/rumah-amal-horizontal-logo.svg"
 import UserPersonaLogo from "../../../../public/user_persona.svg"
 import ChevronDownLogo from "../../../../public/chevron-down.svg"
 
 import { useUserStore } from "@/hooks/userStore";
-
-// init fonts
-const plusJakartaSansFont = localFont({
-    src: "../../../../public/fonts/PlusJakartaSans-VariableFont.ttf",
-    display: 'swap',
-});
 
 export default function ApplicantDashboard_ApplicantNavbar() {
 
@@ -37,22 +30,22 @@ export default function ApplicantDashboard_ApplicantNavbar() {
             <div className="flex gap-x-10 w-[70%] justify-center items-center">
 
                 {/* Home */}
-                <div className={`${plusJakartaSansFont.className} font-bold`}>
+                <div className="font-bold">
                     <Link href={'/applicant/dashboard'}>Dashboard</Link>
                 </div>
 
                 {/* Donate */}
-                <div className={`${plusJakartaSansFont.className} font-bold`}>
+                <div className="font-bold">
                     <Link href={'/applicant/apply'}>Apply Loan</Link>
                 </div>
 
                 {/* History */}
-                <div className={`${plusJakartaSansFont.className} font-bold`}>
+                <div className="font-bold">
                     <Link href={'/not-found'}>History</Link>
                 </div>
 
                 {/* Report */}
-                <div className={`${plusJakartaSansFont.className} font-bold`}>
+                <div className="font-bold">
                     <Link href={'/not-found'}>Installment</Link>
                 </div>
 
@@ -72,7 +65,7 @@ export default function ApplicantDashboard_ApplicantNavbar() {
                 </div>
 
                 {/* register */}
-                <div className={`${plusJakartaSansFont.className} text-white font-bold bg-[#FCB82E] px-4 py-2 rounded-2xl`}>
+                <div className="text-white font-bold bg-[#FCB82E] px-4 py-2 rounded-2xl">
                     {username}
                 </div>
 

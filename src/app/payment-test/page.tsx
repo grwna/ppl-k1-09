@@ -3,12 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import localFont from 'next/font/local';
-
-const plusJakartaSansFont = localFont({
-  src: '../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
 
 type TransactionType = 'donation' | 'repayment';
 
@@ -42,7 +36,7 @@ export default function PaymentTestPage() {
   };
 
   return (
-    <div className={`${plusJakartaSansFont.className} min-h-screen bg-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8`}>
+    <div className="min-h-screen bg-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto">
         {/* Card */}
         <div className="bg-white rounded-lg shadow-md p-6">

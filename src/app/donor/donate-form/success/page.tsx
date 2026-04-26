@@ -12,16 +12,10 @@ import {
 
 import Link from 'next/link';
 import Image from 'next/image';
-import localFont from 'next/font/local';
 
 import BlueHeartLogo from "../../../../../public/heart-blue.svg"
 import { useDonationStore } from '@/hooks/donationStore';
 import DonorDashboard_DonorNavbar from "@/components/ui/donor-dashboard/donor_navbar";
-
-const plusJakartaSansFont = localFont({
-  src: '../../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
 
 export default function PaymentSuccessPage() {
 
@@ -44,7 +38,7 @@ export default function PaymentSuccessPage() {
             <DonorDashboard_DonorNavbar />
         </div>
 
-        <div className={`${plusJakartaSansFont.className} min-h-screen w-full bg-gradient-to-br from-[#07B0C8]/10 to-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8 flex items-center`}>
+        <div className="min-h-screen w-full bg-gradient-to-br from-[#07B0C8]/10 to-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8 flex items-center">
 
             <div className="max-w-md mx-auto w-full">
                 {/* Success Card */}

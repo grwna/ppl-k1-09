@@ -2,16 +2,10 @@
 
 import { useLoanRequestStore } from "@/hooks/loanRequestStore";
 import { useEffect, useState } from "react";
-import localFont from "next/font/local";
 
 import LoanRequest_LoanRequestsTable from "@/components/ui/loan-request/loan_request_table";
 import AdminDashboard_AdminNavbar from "@/components/ui/admin-dashboard/admin_navbar";
 import { LoanApplicationStatus } from "@/generated/prisma";
-
-const plusJakartaSansFont = localFont({
-  src: '../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
 
 export default function AdminLoanRequestPage() {
 
@@ -67,7 +61,7 @@ export default function AdminLoanRequestPage() {
   }, [])
 
   return (
-  <div className={`${plusJakartaSansFont.className} flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB]`}>
+  <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB]">
 
     {/* navbar */}
     <div className="flex justify-center items-center w-full h-fit">

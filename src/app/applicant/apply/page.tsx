@@ -1,8 +1,6 @@
 
 "use client"
 
-import localFont from "next/font/local";
-
 import ApplicantForm_PersonalInformationSection from "@/components/ui/applicant-form/personal_information_section";
 import ApplicantForm_FinancialNeedsSection from "@/components/ui/applicant-form/financial_needs_section";
 import ApplicantForm_DocumentUploadSection from "@/components/ui/applicant-form/document_upload_section";
@@ -12,18 +10,13 @@ import ApplicantForm_ApplicationProgressSection from "@/components/ui/applicant-
 import { useApplicationProgressStore } from "@/hooks/applicationProgressStore";
 import ApplicantDashboard_ApplicantNavbar from "@/components/ui/applicant-dashboard/applicant_navbar";
 
-const plusJakartaSansFont = localFont({
-  src: '../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
-
 export default function ApplyLoanFormPage(){
 
     const applicationProgress = useApplicationProgressStore((state) => (state.application_progress))
 
     return (
         // main container
-        <div className={`${plusJakartaSansFont.className} w-full h-full flex flex-col justify-center items-center p-2`}>
+        <div className="w-full h-full flex flex-col justify-center items-center p-2">
 
             {/* nav bar */}
             <div className="flex justify-center items-center w-full h-fit">
@@ -31,7 +24,7 @@ export default function ApplyLoanFormPage(){
             </div>
 
             {/* title container */}
-            <div className={`flex justify-center items-center w-full h-fit text-3xl ${plusJakartaSansFont.className} p-4`}>
+            <div className="flex justify-center items-center w-full h-fit text-3xl p-4">
                 {/* title */}
                 <div className="flex justify-start items-center w-[60%] h-fit font-bold">
                     Pengajuan Pinjaman Mahasiswa
@@ -39,7 +32,7 @@ export default function ApplyLoanFormPage(){
             </div>
 
             {/* caption container */}
-            <div className={`flex justify-center items-center w-full h-fit text-md ${plusJakartaSansFont.className} px-2 pb-2`}>
+            <div className="flex justify-center items-center w-full h-fit text-md px-2 pb-2">
                 {/* caption */}
                 <div className="flex justify-start items-center w-[60%] h-fit">
                     Selesaikan seluruh tahap untuk mengajukan pinjaman tanpa bunga Anda

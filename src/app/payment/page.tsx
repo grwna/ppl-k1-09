@@ -4,12 +4,6 @@ import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import localFont from 'next/font/local';
-
-const plusJakartaSansFont = localFont({
-  src: '../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
 
 type PaymentMethod = 'qris' | 'va' | null;
 type VABank =
@@ -123,7 +117,7 @@ export default function PaymentPage({
   };
 
   return (
-    <div className={`${plusJakartaSansFont.className} min-h-screen bg-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8`}>
+    <div className="min-h-screen bg-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
         {/* Header */}
         <div className="mb-6">

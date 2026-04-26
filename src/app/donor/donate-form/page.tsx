@@ -4,15 +4,9 @@ import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import localFont from 'next/font/local';
 
 import { useDonationStore } from '@/hooks/donationStore';
 import { PaymentMethod, VABank, TransactionType } from '@/types/donation';
-
-const plusJakartaSansFont = localFont({
-  src: '../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
 
 export default function DonateFormPage({
   searchParams
@@ -120,7 +114,7 @@ export default function DonateFormPage({
   };
 
   return (
-    <div className={`${plusJakartaSansFont.className} min-h-screen bg-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8`}>
+    <div className="min-h-screen bg-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8">
 
       {/* title */}
       <div className='font-bold flex justify-center items-center gap-1 text-4xl py-4'>

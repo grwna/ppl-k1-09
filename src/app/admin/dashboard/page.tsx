@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import React from "react";
-import localFont from "next/font/local";
 
 import DollarSign from "../../../../public/dollar.svg"
 import SummaryOfAspect from "@/components/ui/admin-dashboard/summary_of_aspect";
@@ -12,11 +11,6 @@ import AdminDashboard_AdminNavbar from "@/components/ui/admin-dashboard/admin_na
 import { useAdminDashboardStore } from "@/hooks/adminDashboardStore";
 import LoadingPageComponent from "@/components/ui/loading";
 import ErrorComponent from "@/components/ui/error";
-
-const plusJakartaSansFont = localFont({
-  src: '../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
 
 export default function AdminDashboardPage() {
   const statistics = useAdminDashboardStore((state) => (state.statistics))
@@ -55,7 +49,7 @@ export default function AdminDashboardPage() {
 
   return (
     // main container
-    <div className={`${plusJakartaSansFont.className} flex flex-col justify-center items-center w-full h-fit bg-[#F9FAFB]`}>
+    <div className="flex flex-col justify-center items-center w-full h-fit bg-[#F9FAFB]">
 
         {/* navbar */}
         <div className="flex justify-center items-center w-full h-fit">
