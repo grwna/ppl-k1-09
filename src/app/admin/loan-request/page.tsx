@@ -52,7 +52,7 @@ export default function AdminLoanRequestPage() {
         }
 
         const result = await response.json();
-        return result.data;
+        setLoans(result.data)
       } catch (error) {
         console.error("Fetch error at admin/loan-request/page.tsx:", error);
       }

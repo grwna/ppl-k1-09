@@ -21,7 +21,7 @@ export default function ApplicantDashboard_ApplicantNavbar() {
     
     return (
         // main container
-        <div className="flex justify-between items-center h-[10%] p-2">
+        <div className="flex justify-between items-center h-[10%] w-full p-2">
 
             {/* rumah amal salman logo */}
             <div className="flex relative w-[10%] justify-center items-center">
