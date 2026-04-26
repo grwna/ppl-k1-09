@@ -13,12 +13,14 @@ export default function AdminLoanRequestPage() {
 
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   const totalItems = loans.length || 0;
   const maxPageNumber = Math.max(1, Math.ceil(totalItems / maxItemsInPage));
 
   useEffect(() => {
     const fetchLoanApplication = async () => {
+      setIsLoading(true);
       const baseUrl = '/api/loans';
       const start = (currentPageNumber - 1) * maxItemsInPage;
       const end = start + maxItemsInPage;
@@ -40,6 +42,8 @@ export default function AdminLoanRequestPage() {
         setLoans(result.data.loans || []);
       } catch (error) {
         console.error("Fetch error:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -95,7 +99,7 @@ export default function AdminLoanRequestPage() {
         </div>
 
         <div className="w-full mb-6">
-          <LoanRequest_LoanRequestsTable />
+          <LoanRequest_LoanRequestsTable isLoading={isLoading} />
         </div>
 
         {/* Pagination UI */}
