@@ -1,9 +1,9 @@
 
 import { useApplicationProgressStore } from "@/hooks/applicationProgressStore"
+import { useState } from "react"
 
 export default function ApplicantForm_FinancialNeedsSection() {
 
-    const applicationProgress = useApplicationProgressStore((state) => (state.application_progress))
     const loan_title = useApplicationProgressStore((state) => (state.loan_title))
     const requested_amount = useApplicationProgressStore((state) => (state.requested_amount))
     const loan_purpose = useApplicationProgressStore((state) => (state.loan_purpose))
@@ -14,6 +14,11 @@ export default function ApplicantForm_FinancialNeedsSection() {
 
     const incrementStep = useApplicationProgressStore((state) => state.incrementStep)
     const decrementStep = useApplicationProgressStore((state) => state.decrementStep)
+    const [requestedAmountInput, setRequestedAmountInput] = useState(
+        Number.isFinite(requested_amount ?? NaN) && requested_amount !== 0
+            ? String(requested_amount)
+            : ""
+    )
 
     const handleBack = async () => {
         decrementStep()
@@ -21,6 +26,12 @@ export default function ApplicantForm_FinancialNeedsSection() {
 
     const handleContinue = async () => {
         incrementStep()
+    }
+
+    const handleRequestedAmountChange = (value: string) => {
+        const normalizedValue = value.replace(/[^\d]/g, "")
+        setRequestedAmountInput(normalizedValue)
+        setRequestedAmount(normalizedValue === "" ? 0 : Number(normalizedValue))
     }
     
     return (
@@ -67,9 +78,10 @@ export default function ApplicantForm_FinancialNeedsSection() {
                 {/* input */}
                 <div>
                     <input
-                        value={String(requested_amount)}
-                        onChange={(e) => setRequestedAmount(Number(e.target.value))}
+                        value={requestedAmountInput}
+                        onChange={(e) => handleRequestedAmountChange(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter"}
+                        inputMode="numeric"
                         className={ `flex gap-2 border border-black/20 bg-white p-4 w-full h-[40%] rounded-2xl shadow-2xl`}
                         placeholder="Masukkan jumlah pinjaman anda..."
                     />
