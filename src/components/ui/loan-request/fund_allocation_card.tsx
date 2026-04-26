@@ -17,7 +17,7 @@ export default function MapFundsModal() {
 
 
       // 1. Define the base URL
-      const baseUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/donations`;
+      const baseUrl = `/api/donations`;
 
       try {
         const response = await fetch(`${baseUrl}`);

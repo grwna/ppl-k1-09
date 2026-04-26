@@ -19,7 +19,7 @@ export default function AdminLoanRequestPage() {
 
   useEffect(() => {
     const fetchLoanApplication = async () => {
-      const baseUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/loans`;
+      const baseUrl = '/api/loans';
       const start = (currentPageNumber - 1) * maxItemsInPage;
       const end = start + maxItemsInPage;
 

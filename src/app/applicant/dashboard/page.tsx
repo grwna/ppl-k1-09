@@ -25,7 +25,7 @@ export default function ApplicantDashboardPage() {
             setIsLoading(true);
             try {
                 // Fixed the URL protocol and string interpolation
-                const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/loans/${userId}`);
+                const response = await fetch(`/api/loans/${userId}`);
                 if (!response.ok) throw new Error("Failed to fetch");
 
                 const result = await response.json();
