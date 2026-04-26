@@ -2,12 +2,6 @@
 
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
-import { Plus_Jakarta_Sans } from 'next/font/google'
-
-const plusJakartaSansFont = Plus_Jakarta_Sans({
-    subsets: ['latin'],
-    display: 'swap',
-});
 
 export default function LoggedInPage() {
     const { data: session, status } = useSession();
@@ -15,7 +9,7 @@ export default function LoggedInPage() {
     if (status === "loading") return <div className="flex h-screen items-center justify-center">Loading...</div>;
 
     return (
-        <div className={`${plusJakartaSansFont.className} flex flex-col w-full min-h-screen items-center justify-center p-4`}>
+        <div className="flex flex-col w-full min-h-screen items-center justify-center p-4">
              <Image
                 src="/auth-bg.svg"
                 alt=""

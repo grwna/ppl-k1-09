@@ -18,8 +18,15 @@ export default auth((req) => {
     const isRootRoute = pathname === "/";
     const isLoggedInRoute = pathname === "/logged-in";
 
+    const getRoleDashboardPath = () => {
+        if (roles.includes("DONOR")) return "/donor/dashboard";
+        if (roles.includes("ADMIN")) return "/dashboard";
+        if (roles.includes("BORROWER")) return "/applicant/dashboard";
+        return "/donor/dashboard";
+    };
+
     // 1. Redirect pengguna yang belum login ke login (untuk dashboard & root & logged-in)
-    if ((isDashboardRoute || isRootRoute || isLoggedInRoute) && !isLoggedIn) {
+    if ((isDashboardRoute || isLoggedInRoute) && !isLoggedIn) {
         return NextResponse.redirect(new URL("/login", req.nextUrl));
     }
 
@@ -30,7 +37,7 @@ export default auth((req) => {
 
     // 3. Jika sudah login, jauhkan dari halaman login/register/sign-up
     if (isLoggedIn && isAuthRoute) {
-        return NextResponse.redirect(new URL("/logged-in", req.nextUrl));
+        return NextResponse.redirect(new URL(getRoleDashboardPath(), req.nextUrl));
     }
 
     return NextResponse.next();

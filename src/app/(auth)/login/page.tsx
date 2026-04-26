@@ -2,17 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Plus_Jakarta_Sans } from 'next/font/google'
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
-// init fonts
-const plusJakartaSansFont = Plus_Jakarta_Sans({
-    subsets: ['latin'],
-    display: 'swap',
-    variable: '--font-plus-jakarta-sans',
-});
 
 export default function LoginPage() {
     const router = useRouter();
@@ -39,7 +31,19 @@ export default function LoginPage() {
                 setError("Email atau password salah.");
                 setLoading(false);
             } else {
-                router.push("/logged-in");
+                const session = await getSession();
+                const roles = ((session?.user as any)?.roles || []) as string[];
+
+                if (roles.includes("DONOR")) {
+                    router.push("/donor/dashboard");
+                } else if (roles.includes("ADMIN")) {
+                    router.push("/dashboard");
+                } else if (roles.includes("BORROWER")) {
+                    router.push("/applicant/dashboard");
+                } else {
+                    router.push("/donor/dashboard");
+                }
+
                 router.refresh();
             }
         } catch (err) {
@@ -51,7 +55,7 @@ export default function LoginPage() {
 
     return (
         // main container
-        <div className={`${plusJakartaSansFont.variable} font-sans flex flex-col w-full min-h-screen overflow-hidden items-center justify-center relative`}>
+        <div className="font-sans flex flex-col w-full min-h-screen overflow-hidden items-center justify-center relative">
             <Image
                 src="/auth-bg.svg"
                 alt=""
@@ -79,12 +83,12 @@ export default function LoginPage() {
                     {/* greeting container */}
                     <div className="grid justify-center items-center gap-y-2 text-center">
                         {/* greeting caption container */}
-                        <div className={`${plusJakartaSansFont.className} text-lg font-bold`}>
+                        <div className="text-lg font-bold">
                             Selamat Datang di <span className="text-[#16C5DE]">Rumah Amal Salman!</span>
                         </div>
 
                         {/* sub greeting container */}
-                        <div className={`${plusJakartaSansFont.className} text-sm text-gray-500`} >
+                        <div className="text-sm text-gray-500" >
                             Log In untuk melanjutkan
                         </div>
 
@@ -93,7 +97,7 @@ export default function LoginPage() {
 
                     {/* email container */}
                     <div className="flex flex-col gap-2">
-                        <label className={`${plusJakartaSansFont.className} font-medium`}>
+                        <label className="font-medium">
                             Email <span className="text-[#FF0000]">*</span>
                         </label>
                         <input
@@ -109,7 +113,7 @@ export default function LoginPage() {
 
                     {/* password container */}
                     <div className="flex flex-col gap-2">
-                        <label className={`${plusJakartaSansFont.className} font-medium`}>
+                        <label className="font-medium">
                             Password <span className="text-[#FF0000]">*</span>
                         </label>
                         <input
@@ -140,7 +144,7 @@ export default function LoginPage() {
                         {/* sign up button */}
                         <Link
                             href="/sign-up"
-                            className={`border-[#16C5DE] border flex-1 h-12 flex justify-center items-center rounded-xl text-[#16C5DE] hover:bg-[#16C5DE]/5 transition-colors ${plusJakartaSansFont.className}`}
+                            className="border-[#16C5DE] border flex-1 h-12 flex justify-center items-center rounded-xl text-[#16C5DE] hover:bg-[#16C5DE]/5 transition-colors"
                         >
                             Sign Up
                         </Link>
@@ -149,7 +153,7 @@ export default function LoginPage() {
                         <button
                             onClick={handleLogin}
                             disabled={loading}
-                            className={`bg-[#16C5DE] flex-1 h-12 flex justify-center items-center rounded-xl text-white hover:bg-[#13A6BB] transition-colors disabled:opacity-70 disabled:cursor-not-allowed ${plusJakartaSansFont.className}`}
+                            className="bg-[#16C5DE] flex-1 h-12 flex justify-center items-center rounded-xl text-white hover:bg-[#13A6BB] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {loading ? "Loading..." : "Log In"}
                         </button>
@@ -157,7 +161,7 @@ export default function LoginPage() {
                     </div>
 
                     {/* minimal caption */}
-                    <div className={`${plusJakartaSansFont.className} text-xs text-center text-black/40 mt-4 leading-relaxed`}>
+                    <div className="text-xs text-center text-black/40 mt-4 leading-relaxed">
                         Dengan log in, kamu menyetujui Kebijakan Privasi dan Syarat & Ketentuan Rumah Amal Salman
                     </div>
 

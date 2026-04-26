@@ -17,14 +17,52 @@ CREATE TYPE "TransactionStatus" AS ENUM ('PENDING', 'SETTLEMENT', 'EXPIRE', 'FAI
 CREATE TYPE "TransactionCategory" AS ENUM ('DONATION', 'REPAYMENT');
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "users" (
     "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "emailVerified" TIMESTAMP(3),
     "password" TEXT NOT NULL,
+    "image" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "accounts" (
+    "id" UUID NOT NULL,
+    "userId" UUID NOT NULL,
+    "type" TEXT NOT NULL,
+    "provider" TEXT NOT NULL,
+    "providerAccountId" TEXT NOT NULL,
+    "refresh_token" TEXT,
+    "access_token" TEXT,
+    "expires_at" INTEGER,
+    "token_type" TEXT,
+    "scope" TEXT,
+    "id_token" TEXT,
+    "session_state" TEXT,
+
+    CONSTRAINT "accounts_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "sessions" (
+    "id" UUID NOT NULL,
+    "sessionToken" TEXT NOT NULL,
+    "userId" UUID NOT NULL,
+    "expires" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "sessions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "verification_tokens" (
+    "identifier" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "expires" TIMESTAMP(3) NOT NULL
 );
 
 -- CreateTable
@@ -47,8 +85,8 @@ CREATE TABLE "UserRole" (
 CREATE TABLE "DonorFund" (
     "id" UUID NOT NULL,
     "donorId" UUID NOT NULL,
-    "amount" DECIMAL NOT NULL,
-    "remaining" DECIMAL NOT NULL,
+    "amount" DECIMAL(12,2) NOT NULL,
+    "remaining" DECIMAL(12,2) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "DonorFund_pkey" PRIMARY KEY ("id")
@@ -58,7 +96,7 @@ CREATE TABLE "DonorFund" (
 CREATE TABLE "LoanApplication" (
     "id" UUID NOT NULL,
     "borrowerId" UUID NOT NULL,
-    "requestedAmount" DECIMAL NOT NULL,
+    "requestedAmount" DECIMAL(12,2) NOT NULL,
     "description" TEXT NOT NULL,
     "collateralUrl" TEXT NOT NULL,
     "collateralDescription" TEXT NOT NULL,
@@ -72,7 +110,7 @@ CREATE TABLE "LoanApplication" (
 CREATE TABLE "Loan" (
     "id" UUID NOT NULL,
     "applicationId" UUID NOT NULL,
-    "approvedAmount" DECIMAL NOT NULL,
+    "approvedAmount" DECIMAL(12,2) NOT NULL,
     "status" "LoanStatus" NOT NULL,
     "approvedAt" TIMESTAMP(3) NOT NULL,
     "dueDate" TIMESTAMP(3) NOT NULL,
@@ -86,7 +124,7 @@ CREATE TABLE "LoanFunding" (
     "loanId" UUID NOT NULL,
     "sourceType" "FundingSourceType" NOT NULL,
     "donorFundId" UUID,
-    "amount" DECIMAL NOT NULL,
+    "amount" DECIMAL(12,2) NOT NULL,
 
     CONSTRAINT "LoanFunding_pkey" PRIMARY KEY ("id")
 );
@@ -95,7 +133,7 @@ CREATE TABLE "LoanFunding" (
 CREATE TABLE "Repayment" (
     "id" UUID NOT NULL,
     "loanId" UUID NOT NULL,
-    "amount" DECIMAL NOT NULL,
+    "amount" DECIMAL(12,2) NOT NULL,
     "paidAt" TIMESTAMP(3) NOT NULL,
     "status" "RepaymentStatus" NOT NULL,
 
@@ -121,7 +159,7 @@ CREATE TABLE "PaymentTransaction" (
     "referenceRepayment" UUID,
     "referenceDonorFund" UUID,
     "category" "TransactionCategory" NOT NULL,
-    "amount" DECIMAL NOT NULL,
+    "amount" DECIMAL(12,2) NOT NULL,
     "paymentType" TEXT NOT NULL,
     "status" "TransactionStatus" NOT NULL,
     "response" JSONB NOT NULL,
@@ -154,7 +192,19 @@ CREATE TABLE "ApplicationAttachment" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "accounts_provider_providerAccountId_key" ON "accounts"("provider", "providerAccountId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "sessions_sessionToken_key" ON "sessions"("sessionToken");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "verification_tokens_token_key" ON "verification_tokens"("token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "verification_tokens_identifier_token_key" ON "verification_tokens"("identifier", "token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Role_name_key" ON "Role"("name");
@@ -163,16 +213,22 @@ CREATE UNIQUE INDEX "Role_name_key" ON "Role"("name");
 CREATE UNIQUE INDEX "Loan_applicationId_key" ON "Loan"("applicationId");
 
 -- AddForeignKey
+ALTER TABLE "accounts" ADD CONSTRAINT "accounts_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "UserRole" ADD CONSTRAINT "UserRole_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UserRole" ADD CONSTRAINT "UserRole_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "UserRole" ADD CONSTRAINT "UserRole_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "DonorFund" ADD CONSTRAINT "DonorFund_donorId_fkey" FOREIGN KEY ("donorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "DonorFund" ADD CONSTRAINT "DonorFund_donorId_fkey" FOREIGN KEY ("donorId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "LoanApplication" ADD CONSTRAINT "LoanApplication_borrowerId_fkey" FOREIGN KEY ("borrowerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "LoanApplication" ADD CONSTRAINT "LoanApplication_borrowerId_fkey" FOREIGN KEY ("borrowerId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Loan" ADD CONSTRAINT "Loan_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "LoanApplication"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -187,7 +243,7 @@ ALTER TABLE "LoanFunding" ADD CONSTRAINT "LoanFunding_loanId_fkey" FOREIGN KEY (
 ALTER TABLE "Repayment" ADD CONSTRAINT "Repayment_loanId_fkey" FOREIGN KEY ("loanId") REFERENCES "Loan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PaymentTransaction" ADD CONSTRAINT "PaymentTransaction_referenceRepayment_fkey" FOREIGN KEY ("referenceRepayment") REFERENCES "Repayment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
