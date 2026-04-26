@@ -1,16 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import localFont from 'next/font/local';
-
-const plusJakartaSansFont = localFont({
-  src: '../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
 
 export default function PaymentSuccessPage() {
   return (
-    <div className={`${plusJakartaSansFont.className} min-h-screen bg-gradient-to-br from-[#07B0C8]/10 to-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8 flex items-center`}>
+    <div className="min-h-screen bg-gradient-to-br from-[#07B0C8]/10 to-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8 flex items-center">
       <div className="max-w-md mx-auto w-full">
         {/* Success Card */}
         <div className="bg-white rounded-lg shadow-lg p-8 text-center">

@@ -4,15 +4,27 @@ import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import localFont from 'next/font/local';
 
 import { useDonationStore } from '@/hooks/donationStore';
 import { PaymentMethod, VABank, TransactionType } from '@/types/donation';
+import DonorDashboard_DonorNavbar from '@/components/ui/donor-dashboard/donor_navbar';
 
-const plusJakartaSansFont = localFont({
-  src: '../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
+const DONATION_STEPS = [
+  { id: 1, label: 'Select Amount' },
+  { id: 2, label: 'Payment' },
+  { id: 3, label: 'Confirmation' },
+] as const;
+
+const QUICK_AMOUNTS = [50000, 100000, 250000, 500000];
+
+const formatIdr = (value: number) =>
+  new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  })
+    .format(value)
+    .replace('Rp', 'Rp ');
 
 export default function DonateFormPage({
   searchParams
@@ -119,163 +131,101 @@ export default function DonateFormPage({
     }
   };
 
+  const activeStep = 1;
+
   return (
-    <div className={`${plusJakartaSansFont.className} min-h-screen bg-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8`}>
+    <div className="min-h-screen bg-[#F3F5F7]">
+      <DonorDashboard_DonorNavbar />
 
-      {/* title */}
-      <div className='font-bold flex justify-center items-center gap-1 text-4xl py-4'>
-        <span>Make a</span>
-        <span className='text-[#07B0C8]'>Donation</span>
-      </div>
-
-      {/* caption */}
-      <div className='font-light flex justify-center items-center h-fit w-full py-2'>
-        Your generosity empowers students with interest-free loans and scholarships.
-      </div>
-
-      {/* main content container */}
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-
-        {/* Header */}
-        {/* <div className="mb-6">
-          <h1 className="text-2xl font-bold text-[#07B0C8]">Make Payment</h1>
-          <p className="text-gray-600 mt-2">
-            {transactionType === 'donation' ? 'Donate to help others' : 'Repay your loan'}
+      <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:py-10">
+        <div className="text-center">
+          <h1 className="text-[2.1rem] font-semibold leading-none tracking-tight text-[#111827] md:text-[2.5rem]">
+            Make a <span className="text-[#07B0C8]">Donation</span>
+          </h1>
+          <p className="mt-2 text-[13.5px] text-[#6B7280] md:text-[15px]">
+            Your generosity empowers students with interest-free loans and scholarships.
           </p>
-        </div> */}
-
-        {/* Missing Reference ID Warning */}
-        {!referenceId && status !== 'loading' && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-yellow-900 text-sm">
-              <span className="font-medium">
-                {transactionType === 'donation'
-                  ? 'Unable to determine the donor account.'
-                  : 'No reference ID found.'}
-              </span>
-              {transactionType === 'donation'
-                ? ' Please sign in again before continuing.'
-                : ' This payment still needs a repayment reference ID.'}
-            </p>
-          </div>
-        )}
-
-        {/* donation progress */}
-        <div className='flex justify-between items-center p-2'>
-
-          {/* 1 : select amount */}
-          <div className='flex flex-col justify-center items-center text-sm'>
-            
-            {/* number container */}
-            <div className='flex justify-center items-center bg-[#07B0C8] rounded-full'>
-
-              {/* number */}
-              <div className='flex justify-center items-center p-2 text-white'>
-                1
-              </div>
-
-            </div>
-
-            {/* caption */}
-            <div>
-              Select Amount
-            </div>
-            
-          </div>
-
-          {/* 2 : payment */}
-          <div className='flex flex-col justify-center items-center text-sm'>
-            
-            {/* number container */}
-            <div className='flex justify-center items-center bg-[#07B0C8] rounded-full'>
-
-              {/* number */}
-              <div className='flex justify-center items-center p-2 text-white'>
-                2
-              </div>
-              
-            </div>
-
-            {/* caption */}
-            <div>
-              Payment
-            </div>
-            
-          </div>
-
-          {/* 3 : confirmation */}
-          <div className='flex flex-col justify-center items-center text-sm'>
-            
-            {/* number container */}
-            <div className='flex justify-center items-center bg-[#07B0C8] rounded-full'>
-
-              {/* number */}
-              <div className='flex justify-center items-center p-2 text-white'>
-                3
-              </div>
-              
-            </div>
-
-            {/* caption */}
-            <div>
-              Confirmation
-            </div>
-            
-          </div>
-
         </div>
 
+        {/* main content container */}
+        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-5 shadow-[0_3px_10px_-8px_rgba(17,24,39,0.18)] md:p-6">
+
+          {/* donation progress */}
+          <div className="mb-7">
+            <div className="relative grid grid-cols-3">
+              <div className="absolute left-[16.67%] right-[16.67%] top-4 h-px bg-[#DCE3EA]" />
+
+              {DONATION_STEPS.map((step) => {
+                const isActive = step.id === activeStep;
+
+                return (
+                  <div key={step.id} className="relative z-10 flex flex-col items-center gap-2">
+                    <div
+                      className={`flex h-8 w-8 items-center justify-center rounded-full text-[18px] font-medium ${isActive ? 'bg-[#07B0C8] text-white shadow-[0_6px_14px_-10px_rgba(7,176,200,0.9)]' : 'border border-[#DCE3EA] bg-[#EEF3F7] text-[#9CA9BA]'}`}
+                    >
+                      {step.id}
+                    </div>
+                    <p
+                      className={`text-center text-[15px] ${isActive ? 'font-medium text-[#07B0C8]' : 'font-normal text-[#8FA0B6]'}`}
+                    >
+                      {step.label}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Missing Reference ID Warning */}
+          {!referenceId && status !== 'loading' && (
+            <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+              <p className="text-sm text-yellow-900">
+                <span className="font-medium">
+                  {transactionType === 'donation'
+                    ? 'Unable to determine the donor account.'
+                    : 'No reference ID found.'}
+                </span>
+                {transactionType === 'donation'
+                  ? ' Please sign in again before continuing.'
+                  : ' This payment still needs a repayment reference ID.'}
+              </p>
+            </div>
+          )}
+
         {/* select amount section */}
-        <div>
+        <div className="space-y-4">
 
           {/* title + idr */}
-          <div className='flex justify-center items-center w-full h-fit'>
+          <div className='flex items-center justify-between'>
 
             {/* title */}
-            <div className='flex justify-start items-center w-[90%] h-fit text-sm font-medium text-gray-700 mb-2'>
+            <div className='text-sm font-medium text-gray-700'>
               Pilih jumlah yang diiginkan
             </div>
 
             {/* idr */}
-            <div className='flex justify-end items-center w-[10%] h-fit text-sm font-medium text-gray-700 mb-2'>
+            <div className='text-sm font-medium text-gray-700'>
               IDR
             </div>
 
           </div>
 
           {/* instant choices section */}
-          <div className='flex flex-col gap-2'>
+          <div className='grid grid-cols-2 gap-2'>
+            {QUICK_AMOUNTS.map((quickAmount) => {
+              const isSelected = amount === quickAmount;
 
-            {/* upper : 50.000 & 100.000 */}
-            <div className='flex justify-center items-center w-full h-fit p-1'>
-              
-              {/* 50.000 */}
-              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={() => setAmount(50000)}>
-                50.000
-              </div>
-              
-              {/* 100.000 */}
-              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={() => setAmount(100000)}>
-                100.000
-              </div>
-              
-            </div>
-
-            {/* lower : 250.000 & 500.000 */}
-            <div className='flex justify-center items-center w-full h-fit p-1'>
-              
-              {/* 250.000 */}
-              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={() => setAmount(250000)}>
-                250.000
-              </div>
-              
-              {/* 500.000 */}
-              <div className='flex justify-center items-center w-[50%] border border-gray-300/80 rounded-2xl p-2' onClick={() => setAmount(500000)}>
-                500.000
-              </div>
-
-            </div>
-
+              return (
+                <button
+                  key={quickAmount}
+                  type="button"
+                  onClick={() => setAmount(quickAmount)}
+                  className={`rounded-xl border p-2.5 text-[13px] font-medium transition ${isSelected ? 'border-[#07B0C8] bg-[#07B0C8]/10 text-[#06A3B9]' : 'border-gray-300/80 text-gray-700 hover:border-[#07B0C8]/45 hover:bg-[#F0FBFD]'}`}
+                >
+                  {formatIdr(quickAmount)}
+                </button>
+              );
+            })}
           </div>
 
           {/* manual input section */}
@@ -399,11 +349,12 @@ export default function DonateFormPage({
 
         {/* Back Link */}
         <div className="mt-4 text-center">
-          <Link href="/" className="text-sm text-[#07B0C8] hover:underline">
-            Back to Home
+          <Link href="/donor/dashboard" className="text-sm text-[#07B0C8] hover:underline">
+            Back to Dashboard
           </Link>
         </div>
       </div>
+      </main>
     </div>
   );
 }

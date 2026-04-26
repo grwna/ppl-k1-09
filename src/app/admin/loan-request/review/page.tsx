@@ -5,15 +5,9 @@ import DummyUserLogo from "../../../../../public/dummy-user.svg"
 import DummyDocsLogo from "../../../../../public/dummy-docs.svg"
 import ArrowRightGreyLogo from "../../../../../public/arrow-right-grey.svg"
 import { time, timeStamp } from "console";
-import localFont from "next/font/local";
 import Image from "next/image";
 import AdminDashboard_AdminNavbar from "@/components/ui/admin-dashboard/admin_navbar";
 import MapFundsModal from "@/components/ui/loan-request/fund_allocation_card";
-
-const plusJakartaSansFont = localFont({
-  src: '../../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
 
 const StatusActionDict = {
     "PENDING" : {
@@ -64,7 +58,7 @@ export default function ReviewLoanApplicationPage() {
         hic quam quis dicta harum veniam nihil tempora rerum sequi consectetur.
     `
     return (
-        <div className={`${plusJakartaSansFont.className} flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB]`}>
+        <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB]">
 
             { isAllocationFundModalOpen ? 
                 <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">

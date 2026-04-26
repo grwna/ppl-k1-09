@@ -2,12 +2,6 @@
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
-import localFont from 'next/font/local';
-
-const plusJakartaSansFont = localFont({
-  src: '../../../../public/fonts/PlusJakartaSans-VariableFont.ttf',
-  display: 'swap',
-});
 
 type PaymentStatus = 'PENDING' | 'SETTLEMENT' | 'EXPIRE' | 'FAILURE' | null;
 type PaymentMethod = 'qris' | 'va';
@@ -289,7 +283,7 @@ export default function PaymentConfirmPage({
   };
 
   return (
-    <div className={`${plusJakartaSansFont.className} min-h-screen bg-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8`}>
+    <div className="min-h-screen bg-[#F9FAFB] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium mb-4 ${getStatusColor(status)}`}>

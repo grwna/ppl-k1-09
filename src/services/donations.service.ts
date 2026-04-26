@@ -2,6 +2,29 @@ import { prisma } from "@/lib/prisma";
 import { DonationInput } from "@/schemas/donations.schema";
 import { randomUUID } from "crypto";
 
+type DistributionStatus = "Pending" | "Distributed";
+
+type DonorDashboardDistribution = {
+  id: string;
+  date: string;
+  programName: string;
+  amount: number;
+  status: DistributionStatus;
+};
+
+const QUICK_SELECT_AMOUNTS = [1000000, 5000000, 10000000];
+
+const rankFromTotalDonation = (totalDonation: number) => {
+  if (totalDonation >= 50000000) return "Platinum Donor";
+  if (totalDonation >= 20000000) return "Gold Donor";
+  if (totalDonation >= 5000000) return "Silver Donor";
+  return "Bronze Donor";
+};
+
+const mapDistributionStatus = (amount: number, remaining: number): DistributionStatus => {
+  return remaining >= amount ? "Pending" : "Distributed";
+};
+
 export const DonationService = {
   async createDonation(userId: string, data: DonationInput) {
     return await prisma.$transaction(async (tx) => {
@@ -78,5 +101,86 @@ export const DonationService = {
       console.error("Error fetching donor funds:", error);
       throw new Error("Gagal mengambil data dana donor.");
     }
-  }
+  },
+
+  async getDonorDashboard() {
+    try {
+      const donorFunds = await prisma.donorFund.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          amount: true,
+          remaining: true,
+          createdAt: true,
+          loanFundings: {
+            select: {
+              id: true,
+            },
+          },
+          paymentTransaction: {
+            select: {
+              paymentType: true,
+            },
+          },
+        },
+        take: 50,
+      });
+
+      const summarySeed = donorFunds.reduce(
+        (acc, fund) => {
+          const amount = Number(fund.amount);
+          const remaining = Number(fund.remaining);
+          const allocated = Math.max(amount - remaining, 0);
+
+          acc.totalDonated += amount;
+          acc.totalAllocated += allocated;
+
+          if (allocated > 0 || fund.loanFundings.length > 0) {
+            acc.activeImpact += 1;
+          }
+
+          return acc;
+        },
+        {
+          totalDonated: 0,
+          totalAllocated: 0,
+          activeImpact: 0,
+        }
+      );
+
+      const recentDistributions: DonorDashboardDistribution[] = donorFunds
+        .slice(0, 5)
+        .map((fund) => {
+          const amount = Number(fund.amount);
+          const remaining = Number(fund.remaining);
+          const status = mapDistributionStatus(amount, remaining);
+          const distributionAmount = status === "Distributed" ? Math.max(amount - remaining, 0) : amount;
+
+          return {
+            id: fund.id,
+            date: fund.createdAt.toISOString(),
+            programName: fund.paymentTransaction?.paymentType
+              ? `${fund.paymentTransaction.paymentType} Program`
+              : "Student Support Program",
+            amount: distributionAmount,
+            status,
+          };
+        });
+
+      return {
+        summary: {
+          totalDonated: summarySeed.totalDonated,
+          activeImpact: summarySeed.activeImpact,
+          currentRank: rankFromTotalDonation(summarySeed.totalDonated),
+        },
+        recentDistributions,
+        quickSelectAmounts: QUICK_SELECT_AMOUNTS,
+      };
+    } catch (error) {
+      console.error("Error fetching donor dashboard:", error);
+      throw new Error("Gagal mengambil data dashboard donor.");
+    }
+  },
 };

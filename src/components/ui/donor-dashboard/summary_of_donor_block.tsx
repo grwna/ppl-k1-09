@@ -1,36 +1,38 @@
 
+import type { StaticImageData } from "next/image";
 import Image from "next/image";
 
-export default function DonorDashboard_SummaryOfDonor(props : {logo : string, alt : string, title : string, caption : string, color : string}) {
+type DonorDashboardSummaryProps = {
+    logo: StaticImageData;
+    alt: string;
+    title: string;
+    caption: string;
+    color: string;
+};
 
-    // initialize variables
-    
+export default function DonorDashboard_SummaryOfDonor(props: DonorDashboardSummaryProps) {
+
     return (
-        // main container
-        <div className=" flex flex-col items-center justify-start">
-        
-            {/* symbols */}
-            <div className={`flex w-full h-20% justify-start items-center`}>
-                <div className={`flex w-full h-full justify-center items-center rounded-full `}
-                      style={{ backgroundColor: `#${props.color}20` }}>
+        <article className="w-full rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-[0_3px_10px_-8px_rgba(17,24,39,0.18)] md:px-5 md:py-5">
+            <div className="mb-3 flex items-center">
+                <div
+                    className="flex h-9 w-9 items-center justify-center rounded-full"
+                    style={{ backgroundColor: `#${props.color}1F` }}
+                >
                     <Image
                         src={props.logo}
                         alt={props.alt}
-                        className="flex w-full h-full"
+                        className="h-[16px] w-[16px]"
                     />
                 </div>
             </div>
 
-            {/* title */}
-            <div>
+            <p className="text-xs font-medium text-[#6B7280]">
                 {props.title}
-            </div>
-
-            {/* caption */}
-            <div>
+            </p>
+            <p className="mt-1 text-xl font-bold leading-tight tracking-tight text-[#111827]">
                 {props.caption}
-            </div>
-
-        </div>
+            </p>
+        </article>
     );
 }
