@@ -19,6 +19,12 @@ export type LoanApplication = {
   collateralDescription?: string;
   status: string;
   createdAt : string | number | Date,
+  loanId?: string;
+  loan?: {
+    id: string;
+    approvedAmount: string | number;
+    status: string;
+  } | null;
   attachments?: {
     id: string;
     documentType: string;

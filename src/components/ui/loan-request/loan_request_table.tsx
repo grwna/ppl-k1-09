@@ -78,6 +78,11 @@ type LoanRequestRow = {
     collateralDescription?: string | null;
     status?: string;
     createdAt: string | number | Date;
+    loan?: {
+        id: string;
+        approvedAmount: string | number;
+        status: string;
+    } | null;
     attachments?: LoanAttachment[];
     approvedAmount?: number;
     rejectionApprovalNotes?: string;
@@ -110,10 +115,12 @@ export default function LoanRequest_LoanRequestsTable() {
             collateralDescription: loan.collateralDescription || "",
             status: loan.status || "PENDING",
             createdAt: loan.createdAt,
+            loanId: loan.loan?.id || "",
+            loan: loan.loan || null,
             attachments: loan.attachments || [],
             studentIdCard: studentIdAttachment?.fileUrl || "",
             transcriptFile: familyCardAttachment?.fileUrl || "",
-            approvedAmount: loan.approvedAmount || 0,
+            approvedAmount: Number(loan.loan?.approvedAmount || loan.approvedAmount || 0),
             rejectionApprovalNotes: loan.rejectionApprovalNotes || "",
         });
         router.push("/admin/loan-request/review");
