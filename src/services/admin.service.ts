@@ -215,4 +215,18 @@ export const AdminService = {
       throw new Error("Gagal mengambil data dashboard.");
     }
   },
+
+  // TODO: INI GANTI KE WORKING HANDLER
+  async updateLoanStatus(loanId: string, status: "APPROVED" | "REJECTED") {
+    try {
+      const updatedLoan = await prisma.loanApplication.update({
+        where: { id: loanId },
+        data: { status: status as any },
+      });
+      return updatedLoan;
+    } catch (error) {
+      console.error("Error updating loan status:", error);
+      throw new Error("Gagal memperbarui status pinjaman.");
+    }
+  },
 };

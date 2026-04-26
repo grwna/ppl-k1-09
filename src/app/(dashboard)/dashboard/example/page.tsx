@@ -5,7 +5,7 @@
 
 import { ExampleService } from "@/services/example.service";
 import { createExampleAction } from "@/actions/example.action";
-import NavigationBar from "@/components/ui/navbar";
+import { Navbar as NavigationBar } from "@/components/ui/navbar";
 
 export default async function DashboardExamplePage() {
   // Example of server-side data fetching through service
