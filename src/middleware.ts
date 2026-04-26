@@ -12,31 +12,35 @@ export default auth((req) => {
     const roles = (req.auth?.user as any)?.roles || [];
     const pathname = req.nextUrl.pathname;
 
-    const isDashboardRoute = pathname.startsWith("/dashboard");
-    const isAdminRoute = pathname.startsWith("/dashboard/admin");
+    const isDonorRoute = pathname.startsWith("/donor");
+    const isAdminRoute = pathname.startsWith("/admin");
+    const isApplicantRoute = pathname.startsWith("/applicant");
     const isAuthRoute = pathname === "/login" || pathname === "/register" || pathname === "/sign-up";
     const isRootRoute = pathname === "/";
     const isLoggedInRoute = pathname === "/logged-in";
 
     const getRoleDashboardPath = () => {
-        if (roles.includes("DONOR")) return "/donor/dashboard";
         if (roles.includes("ADMIN")) return "/admin/dashboard";
+        if (roles.includes("DONOR")) return "/donor/dashboard";
         if (roles.includes("BORROWER")) return "/applicant/dashboard";
         return "/donor/dashboard";
     };
 
-    // 1. Redirect pengguna yang belum login ke login (untuk dashboard & root & logged-in)
-    if ((isDashboardRoute || isLoggedInRoute) && !isLoggedIn) {
+    // 1. Redirect pengguna yang belum login ke login (untuk area terproteksi)
+    if ((isDonorRoute || isAdminRoute || isApplicantRoute || isLoggedInRoute) && !isLoggedIn) {
         return NextResponse.redirect(new URL("/login", req.nextUrl));
     }
 
-    // 2. Access Control: Hanya ADMIN yang bisa masuk ke area admin
+    // 2. Access Control: Pastikan role sesuai dengan prefix route
     if (isAdminRoute && !roles.includes("ADMIN")) {
-        return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
+        return NextResponse.redirect(new URL(getRoleDashboardPath(), req.nextUrl));
+    }
+    if (isDonorRoute && !roles.includes("DONOR") && !roles.includes("ADMIN")) {
+        return NextResponse.redirect(new URL(getRoleDashboardPath(), req.nextUrl));
     }
 
-    // 3. Jika sudah login, jauhkan dari halaman login/register/sign-up
-    if (isLoggedIn && isAuthRoute) {
+    // 3. Jika sudah login, jauhkan dari halaman auth atau redirect dari root
+    if (isLoggedIn && (isAuthRoute || isRootRoute || isLoggedInRoute)) {
         return NextResponse.redirect(new URL(getRoleDashboardPath(), req.nextUrl));
     }
 
@@ -44,5 +48,5 @@ export default auth((req) => {
 });
 
 export const config = {
-    matcher: ["/", "/dashboard/:path*", "/login", "/register", "/sign-up", "/logged-in"],
+    matcher: ["/", "/admin/:path*", "/donor/:path*", "/applicant/:path*", "/login", "/register", "/sign-up", "/logged-in"],
 };
