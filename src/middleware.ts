@@ -20,7 +20,7 @@ export default auth((req) => {
 
     const getRoleDashboardPath = () => {
         if (roles.includes("DONOR")) return "/donor/dashboard";
-        if (roles.includes("ADMIN")) return "/dashboard";
+        if (roles.includes("ADMIN")) return "/admin/dashboard";
         if (roles.includes("BORROWER")) return "/applicant/dashboard";
         return "/donor/dashboard";
     };
