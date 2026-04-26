@@ -3,7 +3,7 @@ import type { StaticImageData } from "next/image";
 import Image from "next/image";
 
 type DonorDashboardSummaryProps = {
-    logo: StaticImageData;
+    logo: StaticImageData | string;
     alt: string;
     title: string;
     caption: string;

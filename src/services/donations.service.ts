@@ -39,7 +39,7 @@ export const DonationService = {
       const payment = await tx.paymentTransaction.create({
         data: {
           externalId: `DON-${Date.now()}-${randomUUID().slice(0, 5)}`,
-          referenceDonorFund: donorFund.id,
+          referenceId: donorFund.id,
           category: "DONATION",
           amount: data.amount,
           paymentType: data.paymentType,

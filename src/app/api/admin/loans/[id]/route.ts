@@ -5,7 +5,7 @@ import { UpdateLoanStatusSchema } from "@/schemas/admin.schema";
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // --- MATIKAN SEMENTARA FITUR LOGIN/ROLE UNTUK DUMMY FE ---
@@ -15,8 +15,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Forbidden. Akses khusus Admin." }, { status: 403 });
     }
     */
-
-    const loanId = context.params.id;
+    const { id: loanId } = await context.params;
     const body = await req.json();
 
     // Validasi input status

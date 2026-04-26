@@ -1,0 +1,358 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: SalmanAid
+meta:
+  id: wrk_cae162c018ba493bb927f2b5c9e77d55
+  created: 1777164185893
+  modified: 1777164198962
+  description: ""
+collection:
+  - url: http://{{ _.base_url }}/api/donors/distributions
+    name: Get donor distributions tracking breakdown
+    meta:
+      id: req_d7fe1fb6231648ccb5432db8f7301878
+      created: 1777164185895
+      modified: 1777187071828
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185895
+    method: GET
+    body:
+      mimeType: ""
+      text: ""
+    parameters:
+      - name: limit
+        value: "10"
+        description: ""
+        disabled: false
+      - name: page
+        value: "1"
+        description: ""
+        disabled: false
+      - name: donorId
+        value: 9a7fe629-5900-4cdd-bf13-2cd127e0b73c
+        description: ""
+        disabled: false
+    headers:
+      - name: Cookie
+        value: next-auth.session-token=nextAuthSessionToken
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://{{ _.base_url }}/api/attachments/:attachmentId
+    name: Delete document
+    meta:
+      id: req_b852888495f841a3b332955544a61fed
+      created: 1777164185896
+      modified: 1777186452488
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185905
+    method: DELETE
+    body:
+      mimeType: ""
+      text: ""
+    headers:
+      - name: Cookie
+        value: next-auth.session-token=nextAuthSessionToken
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+    pathParameters:
+      - name: attachmentId
+        value: ""
+  - url: http://{{ _.base_url }}/api/payments/midtrans/notification
+    name: Webhook status check
+    meta:
+      id: req_07184fa8e75f47b89824532e741c95cc
+      created: 1777164185899
+      modified: 1777164314072
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185899
+    method: GET
+    body:
+      mimeType: ""
+      text: ""
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://{{ _.base_url }}/api/payments/midtrans/notification
+    name: Midtrans webhook notification
+    meta:
+      id: req_f59e9151aa2d4e769f3d281d07fa8898
+      created: 1777164185901
+      modified: 1777164304940
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185901
+    method: POST
+    body:
+      mimeType: ""
+      text: ""
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://{{ _.base_url }}/api/payments/midtrans/status/:transactionId
+    name: Get payment status
+    meta:
+      id: req_6cd85e3197bd4a5aad8e19834f8b900c
+      created: 1777164185902
+      modified: 1777186551149
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185902
+    method: GET
+    body:
+      mimeType: ""
+      text: ""
+    headers:
+      - name: Cookie
+        value: next-auth.session-token=nextAuthSessionToken
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+    pathParameters:
+      - name: transactionId
+        value: 09669a4b-f976-41c9-acaa-33d16b7dfcc5
+  - url: http://{{ _.base_url }}/api/payments/midtrans/payments
+    name: Create Midtrans payment
+    meta:
+      id: req_4c89c573047f46ada3b64e15a0c316e4
+      created: 1777164185904
+      modified: 1777164294160
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185904
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "amount": 0,
+          "transactionType": "string",
+          "paymentMethod": "string",
+          "vaBank": "string",
+          "referenceId": "string",
+          "customer": {
+            "userId": "string",
+            "email": "string",
+            "name": "string",
+            "phone": "string"
+          },
+          "metadata": {}
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: Cookie
+        value: next-auth.session-token=nextAuthSessionToken
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://{{ _.base_url }}/api/applications/:applicationId/attachments
+    name: Upload document for a specific application
+    meta:
+      id: req_5fde0711473042fe85c00f2e6780ae58
+      created: 1777164185906
+      modified: 1777186342603
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185906
+    method: POST
+    body:
+      mimeType: multipart/form-data
+      params:
+        - name: file
+          value: ""
+          description: ""
+          disabled: false
+          type: file
+        - name: documentType
+          value: ""
+          description: ""
+          disabled: false
+          multiline: false
+          type: text
+    headers:
+      - name: Content-Type
+        value: multipart/form-data
+      - name: Cookie
+        value: next-auth.session-token=nextAuthSessionToken
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+    pathParameters:
+      - name: applicationId
+        value: ""
+  - url: http://{{ _.base_url }}/api/applications/:applicationId/attachments
+    name: Get application attachments
+    meta:
+      id: req_5fa1fc799f194ea795f285b38e2826f0
+      created: 1777164185908
+      modified: 1777185499026
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185908
+    method: GET
+    body:
+      mimeType: ""
+      text: ""
+    headers:
+      - name: Cookie
+        value: next-auth.session-token=nextAuthSessionToken
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+    pathParameters:
+      - name: applicationId
+        value: e848385a-6bf0-4e17-92d1-36a72232b331
+  - url: http://{{ _.base_url }}/api/auth/verify
+    name: Verify user credentials
+    meta:
+      id: req_825995481a6946c2bafb9cc77dc70941
+      created: 1777164185910
+      modified: 1777166387040
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185910
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "email": "admin@example.com",
+          "password": "admin123"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://{{ _.base_url }}/api/auth/register
+    name: User registration
+    meta:
+      id: req_04d5a4b23eca48fc813a65eaeef5a073
+      created: 1777164185912
+      modified: 1777166157386
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185912
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "string",
+          "email": "user@example.com",
+          "password": "string",
+          "role": "string"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://{{ _.base_url }}/api/health
+    name: Health check
+    meta:
+      id: req_4406eb7f82be40d688970434d1acd650
+      created: 1777164185913
+      modified: 1777164260263
+      isPrivate: false
+      description: ""
+      sortKey: -1777164185913
+    method: GET
+    body:
+      mimeType: ""
+      text: ""
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_a22ffef6cac0239d725e0a249844be48c5f407db
+    created: 1777164185918
+    modified: 1777164185918
+  cookies:
+    - id: 0bd4663b-e5fa-4575-a4a0-d88e6c11c8d7
+      key: __Secure-authjs.session-token
+      value: eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiczF3TDR3ZkJtbGt2REd2LTNudEJGU2RXdVZQTTJORGljaDExdkNnWGV5MjZHTE9DQWxWR0d0SWFISG9RdWJCcEo5N29NTU4xQ2EwSnJaZ01yZm1HV0EifQ..IEqctCn5sPs8Ga8XH2ro8A.tQ7k7iPhlPZ7jhJpF70AJQwzpjk2y2vIFniRi4AqrKiaX381j6Dw293nLCTUBzleMw8umdUUa26b_tnwRHS5hDyA9I_2WbEe57lBFpk2eQ2kik7aMKOOGCq0av4gM-AsGifhtdxpvrtHg_TyoTR2VsOK7CHzVR5lbEeN6SZmZAv8MN5sbqcWk-vrWgfvSBR2NXP0aLHDdIiOuf_G-3Fa515lVGdtEUCTAKEJxMkKH88FKXaTTQp7z3CJbcV5ye-c.eAoUzGHc3b-LSYve2A8HX5i3nJSZnLg4Bsj8LZU5NP8
+      domain: loan-ppl-dev.vercel.app
+      path: /
+      secure: true
+      httpOnly: true
+    - id: bb4ad9b0-68f7-41f6-86ec-7932d08796cb
+      key: authjs.session-token
+      value: eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiaU15ZkR2bnFzb2pObmtVWkU1Ym1QZ3VyMUxwRjdUbThhRWRSeE5lc1ZtNkpjS25mdXNVbklwR1VQdFBxTlY3V3g0VjJKRU9rb2cyS09iMmRGNHhfNncifQ..pj0QD4I6RhU4tfse4xBpCQ.2-UZfE2EryMKf190LKOSdZdnpQtOOxk3soi0038neQ1_2wqsNFJvH2ArmiJRw-e8br7W3p6VhvL-rv2YZonq-j1kAaYn3DQNkeJJsOzBsvtV-hKpjRcGR2y-2_g4Mh3J5hxEzcuDUvL7vQbLzu57VWeC1n3O5iWA52ryY0jGnydlCrHXo_c7dt9Nfxx5S7l9nZpMQZGreyadcUySlmA53nL-gGoYKNYQkbA4jj5_mTVUA_f1W9FdPnocF1m1iQnl.crR_Q2qlzyp4sdOgNi0D8BiRtsRm5GWqJnKTWm50mBg
+      domain: localhost
+      path: /
+      secure: false
+      httpOnly: true
+environments:
+  name: Base Environment
+  meta:
+    id: env_a22ffef6cac0239d725e0a249844be48c5f407db
+    created: 1777164185915
+    modified: 1777187007028
+    isPrivate: false
+  data:
+    base_url: localhost:3000

@@ -2,23 +2,23 @@
 import Image from "next/image";
 
 import WhiteChecklist from "../../../../public/white-checklist.svg"
+import { useEffect, useState } from "react";
+import { useUserStore } from "@/hooks/userStore";
 
-export default function ApplicantDashboard_ApplicationProgressComponent(){
-
-    // fetch conditions from the db
+export default function ApplicantDashboard_ApplicationProgressComponent(props: {submitTime : Date, verifiedTime : Date, disbursedTime : Date}){
 
     return (
 
         // main container
-        <div className="flex flex-col w-full h-fit">
+        <div className="flex flex-col w-full h-full justify-center items-start gap-2 p-2">
             
             {/* title */}
-            <div>
+            <div className="flex justify-start items-center w-full h-fit px-2 pt-2 font-semibold text-lg">
                 Application Progress
             </div>
 
             {/* progress */}
-            <div>
+            <div className="flex flex-col justify-center items-center gap-2">
 
                 {/* submitted section */}
                 <div className="flex w-full h-fit justify-start items-center">
@@ -35,17 +35,17 @@ export default function ApplicantDashboard_ApplicationProgressComponent(){
                     <div className="flex flex-col justify-center items-start w-[90%] p-2">
                         
                         {/* title */}
-                        <div>
+                        <div className="text-lg font-semibold">
                             Submitted
                         </div>
 
                         {/* caption */}
-                        <div>
+                        <div className="font-light">
                             Your Applcation has been received
                         </div>
 
                         {/* date */}
-                        <div>
+                        <div className="text-sm font-light opacity-80">
                             Compleeted on Aug 15, 2026
                         </div>
 
@@ -68,17 +68,17 @@ export default function ApplicantDashboard_ApplicationProgressComponent(){
                     <div className="flex flex-col justify-center items-start w-[90%] p-2">
                         
                         {/* title */}
-                        <div>
+                        <div className="text-lg font-semibold">
                             Verified
                         </div>
 
                         {/* caption */}
-                        <div>
+                        <div className="font-light">
                             Documents and information verified
                         </div>
 
                         {/* date */}
-                        <div>
+                        <div className="text-sm font-light opacity-80">
                             Completed on Aug 18, 2026
                         </div>
 
@@ -101,17 +101,17 @@ export default function ApplicantDashboard_ApplicationProgressComponent(){
                     <div className="flex flex-col justify-center items-start w-[90%] p-2">
                         
                         {/* title */}
-                        <div>
+                        <div className="text-lg font-semibold">
                             Disbursed
                         </div>
 
                         {/* caption */}
-                        <div>
+                        <div className="font-light">
                             Funds transferred to your account
                         </div>
 
                         {/* date */}
-                        <div>
+                        <div className="text-sm font-light opacity-80">
                             Completed on Aug 20, 2026
                         </div>
 
@@ -119,6 +119,20 @@ export default function ApplicantDashboard_ApplicationProgressComponent(){
 
                 </div>
 
+            </div>
+
+            {/* view details + download contracts section */}
+            <div className="flex justify-between items-center w-full h-fit p-2 gap-4">
+
+                {/* view details */}
+                <div className="flex justify-center items-center w-1/2 h-fit text-white bg-[#07B0C8] rounded-lg p-2">
+                    Lihat Detail
+                </div>
+
+                {/* download contracts */}
+                <div className="flex justify-center items-center w-1/2 h-fit text-[#07B0C8] border border-2 border-[#07B0C8] rounded-lg font-semibold p-2">
+                    Unduh Kontrak
+                </div>
             </div>
 
         </div>
