@@ -13,13 +13,15 @@ export default function AdminLoanRequestPage() {
 
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   const totalItems = loans.length || 0;
   const maxPageNumber = Math.max(1, Math.ceil(totalItems / maxItemsInPage));
 
   useEffect(() => {
     const fetchLoanApplication = async () => {
-      const baseUrl = 'http://localhost:3000/api/loans';
+      setIsLoading(true);
+      const baseUrl = '/api/loans';
       const start = (currentPageNumber - 1) * maxItemsInPage;
       const end = start + maxItemsInPage;
 
@@ -40,6 +42,8 @@ export default function AdminLoanRequestPage() {
         setLoans(result.data.loans || []);
       } catch (error) {
         console.error("Fetch error:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -54,7 +58,7 @@ export default function AdminLoanRequestPage() {
   // Helper to determine the active tab color based on your dict
   const getTabColor = (value: string | undefined) => {
     if (statusFilter !== value) return "text-gray-500"; // Inactive color
-    
+
     switch (value) {
       case "PENDING": return "text-[#BB4D00] border-[#BB4D00]";
       case "APPROVED": return "text-[#007A55] border-[#007A55]";
@@ -86,9 +90,8 @@ export default function AdminLoanRequestPage() {
             <button
               key={tab.label}
               onClick={() => handleFilterChange(tab.value)}
-              className={`pb-3 px-4 text-sm font-bold transition-all border-b-2 ${getTabColor(tab.value)} ${
-                statusFilter !== tab.value ? "border-transparent hover:text-gray-700" : ""
-              }`}
+              className={`pb-3 px-4 text-sm font-bold transition-all border-b-2 ${getTabColor(tab.value)} ${statusFilter !== tab.value ? "border-transparent hover:text-gray-700" : ""
+                }`}
             >
               {tab.label}
             </button>
@@ -96,7 +99,7 @@ export default function AdminLoanRequestPage() {
         </div>
 
         <div className="w-full mb-6">
-          <LoanRequest_LoanRequestsTable />
+          <LoanRequest_LoanRequestsTable isLoading={isLoading} />
         </div>
 
         {/* Pagination UI */}
@@ -121,7 +124,7 @@ export default function AdminLoanRequestPage() {
             >
               Previous
             </button>
-            
+
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 text-white text-sm font-bold">
               {currentPageNumber}
             </div>

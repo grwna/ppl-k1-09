@@ -56,7 +56,7 @@ const formatDate = (dateInput: string | number | Date) => {
 // ===============================
 // COMPONENT
 // ===============================
-export default function LoanRequest_LoanRequestsTable() {
+export default function LoanRequest_LoanRequestsTable({ isLoading = false }: { isLoading?: boolean }) {
     const router = useRouter(); // Initialize router
     const loans = useLoanRequestStore((state) => state.loans);
     const setSelectedLoan = useLoanRequestStore((state) => state.setSelectedLoan);
@@ -67,8 +67,17 @@ export default function LoanRequest_LoanRequestsTable() {
         router.push("/admin/loan-request/review");
     };
 
+    if (isLoading) {
+        return (
+            <div className="w-full h-64 flex flex-col items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100">
+                <div className="w-10 h-10 border-4 border-[#00B5D8]/20 border-t-[#00B5D8] rounded-full animate-spin mb-4"></div>
+                <p className="text-gray-500 font-medium">Memuat data pengajuan...</p>
+            </div>
+        );
+    }
+
     if (!loans || loans.length === 0) {
-        return <div className="p-10 text-center text-gray-500">Tidak ada pengajuan pinjaman yang perlu diperhatikan</div>
+        return <div className="p-10 text-center text-gray-500 bg-white rounded-xl shadow-sm border border-gray-100">Tidak ada pengajuan pinjaman yang perlu diperhatikan</div>
     }
 
     return (

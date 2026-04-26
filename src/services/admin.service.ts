@@ -60,7 +60,7 @@ import { prisma } from "@/lib/prisma";
 
 //       const totalLoans = safeLoans.length;
 //       const pendingLoans = safeLoans.filter((loan) => loan.status === "PENDING").length;
-      
+
 //       const totalDonations = safeDonations.length;
 //       const totalDonationAmount = safeDonations.reduce((sum, current) => sum + current.amount, 0);
 
