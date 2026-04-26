@@ -41,7 +41,7 @@ export default function LoginPage() {
                 } else if (roles.includes("BORROWER")) {
                     router.push("/applicant/dashboard");
                 } else {
-                    router.push("/dashboard");
+                    router.push("/donor/dashboard");
                 }
 
                 router.refresh();

@@ -47,10 +47,15 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: Request) {
   try {
-    // 1. Extract the URL from the request
-    // const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(req.url);
+    const view = searchParams.get("view");
 
-    // 2. get loan requests
+    if (view === "dashboard") {
+      const dashboardData = await DonationService.getDonorDashboard();
+      return NextResponse.json({ data: dashboardData }, { status: 200 });
+    }
+
+    // default response for donation listing
     const result = await DonationService.getDonations()
 
     return NextResponse.json({ data: result }, { status: 200 });
