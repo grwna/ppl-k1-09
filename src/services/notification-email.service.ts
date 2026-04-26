@@ -6,8 +6,6 @@ type NotificationEmailInput = {
   message: string;
 };
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 function toHtml(message: string) {
   return `<p>${message}</p>`;
 }
@@ -17,6 +15,8 @@ export const NotificationEmailService = {
     if (!process.env.RESEND_API_KEY || !process.env.NOTIFICATION_EMAIL_FROM) {
       return { skipped: true };
     }
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     const result = await resend.emails.send({
       from: process.env.NOTIFICATION_EMAIL_FROM,
