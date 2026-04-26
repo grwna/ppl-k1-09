@@ -9,9 +9,9 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { useLoanRequestStore } from "@/hooks/loanRequestStore"
-import DefaultAvatarLogo from "../../../../public/default-avatar.svg"
 import Image from "next/image"
-import Link from "next/link"
+import { useRouter } from "next/navigation" // Import the router
+import DefaultAvatarLogo from  "../../../../public/default-avatar.svg"
 
 // ===============================
 // HELPERS
@@ -50,7 +50,6 @@ const formatCurrency = (amount: number) => {
 
 const formatDate = (dateInput: string | number | Date) => {
     const date = new Date(dateInput);
-    // Simple mock for "Today" - in production use date-fns or similar
     return `Today, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
 };
 
@@ -58,18 +57,26 @@ const formatDate = (dateInput: string | number | Date) => {
 // COMPONENT
 // ===============================
 export default function LoanRequest_LoanRequestsTable() {
+    const router = useRouter(); // Initialize router
     const loans = useLoanRequestStore((state) => state.loans);
+    const setSelectedLoan = useLoanRequestStore((state) => state.setSelectedLoan);
+
+    // Wrapper function to handle both actions
+    const handleActionClick = (loan: any) => {
+        setSelectedLoan(loan);
+        router.push("/admin/loan-request/review");
+    };
 
     if (!loans || loans.length === 0) {
         return <div className="p-10 text-center text-gray-500">Tidak ada pengajuan pinjaman yang perlu diperhatikan</div>
     }
 
     return (
-        <div className="w-full border-t border-gray-100">
+        <div className="w-full border-t border-gray-100 bg-white rounded-xl shadow-sm overflow-hidden">
             <Table>
                 <TableHeader className="bg-[#F9FAFB]">
                     <TableRow>
-                        <TableHead className="text-[#64748B] font-semibold text-xs uppercase">Applicant Details</TableHead>
+                        <TableHead className="text-[#64748B] font-semibold text-xs uppercase px-6">Applicant Details</TableHead>
                         <TableHead className="text-[#64748B] font-semibold text-xs uppercase">Institution</TableHead>
                         <TableHead className="text-[#64748B] font-semibold text-xs uppercase">Requested Amount</TableHead>
                         <TableHead className="text-[#64748B] font-semibold text-xs uppercase">Date Submitted</TableHead>
@@ -79,17 +86,17 @@ export default function LoanRequest_LoanRequestsTable() {
                 </TableHeader>
 
                 <TableBody>
-                    {loans.map((loan) => {
+                    {loans.map((loan : any) => {
                         const statusKey = (loan.status || "PENDING").toUpperCase() as keyof typeof StatusActionDict;
                         const config = StatusActionDict[statusKey];
 
                         return (
-                            <TableRow key={loan.id || loan.loanApplicationId} className="hover:bg-gray-50 border-b border-gray-50">
+                            <TableRow key={loan.id || loan.loanApplicationId} className="hover:bg-gray-50 border-b border-gray-50 transition-colors">
                                 
                                 {/* Applicant Details */}
-                                <TableCell className="py-4">
+                                <TableCell className="py-4 px-6">
                                     <div className="flex items-center gap-3">
-                                        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-100">
+                                        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-100 flex-shrink-0">
                                             <Image 
                                                 src={loan.image || DefaultAvatarLogo} 
                                                 alt="Profile" 
@@ -99,7 +106,7 @@ export default function LoanRequest_LoanRequestsTable() {
                                         </div>
                                         <div className="flex flex-col">
                                             <span className="font-bold text-[#1E293B] text-sm">{loan.borrower?.name || "Muhammad Fithra Rizki"}</span>
-                                            <span className="text-[#64748B] text-xs font-medium">
+                                            <span className="text-[#64748B] text-[11px] font-medium uppercase tracking-tight">
                                                 REQ-2023-089 • {loan.idNumber || "13523049"}
                                             </span>
                                         </div>
@@ -125,10 +132,10 @@ export default function LoanRequest_LoanRequestsTable() {
                                 <TableCell>
                                     <div className="flex justify-center">
                                         <div 
-                                            className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"
+                                            className="px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5"
                                             style={{ backgroundColor: config.status_bg, color: config.status_text }}
                                         >
-                                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: config.status_text }}></span>
+                                            <span className="w-1 h-1 rounded-full" style={{ backgroundColor: config.status_text }}></span>
                                             {loan.status}
                                         </div>
                                     </div>
@@ -137,13 +144,13 @@ export default function LoanRequest_LoanRequestsTable() {
                                 {/* Action Button */}
                                 <TableCell>
                                     <div className="flex justify-center">
-                                        <Link 
-                                            href={`/admin/loan-request/review/${loan.id}`}
-                                            className="px-4 py-1.5 rounded-lg text-xs font-bold transition-colors border border-transparent"
+                                        <button 
+                                            onClick={() => handleActionClick(loan)}
+                                            className="px-5 py-1.5 rounded-lg text-xs font-bold transition-all hover:brightness-95 active:scale-95 shadow-sm"
                                             style={{ backgroundColor: config.action_bg, color: config.action_text }}
                                         >
                                             {config.action_caption}
-                                        </Link>
+                                        </button>
                                     </div>
                                 </TableCell>
 

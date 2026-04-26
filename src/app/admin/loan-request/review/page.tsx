@@ -61,9 +61,9 @@ export default function ReviewLoanApplicationPage() {
         <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB]">
 
             { isAllocationFundModalOpen ? 
-                <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+                (<div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
                     <MapFundsModal /> 
-                </div> 
+                </div>) 
             : 
                 <></>
             }
