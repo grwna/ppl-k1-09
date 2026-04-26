@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { supabaseAdmin } from "@/lib/supabase";
 import crypto from "crypto";
 
-const BUCKET_NAME = "RAS-documents";
+const BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME || "loan-documents";
 
 export const DocumentService = {
   /**
