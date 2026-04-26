@@ -103,9 +103,12 @@ export const DonationService = {
     }
   },
 
-  async getDonorDashboard() {
+  async getDonorDashboard(userId: string) {
     try {
       const donorFunds = await prisma.donorFund.findMany({
+        where: {
+          donorId: userId,
+        },
         orderBy: {
           createdAt: "desc",
         },
