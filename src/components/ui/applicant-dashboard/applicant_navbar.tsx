@@ -1,7 +1,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, CheckCircle2, CircleDollarSign, Info, XCircle } from "lucide-react";
+import { Bell, CheckCircle2, ChevronDown, CircleDollarSign, Info, XCircle } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import RumahAmalHorizontalLogo from "../../../../public/rumah-amal-horizontal-logo.svg"
@@ -10,6 +10,7 @@ import ChevronDownLogo from "../../../../public/chevron-down.svg"
 
 import { useUserStore } from "@/hooks/userStore";
 import localFont from "next/font/local";
+import { signOut } from "next-auth/react";
 
 type NotificationItem = {
     id: string;
@@ -350,33 +351,40 @@ export default function ApplicantDashboard_ApplicantNavbar() {
             </div>
 
             {/* account */}
-            <div className="flex w-[20%] justify-around items-center gap-3">
+            <div className="flex gap-3 group relative">
 
-                <NotificationBellButton />
+                <div className="flex w-[50%] h-fit justify-center items-center">
+                    <NotificationBellButton />
+                </div>
 
-                {/* login */}
-                <div className="flex relative w-[10%] justify-center items-center">
-                    <Image
+                <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-full bg-white px-2 py-1 transition-colors hover:bg-gray-50"
+                    >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#DFF3F7]">
+                        <Image
                         src={UserPersonaLogo}
-                        alt="User Persona"
-                        width={100}
-                        height={100}
-                    />
-                </div>
+                        alt="User"
+                        width={16}
+                        height={16}
+                        className="h-4 w-4"
+                        />
+                    </span>
+                    <span className="max-w-[110px] truncate text-[12.5px] font-medium text-[#111827]" title={username}>
+                        {username}
+                    </span>
+                    <ChevronDown className="h-[14px] w-[14px] text-gray-500 transition-transform duration-150 group-hover:rotate-180" />
+                </button>
 
-                {/* register */}
-                <div className="text-white font-bold bg-[#FCB82E] px-4 py-2 rounded-2xl">
-                    {username}
-                </div>
-
-                {/* down chevron */}
-                <div className="flex relative w-[10%] justify-center items-center">
-                    <Image
-                        src={ChevronDownLogo}
-                        alt="Chevron down"
-                        width={100}
-                        height={100}
-                    />
+                    {/* Dropdown */}
+                    <div className="invisible absolute right-0 top-[calc(100%+8px)] z-20 w-36 rounded-lg border border-gray-200 bg-white p-1 opacity-0 shadow-lg transition-all duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                    <button
+                        type="button"
+                        onClick={() => signOut({ callbackUrl: "/login" })}
+                        className="w-full rounded-md px-3 py-2 text-left text-[12.5px] font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-[#07B0C8]"
+                    >
+                        Logout
+                    </button>
                 </div>
 
             </div>

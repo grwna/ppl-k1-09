@@ -16,8 +16,8 @@ export default function ApplicantDashboardPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     const username = useUserStore((state) => (state.user?.username)) || "Rayhan Farrukh";
-    const userId = useUserStore((state) => state.user?.id);
-    // const userId = "7bda909d-71f8-4b40-994e-15d4b710479b"
+    // const userId = useUserStore((state) => state.user?.id);
+    const userId = "7bda909d-71f8-4b40-994e-15d4b710479b"
 
     useEffect(() => {
         const fetchAllLoans = async () => {
