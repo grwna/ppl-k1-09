@@ -1,0 +1,326 @@
+openapi: 3.0.3
+info:
+  title: SalmanAid API
+  description: API for Rumah Amal Salman Student Loan Management System.
+  version: 1.0.0
+servers:
+  - url: localhost:3001/api
+    description: Base URL for the API
+
+
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  db:
+                    type: string
+
+  /auth/register:
+    post:
+      summary: User registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInput'
+      responses:
+        '201':
+          description: Registration successful
+        '400':
+          description: Bad request
+
+  /auth/verify:
+    post:
+      summary: Verify user credentials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyInput'
+      responses:
+        '200':
+          description: Credentials valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+
+  /applications/{applicationId}/attachments:
+    get:
+      summary: Get application attachments
+      security:
+        - nextAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+    post:
+      summary: Upload document for a specific application
+      security:
+        - nextAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - documentType
+              properties:
+                file:
+                  type: string
+                  format: binary
+                documentType:
+                  type: string
+      responses:
+        '201':
+          description: Uploaded successfully
+
+  /attachments/{attachmentId}:
+    delete:
+      summary: Delete document
+      security:
+        - nextAuth: []
+      parameters:
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Deleted successfully
+
+
+  /payments/midtrans/payments:
+    post:
+      summary: Create Midtrans payment
+      security:
+        - nextAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '201':
+          description: Payment created
+        '401':
+          description: Unauthorized
+
+  /payments/midtrans/status/{transactionId}:
+    get:
+      summary: Get payment status
+      security:
+        - nextAuth: []
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+
+  /payments/midtrans/notification:
+    post:
+      summary: Midtrans webhook notification
+      responses:
+        '200':
+          description: OK
+    get:
+      summary: Webhook status check
+      responses:
+        '200':
+          description: OK
+
+  /donors/distributions:
+    get:
+      summary: Get donor distributions tracking breakdown
+      description: Based on SB-3-12 and SB-3-13. Retrieves details of how donor funds are allocated to loans.
+      security:
+        - nextAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: donorId
+          in: query
+          description: Filter by donor UUID (Admins can see any, Donors only their own)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DistributionRecord'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+components:
+  securitySchemes:
+    nextAuth:
+      type: apiKey
+      in: cookie
+      name: next-auth.session-token
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+    
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    
+    RegisterInput:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        role:
+          type: string
+
+    VerifyInput:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    PaymentRequest:
+      type: object
+      required:
+        - amount
+        - transactionType
+        - paymentMethod
+      properties:
+        amount:
+          type: number
+        transactionType:
+          type: string
+          enum: [donation, repayment]
+        paymentMethod:
+          type: string
+          enum: [qris, va]
+        vaBank:
+          type: string
+          enum: [bca, bri, bni, permata, cimb, mandiri_bill]
+        referenceId:
+          type: string
+          format: uuid
+        customer:
+          type: object
+          properties:
+            userId:
+              type: string
+              format: uuid
+            email:
+              type: string
+            name:
+              type: string
+            phone:
+              type: string
+        metadata:
+          type: object
+
+    DistributionRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        loanId:
+          type: string
+          format: uuid
+        beneficiaryName:
+          type: string
+        description:
+          type: string
+        allocatedAmount:
+          type: number
+        allocatedAt:
+          type: string
+          format: date-time
