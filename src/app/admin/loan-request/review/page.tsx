@@ -34,8 +34,8 @@ function InfoBlock({ label, value }: { label: string, value: string | number | n
 }
 
 function DocumentCard({ label, file }: { label: string, file?: string | File | null }) {
-    const isPlaceholder = !file;
     const fileUrl = typeof file === "string" ? file : "";
+    const isPlaceholder = !fileUrl;
     const isPdf = fileUrl.toLowerCase().includes(".pdf") || fileUrl.toLowerCase().includes("application/pdf");
 
     return (
