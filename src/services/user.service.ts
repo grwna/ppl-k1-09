@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { ROLES } from "@/lib/roles";
 import bcrypt from "bcryptjs";
+import { randomUUID } from "crypto";
 import type { RegisterInput } from "@/schemas/auth.schema";
 
 export const UserService = {
@@ -72,5 +73,59 @@ export const UserService = {
       email: user.email,
       roles: user.roles.map((ur) => ur.role.name),
     };
+  },
+
+  /**
+   * Creates a password reset token for the given email and returns it.
+   * Returns null if the email is not registered (caller should not reveal this).
+   */
+  async createPasswordResetToken(email: string) {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return null;
+
+    // Remove any existing token for this email
+    await prisma.verificationToken.deleteMany({ where: { identifier: email } });
+
+    const token = randomUUID();
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await prisma.verificationToken.create({
+      data: { identifier: email, token, expires },
+    });
+
+    return token;
+  },
+
+  /**
+   * Validates a reset token and returns the associated email, or null if invalid/expired.
+   */
+  async getEmailByResetToken(token: string) {
+    const record = await prisma.verificationToken.findUnique({ where: { token } });
+    if (!record) return null;
+    if (record.expires < new Date()) {
+      await prisma.verificationToken.delete({ where: { token } });
+      return null;
+    }
+    return record.identifier;
+  },
+
+  /**
+   * Resets the user's password using a valid token.
+   * Returns true on success, false if token is invalid/expired.
+   */
+  async resetPassword(token: string, newPassword: string) {
+    const record = await prisma.verificationToken.findUnique({ where: { token } });
+    if (!record || record.expires < new Date()) return false;
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { email: record.identifier },
+      data: { password: hashedPassword },
+    });
+
+    await prisma.verificationToken.delete({ where: { token } });
+
+    return true;
   },
 };
