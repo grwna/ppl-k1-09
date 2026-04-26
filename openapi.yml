@@ -7,8 +7,6 @@ servers:
   - url: localhost:3001/api
     description: Base URL for the API
 
-
-
 paths:
   /health:
     get:
@@ -19,12 +17,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  db:
-                    type: string
+                $ref: '#/components/schemas/HealthResponse'
 
   /auth/register:
     post:
@@ -38,8 +31,19 @@ paths:
       responses:
         '201':
           description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '400':
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /auth/verify:
     post:
@@ -59,6 +63,10 @@ paths:
                 $ref: '#/components/schemas/User'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /applications/{applicationId}/attachments:
     get:
@@ -83,7 +91,11 @@ paths:
                   data:
                     type: array
                     items:
-                      type: object
+                      $ref: '#/components/schemas/Attachment'
+        '403':
+          description: Forbidden
+        '404':
+          description: Application not found
     post:
       summary: Upload document for a specific application
       security:
@@ -107,11 +119,24 @@ paths:
                 file:
                   type: string
                   format: binary
+                  description: The file to upload (Max 10MB)
                 documentType:
                   type: string
+                  description: e.g. KTP, KTM, Transkrip
       responses:
         '201':
           description: Uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  attachment:
+                    $ref: '#/components/schemas/Attachment'
+        '400':
+          description: Validation error
 
   /attachments/{attachmentId}:
     delete:
@@ -128,7 +153,17 @@ paths:
       responses:
         '200':
           description: Deleted successfully
-
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          description: Forbidden
+        '404':
+          description: Attachment not found
 
   /payments/midtrans/payments:
     post:
@@ -144,6 +179,12 @@ paths:
       responses:
         '201':
           description: Payment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MidtransPaymentResponse'
+        '400':
+          description: Invalid request
         '401':
           description: Unauthorized
 
@@ -161,6 +202,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MidtransStatusResponse'
 
   /payments/midtrans/notification:
     post:
@@ -177,7 +222,6 @@ paths:
   /donors/distributions:
     get:
       summary: Get donor distributions tracking breakdown
-      description: Based on SB-3-12 and SB-3-13. Retrieves details of how donor funds are allocated to loans.
       security:
         - nextAuth: []
       parameters:
@@ -221,6 +265,14 @@ components:
       in: cookie
       name: next-auth.session-token
   schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        db:
+          type: string
+
     User:
       type: object
       properties:
@@ -270,6 +322,25 @@ components:
         password:
           type: string
 
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        applicationId:
+          type: string
+          format: uuid
+        documentType:
+          type: string
+        fileUrl:
+          type: string
+          format: uri
+          description: Signed URL for temporary access
+        uploadedAt:
+          type: string
+          format: date-time
+
     PaymentRequest:
       type: object
       required:
@@ -305,6 +376,43 @@ components:
               type: string
         metadata:
           type: object
+
+    MidtransPaymentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        transactionId:
+          type: string
+        orderId:
+          type: string
+        amount:
+          type: number
+        expiryTime:
+          type: string
+        status:
+          type: string
+        paymentType:
+          type: string
+        qrCodeUrl:
+          type: string
+          format: uri
+          nullable: true
+        bankCode:
+          type: string
+          nullable: true
+        vaNumber:
+          type: string
+          nullable: true
+        billerCode:
+          type: string
+          nullable: true
+        billKey:
+          type: string
+          nullable: true
+
+    MidtransStatusResponse:
+      $ref: '#/components/schemas/MidtransPaymentResponse'
 
     DistributionRecord:
       type: object
