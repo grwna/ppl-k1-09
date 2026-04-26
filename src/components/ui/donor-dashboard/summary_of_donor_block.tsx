@@ -27,10 +27,10 @@ export default function DonorDashboard_SummaryOfDonor(props: DonorDashboardSumma
                 </div>
             </div>
 
-            <p className="text-[12px] font-medium text-[#6B7280] md:text-[12.5px]">
+            <p className="text-xs font-medium text-[#6B7280]">
                 {props.title}
             </p>
-            <p className="mt-1 text-[2.1rem] leading-none font-semibold tracking-tight text-[#111827] md:text-[2.3rem]">
+            <p className="mt-1 text-xl font-bold leading-tight tracking-tight text-[#111827]">
                 {props.caption}
             </p>
         </article>

@@ -27,7 +27,7 @@ export default function DonorDashboard_StartNewDonation({ quickSelectAmounts }: 
     
     return (
         <aside className="h-full rounded-xl bg-[#07B0C8] p-4 shadow-[0_8px_16px_rgba(2,132,199,0.22)] md:p-5">
-            <h2 className="text-[2.1rem] font-semibold leading-none tracking-tight text-white md:text-[2.2rem]">Start New Donation</h2>
+            <h2 className="text-lg font-bold leading-tight text-white">Start New Donation</h2>
 
             <p className="mt-3 max-w-[38ch] text-[13px] leading-relaxed text-[#DDF6FB]">
                 Your contribution helps students achieve their educational dreams without the burden of interest.

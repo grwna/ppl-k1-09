@@ -34,7 +34,7 @@ export default function DonorDashboard_RecentDistributionTable({
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-[0_3px_10px_-8px_rgba(17,24,39,0.18)] md:p-5">
-      <h2 className="mb-3 text-[2rem] font-semibold leading-none tracking-tight text-[#111827] md:text-[2.1rem]">Recent Distributions</h2>
+      <h2 className="mb-3 text-lg font-bold text-[#111827]">Recent Distributions</h2>
 
       <Table>
         <TableHeader>

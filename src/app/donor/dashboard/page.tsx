@@ -111,12 +111,12 @@ export default function DonorDashboardPage(){
       <div className="bg-[#F3F5F7] text-[#111827]">
         <DonorDashboard_DonorNavbar />
 
-        <main className="w-full px-4 pb-10 pt-8 md:px-8 xl:px-10">
+        <main className="w-full max-w-[1400px] mx-auto px-6 pb-10 pt-8">
           <section>
-            <h1 className="text-[2.1rem] font-semibold leading-[1.05] tracking-tight md:text-[3.15rem]">
+            <h1 className="text-2xl font-bold text-[#111827] tracking-tight">
               Welcome back, <span className="text-[#07B0C8]">{username}</span>
             </h1>
-            <p className="mt-2 text-[13.5px] text-[#6B7280] md:text-[15px]">
+            <p className="mt-1.5 text-sm text-[#6B7280]">
               Your generosity is changing lives - thank you for making a difference
             </p>
           </section>

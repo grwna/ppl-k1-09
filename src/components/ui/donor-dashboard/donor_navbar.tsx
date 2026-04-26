@@ -30,8 +30,8 @@ export default function DonorDashboard_DonorNavbar() {
     ];
     
     return (
-        <nav className="sticky top-0 z-50 bg-white border-b border-gray-100/90">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+            <div className="max-w-[1400px] mx-auto px-6">
                 <div className="flex justify-between items-center h-[58px]">
                     <div className="flex-shrink-0">
                         <Link href="/donor/dashboard" className="flex items-center">
