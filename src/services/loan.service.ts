@@ -100,10 +100,9 @@ export const LoanService = {
       }
 
       return {
-        data: {
-          loans: loanApplications,
-          total: totalCount
-        }
+      
+        loans: loanApplications,
+        total: totalCount
       };
     } catch (error) {
       console.error("Error fetching loan applications:", error);
