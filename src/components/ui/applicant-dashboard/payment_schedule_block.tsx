@@ -39,10 +39,16 @@ export default function ApplicantDashboard_PaymentScheduleRow(props : {installme
         <div className="flex justify-center items-center h-full w-full">
             
             {/* symbol */}
-            <div className="flex justify-start items-center rounded-full">
+            <div className={`flex justify-start items-start rounded-full h-full p-2`}
+                // style={{ background : `#${installmentStatusColor[props.installment_status]['bg-hex']}`}}
+            >
                 <Image
                     src={installmentStatusColor[props.installment_status]["logo"]}
                     alt={installmentStatusColor[props.installment_status]["alt"]}
+                    width={20}
+                    height={20}
+                    className="rounded-2xl w-full h-fit justify-center items-start p-2"
+                    style={{ background : `#${installmentStatusColor[props.installment_status]['bg-hex']}`}}
                 />
             </div>
 
@@ -56,11 +62,15 @@ export default function ApplicantDashboard_PaymentScheduleRow(props : {installme
 
                 {/* installment */}
                 <div className="flex justify-start items-start p-0.5">
-                    Installment #{props.installment_order}
+                    Cicilan #{props.installment_order}
                 </div>
 
                 {/* status */}
-                <div className={`flex justify-start items-start text-[#${installmentStatusColor[props.installment_status]['text-hex']}] bg-[#${installmentStatusColor[props.installment_status]['bg-hex']}] p-0.5`}>
+                <div className={`flex w-fit rounded-2xl p-2 justify-start items-start font-semibold text-sm`}
+                    style={{ background : `#${installmentStatusColor[props.installment_status]['bg-hex']}` ,
+                            color : `#${installmentStatusColor[props.installment_status]['text-hex']}`
+                    }}
+                >
                     {props.installment_status}
                 </div>
 
