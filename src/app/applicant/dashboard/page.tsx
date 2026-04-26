@@ -2,192 +2,175 @@
 
 import Image from "next/image";
 import CalendarLogo from "../../../../public/calendar.svg"
-
 import { useUserStore } from "@/hooks/userStore";
-import { useEffect, useState } from "react";
-import localFont from "next/font/local";
+import { useEffect, useState, useMemo } from "react";
 import ApplicantDashboard_PaymentScheduleRow from "@/components/ui/applicant-dashboard/payment_schedule_block";
 import ApplicantDashboard_ApplicationProgressComponent from "@/components/ui/applicant-dashboard/application_progress_block";
 import ApplicantDashboard_ApplicantNavbar from "@/components/ui/applicant-dashboard/applicant_navbar";
 
-export default function ApplicantDashboardPage(){
-    
-    // init variables
-    const installmentFreq = 4 // number of installments
-    const [currentLoanValue, setCurrentLoanValue] = useState<Number>(45000000)
-    const [installmentValue, setInstallmentValue] = useState<Number>(0)
-    const [nearestDueDateInstallment, setNearestDueDateInstallment] = useState()
-    const [currentLoan, setCurrentLoan] = useState()
-    const [loans, setLoans] = useState()
-    const [submitTime, setSubmitTime] = useState<Date>(new Date(2026, 12, 21, 12, 20))
-    const [verifiedTime, setVerifiedTime] = useState<Date>(new Date(2026, 12, 21, 12, 20))
-    const [disbursedTime, setDisbursedTime] = useState<Date>(new Date(2026, 12, 21, 12, 20))
-    const username = useUserStore((state) => (state.user?.username)) || "Rayhan Farrukh"
-    const userId = useUserStore((state) => (state.user?.id))
+export default function ApplicantDashboardPage() {
+    const installmentFreq = 4;
+    const [applications, setApplications] = useState<any[]>([]);
+    const [selectedLoanId, setSelectedLoanId] = useState<string>("");
+    const [totalValue, setTotalValue] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // fetch conditions from the db
+    const username = useUserStore((state) => (state.user?.username)) || "Rayhan Farrukh";
+    const userId = useUserStore((state) => state.user?.id);
+    // const userId = "7bda909d-71f8-4b40-994e-15d4b710479b"
+
     useEffect(() => {
-
-        // fetch all loans connected to current user
         const fetchAllLoans = async () => {
-
-            // base api
-            const BASE_API = "localhost:3000/api/loans"
-
-            const params = new URLSearchParams({
-                user_id: useUserStore((state) => String(state.user?.id))
-            });
-
+            if (!userId) return;
+            setIsLoading(true);
             try {
-                const response = await fetch(`${BASE_API}?${params}`);
-
-                if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                // Fixed the URL protocol and string interpolation
+                const response = await fetch(`http://localhost:3000/api/loans/${userId}`);
+                if (!response.ok) throw new Error("Failed to fetch");
 
                 const result = await response.json();
-                // take the first one for the loan
-                setLoans(result.data.loans)
-                setCurrentLoanValue(result.data.currentLoanValue)
-                setCurrentLoan(result.data[0])
-
-                // take the nearest due date installment
+                const apps = result.data.applications || [];
                 
-                setNearestDueDateInstallment(result.data.loans.forEach((element : any) => {
-                  Math.min(element.due_date)
-                }))
-
+                setApplications(apps);
+                setTotalValue(result.data.totalLoanedValue || 0);
+                
+                // Set initial selection to the first loan
+                if (apps.length > 0) {
+                    setSelectedLoanId(apps[0].id);
+                }
             } catch (error) {
-                console.error("Fetch error at applicant/dashboard/page.tsx:", error);
+                console.error("Fetch error:", error);
+            } finally {
+                setIsLoading(false);
             }
         }
+        fetchAllLoans();
+    }, [userId]);
 
-        fetchAllLoans()
+    // 1. Logic for choosing the nearest due date across ALL loans
+    const nearestDueDate = useMemo(() => {
+        const activeDates = applications
+            .map(app => app.dueDate ? new Date(app.dueDate).getTime() : null)
+            .filter((date): date is number => date !== null && date > Date.now());
+        
+        return activeDates.length > 0 ? new Date(Math.min(...activeDates)) : null;
+    }, [applications]);
 
-    }, [])
+    // 2. Logic for the currently selected loan's installments
+    const selectedLoan = useMemo(() => {
+        return applications.find(app => app.id === selectedLoanId);
+    }, [selectedLoanId, applications]);
+
+    const installmentValue = useMemo(() => {
+        if (!selectedLoan) return 0;
+        const amount = selectedLoan.loanDetails?.approvedAmount || selectedLoan.requestedAmount;
+        return Number(amount) / installmentFreq;
+    }, [selectedLoan]);
+
+    // Helper to generate mock installments based on frequency
+    const generateInstallments = (loan: any) => {
+        if (!loan || !loan.dueDate) return [];
+        const baseDate = new Date(loan.dueDate);
+        
+        return Array.from({ length: installmentFreq }).map((_, i) => {
+            // Subtract months based on index to show progress backwards from due date
+            const date = new Date(baseDate);
+            date.setMonth(date.getMonth() - (installmentFreq - 1 - i));
+            
+            return {
+                order: i + 1,
+                date: date,
+                // Simple logic for status
+                status: i === 0 ? "paid" : i === 1 ? "due_soon" : "pending"
+            };
+        });
+    };
+
+    if (isLoading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
 
     return (
+        <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB] gap-4">
+            <ApplicantDashboard_ApplicantNavbar />
 
-      <div className={`flex flex-col justify-start items-center w-full min-h-screen bg-[#F9FAFB] gap-4`}>
-      
-          {/* navbar */}
-          <div className="flex justify-center items-center w-full h-fit">
-              <ApplicantDashboard_ApplicantNavbar />
-          </div>
-      
-          {/* title */}
-          <div className="flex justify-start items-center w-[90%] h-fit text-4xl font-bold pt-10">
-            Welcome back, 
-            <span className="text-[#FCB82E] ">{username}</span>
-          </div>
-      
-          {/* caption */}
-          <div className="flex justify-start items-center w-[90%] h-fit text-lg pb-4 text-gray-500">
-            Your generosity is changing lives - thank you for making a difference.
-          </div>
-
-          {/* current loan status of aspects */}
-          <div className="flex flex-col justify-start items-center gap-2 w-[90%] h-fit bg-white shadow-2xl p-4 rounded-2xl">
-          
-            {/* TITLE */}
-            <div className="flex justify-start items-center w-full h-fit text-sm text-[#4A5565]">
-              Status Pinjaman Terkini
+            <div className="w-[90%] pt-10">
+                <h1 className="text-4xl font-bold">
+                    Selamat Datang Kembali, <span className="text-[#FCB82E]">{username}</span>
+                </h1>
+                <p className="text-lg text-gray-500 mt-2">
+                    Kedermawanan Anda membantu hidup orang lain - terimakasih atas kontribusi Anda.
+                </p>
             </div>
 
-            {/* value of loan status */}
-            <div className="flex justify-start items-center w-full h-fit text-5xl font-bold">
-              Rp {currentLoanValue.toString()}
+            {/* Loan Status Card */}
+            <div className="flex flex-col gap-2 w-[90%] bg-white shadow-xl p-6 rounded-2xl">
+                <span className="text-sm text-[#4A5565]">Status Pinjaman Terkini</span>
+                <span className="text-5xl font-bold">Rp {totalValue.toLocaleString('id-ID')}</span>
+                <span className="text-sm text-[#4A5565]">Sisa Saldo Pinjaman</span>
             </div>
 
-            {/* Reamining Balance */}
-            <div className="flex justify-start items-center w-full h-fit text-sm text-[#4A5565]">
-              Sisa Saldo
-            </div>
-          </div>
-      
-          {/* next due date */}
-          <div className="flex justify-center items-center w-[90%] h-fit bg-[#FEFCE8] p-4 rounded-2xl">
-
-            {/* symbol */}
-            <div className="flex justify-center items-center w-[5%]">
-              <Image
-                  src={CalendarLogo}
-                  alt="Calendar Logo"
-                  width={40}
-                  height={40}
-              />
-            </div>
-
-            {/* title + caption */}
-            <div className="flex flex-col justify-center items-start w-[85%] h-fit gap-1">
-
-              {/* title */}
-              <div className="flex w-full justify-start items-center h-fit font-semibold">
-                  Jatuh tempo terdekat
-              </div>
-
-              {/* caption */}
-              <div className="flex w-full justify-start items-center h-fit font-light text-gray-500 text-sm">
-                October 20, 2026
-              </div>
-
+            {/* Nearest Due Date Banner */}
+            <div className="flex justify-between items-center w-[90%] bg-[#FEFCE8] p-4 rounded-2xl border border-yellow-100">
+                <div className="flex items-center gap-4">
+                    <Image src={CalendarLogo} alt="Calendar" width={40} height={40} />
+                    <div>
+                        <p className="font-semibold">Jatuh tempo terdekat</p>
+                        <p className="text-gray-500 text-sm">
+                            {nearestDueDate 
+                                ? nearestDueDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                                : "No upcoming due dates"}
+                        </p>
+                    </div>
+                </div>
+                <button className="px-6 py-3 rounded-xl bg-[#009966] text-white font-bold hover:bg-[#007a52] transition-all">
+                    Bayar Sekarang
+                </button>
             </div>
 
-            {/* pay now button */}
-            <div className="flex justify-center items-center text-center w-[10%] p-3 rounded-2xl bg-[#009966] text-white font-semibold">
-                Bayar Sekarang
+            {/* Selection Dropdown */}
+            <div className="w-[90%] flex flex-col gap-2">
+                <label className="text-lg font-semibold">Pilih Pinjaman</label>
+                <select 
+                    value={selectedLoanId}
+                    onChange={(e) => setSelectedLoanId(e.target.value)}
+                    className="w-full p-4 rounded-xl bg-white border border-gray-200 shadow-sm outline-none focus:ring-2 focus:ring-[#FCB82E]"
+                >
+                    {applications.map((app) => (
+                        <option key={app.id} value={app.id}>
+                            {app.description} - Rp {Number(app.requestedAmount).toLocaleString('id-ID')} ({app.status})
+                        </option>
+                    ))}
+                </select>
             </div>
 
-          </div>
-
-          {/* select loan container */}
-          <div className="flex justify-center items-center w-[90%] h-fit p-2">
-
-            {/* title section */}
-            <div className="flex justify-start items-center w-full h-fit text-lg font-semibold">
-              Pilih Pinjaman
-            </div>
-
-            {/* dropdowns */}
-            <div className="flex justify-start items-center w-full h-fit font-semibold bg-white shadow-2xl">
-              {/* TODO : IMPLEMENT Dropdown to choose selected loan */}
-            </div>
-
-          </div>
-
-          {/* payment schedules + application progress container */}
-          <div className="flex justify-between items-center h-1/2 w-[90%] gap-4 pb-4">
-
-            {/* payment schedules  */}
-            <div className="flex flex-col h-full w-[65%] justify-start items-center shadow-2xl bg-white rounded-2xl shadow-2xl">
-
-              {/* list of payment schedules */}
-              <div className="grid grid-cols-1 gap-2 justify-start items-center w-full h-fit p-2 ">
-                
-                {/* title */}
-                <div className="flex justify-start items-center w-full h-fit p-4 font-semibold text-lg">
-                  Jadwal Pembayaran
+            {/* Details Section */}
+            <div className="flex justify-between w-[90%] gap-6 pb-10">
+                {/* Installments */}
+                <div className="flex-1 bg-white rounded-2xl shadow-xl p-6">
+                    <h3 className="font-bold text-lg mb-4">Jadwal Pembayaran</h3>
+                    <div className="flex flex-col gap-3">
+                        {selectedLoan ? generateInstallments(selectedLoan).map((inst) => (
+                            <ApplicantDashboard_PaymentScheduleRow 
+                                key={inst.order}
+                                installment_value={installmentValue} 
+                                installment_date={inst.date} 
+                                installment_order={inst.order} 
+                                installment_status={inst.status}
+                            />
+                        )) : (
+                            <p className="text-gray-400 text-center py-10">No payment schedule available</p>
+                        )}
+                    </div>
                 </div>
 
-                <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2025, 11, 25, 23, 59)} installment_order={1} installment_status="paid"/>
-
-                <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2026, 0, 25, 23, 59)} installment_order={2} installment_status="due_soon"/>
-
-                <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2026, 1, 25, 23, 59)} installment_order={3} installment_status="pending"/>
-
-                <ApplicantDashboard_PaymentScheduleRow installment_value={Number(installmentValue)} installment_date={new Date(2026, 2, 25, 23, 59)} installment_order={4} installment_status="pending"/>
-
-              </div>
-
+                {/* Progress */}
+                <div className="w-[35%] bg-white rounded-2xl shadow-xl h-full flex ">
+                    <ApplicantDashboard_ApplicationProgressComponent 
+                        submitTime={selectedLoan ? new Date(selectedLoan.createdAt) : new Date()} 
+                        verifiedTime={selectedLoan?.status === "APPROVED" ? new Date(selectedLoan.createdAt) : new Date()} 
+                        disbursedTime={selectedLoan?.loanDetails?.status === "ACTIVE" ? new Date(selectedLoan.loanDetails.dueDate) : new Date()}
+                    />
+                </div>
             </div>
-
-            {/* application progress */}
-            <div className="flex h-full w-[35%] justify-center items-start shadow-2xl bg-white rounded-2xl ">
-              <ApplicantDashboard_ApplicationProgressComponent submitTime={submitTime} verifiedTime={verifiedTime} disbursedTime={disbursedTime}/>
-            </div>
-
-          </div>
-                    
         </div>
     );
 }
