@@ -25,15 +25,15 @@ export default function ApplicantDashboardPage() {
             setIsLoading(true);
             try {
                 // Fixed the URL protocol and string interpolation
-                const response = await fetch(`http://localhost:3000/api/loans/${userId}`);
+                const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/loans/${userId}`);
                 if (!response.ok) throw new Error("Failed to fetch");
 
                 const result = await response.json();
                 const apps = result.data.applications || [];
-                
+
                 setApplications(apps);
                 setTotalValue(result.data.totalLoanedValue || 0);
-                
+
                 // Set initial selection to the first loan
                 if (apps.length > 0) {
                     setSelectedLoanId(apps[0].id);
@@ -52,7 +52,7 @@ export default function ApplicantDashboardPage() {
         const activeDates = applications
             .map(app => app.dueDate ? new Date(app.dueDate).getTime() : null)
             .filter((date): date is number => date !== null && date > Date.now());
-        
+
         return activeDates.length > 0 ? new Date(Math.min(...activeDates)) : null;
     }, [applications]);
 
@@ -71,12 +71,12 @@ export default function ApplicantDashboardPage() {
     const generateInstallments = (loan: any) => {
         if (!loan || !loan.dueDate) return [];
         const baseDate = new Date(loan.dueDate);
-        
+
         return Array.from({ length: installmentFreq }).map((_, i) => {
             // Subtract months based on index to show progress backwards from due date
             const date = new Date(baseDate);
             date.setMonth(date.getMonth() - (installmentFreq - 1 - i));
-            
+
             return {
                 order: i + 1,
                 date: date,
@@ -115,7 +115,7 @@ export default function ApplicantDashboardPage() {
                     <div>
                         <p className="font-semibold">Jatuh tempo terdekat</p>
                         <p className="text-gray-500 text-sm">
-                            {nearestDueDate 
+                            {nearestDueDate
                                 ? nearestDueDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
                                 : "No upcoming due dates"}
                         </p>
@@ -129,7 +129,7 @@ export default function ApplicantDashboardPage() {
             {/* Selection Dropdown */}
             <div className="w-[90%] flex flex-col gap-2">
                 <label className="text-lg font-semibold">Pilih Pinjaman</label>
-                <select 
+                <select
                     value={selectedLoanId}
                     onChange={(e) => setSelectedLoanId(e.target.value)}
                     className="w-full p-4 rounded-xl bg-white border border-gray-200 shadow-sm outline-none focus:ring-2 focus:ring-[#FCB82E]"
@@ -149,11 +149,11 @@ export default function ApplicantDashboardPage() {
                     <h3 className="font-bold text-lg mb-4">Jadwal Pembayaran</h3>
                     <div className="flex flex-col gap-3">
                         {selectedLoan ? generateInstallments(selectedLoan).map((inst) => (
-                            <ApplicantDashboard_PaymentScheduleRow 
+                            <ApplicantDashboard_PaymentScheduleRow
                                 key={inst.order}
-                                installment_value={installmentValue} 
-                                installment_date={inst.date} 
-                                installment_order={inst.order} 
+                                installment_value={installmentValue}
+                                installment_date={inst.date}
+                                installment_order={inst.order}
                                 installment_status={inst.status}
                             />
                         )) : (
@@ -164,9 +164,9 @@ export default function ApplicantDashboardPage() {
 
                 {/* Progress */}
                 <div className="w-[35%] bg-white rounded-2xl shadow-xl h-full flex ">
-                    <ApplicantDashboard_ApplicationProgressComponent 
-                        submitTime={selectedLoan ? new Date(selectedLoan.createdAt) : new Date()} 
-                        verifiedTime={selectedLoan?.status === "APPROVED" ? new Date(selectedLoan.createdAt) : new Date()} 
+                    <ApplicantDashboard_ApplicationProgressComponent
+                        submitTime={selectedLoan ? new Date(selectedLoan.createdAt) : new Date()}
+                        verifiedTime={selectedLoan?.status === "APPROVED" ? new Date(selectedLoan.createdAt) : new Date()}
                         disbursedTime={selectedLoan?.loanDetails?.status === "ACTIVE" ? new Date(selectedLoan.loanDetails.dueDate) : new Date()}
                     />
                 </div>
