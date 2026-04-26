@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import AdminDashboard_AdminNavbar from "@/components/ui/admin-dashboard/admin_navbar";
 import MapFundsModal from "@/components/ui/loan-request/fund_allocation_card";
+import { FileText } from "lucide-react";
 
 const StatusActionDict = {
     "PENDING": { "status_color": "#FEF3C6", "text_color": "#BB4D00" },
@@ -15,14 +16,14 @@ const StatusActionDict = {
     "REJECTED": { "status_color": "#FFE2E2", "text_color": "#C10007" },
 }
 
-const formatCurrency = (val: any) => {
+const formatCurrency = (val: number | string) => {
     const num = Number(val) || 0;
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num).replace("IDR", "Rp");
 }
 
 
 // Sub-components for cleaner code
-function InfoBlock({ label, value }: { label: string, value: any }) {
+function InfoBlock({ label, value }: { label: string, value: string | number | null | undefined }) {
     return (
         <div className="flex flex-col gap-1">
             <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">{label}</span>
@@ -31,15 +32,21 @@ function InfoBlock({ label, value }: { label: string, value: any }) {
     );
 }
 
-function DocumentCard({ label, file }: { label: string, file: any }) {
+function DocumentCard({ label, file }: { label: string, file?: string | File | null }) {
     const isPlaceholder = !file;
+    const fileUrl = typeof file === "string" ? file : "";
+    const isPdf = fileUrl.toLowerCase().includes(".pdf") || fileUrl.toLowerCase().includes("application/pdf");
+
     return (
         <div className="border border-gray-200 rounded-xl overflow-hidden group hover:border-[#07B0C8] transition-colors bg-white">
             <div className="h-40 bg-gray-50 relative flex items-center justify-center">
                 {isPlaceholder ? (
                     <Image src={DummyDocsLogo} alt="Placeholder" width={60} height={60} className="opacity-20" />
+                ) : isPdf ? (
+                    <FileText className="text-red-500" size={48} />
                 ) : (
-                    <Image src={typeof file === 'string' ? file : URL.createObjectURL(file)} alt={label} fill className="object-cover" />
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={fileUrl} alt={label} className="h-full w-full object-cover" />
                 )}
             </div>
             <div className="p-3 bg-white flex justify-between items-center">
@@ -48,9 +55,15 @@ function DocumentCard({ label, file }: { label: string, file: any }) {
                     <span className="text-[10px] text-gray-400 uppercase font-bold">{isPlaceholder ? "Missing" : "Uploaded"}</span>
                 </div>
                 {!isPlaceholder && (
-                    <button className="p-2 hover:bg-cyan-50 rounded-lg text-[#07B0C8]">
+                    <a
+                        href={fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2 hover:bg-cyan-50 rounded-lg text-[#07B0C8]"
+                        aria-label={`Open ${label}`}
+                    >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    </button>
+                    </a>
                 )}
             </div>
         </div>
@@ -74,7 +87,7 @@ export default function ReviewLoanApplicationPage() {
     // Supporting Docs Logic
     const documents = [
         { label: "KTM / ID Card", file: selectedLoan?.studentIdCard },
-        { label: "Transcript", file: selectedLoan?.transcriptFile }
+        { label: "Kartu Keluarga", file: selectedLoan?.transcriptFile }
     ];
 
     if (!selectedLoan) return <div className="p-20 text-center">Loading application data...</div>
@@ -158,7 +171,7 @@ export default function ReviewLoanApplicationPage() {
                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4">
                         <h3 className="font-bold text-lg text-slate-800">Deskripsi Pinjaman</h3>
                         <div className="p-4 bg-slate-50 rounded-xl text-slate-600 leading-relaxed text-sm italic border border-slate-100">
-                            "{selectedLoan.description || "Tidak ada deskripsi tambahan yang diberikan oleh pengaju."}"
+                            &quot;{selectedLoan.description || "Tidak ada deskripsi tambahan yang diberikan oleh pengaju."}&quot;
                         </div>
                     </div>
                 </div>
