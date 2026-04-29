@@ -1,22 +1,56 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import Image from "next/image";
 import { useLoanRequestStore } from "@/hooks/loanRequestStore";
 
+type DonorFundOption = {
+  id: string;
+  name: string;
+  image?: string | null;
+  available: number;
+  totalAmount: number;
+  fund: string;
+};
+
+type AllocationDraft = {
+  donor: DonorFundOption;
+  amount: string;
+};
+
+const formatCurrency = (amount: number | string) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(Number(amount) || 0).replace("IDR", "Rp");
+};
+
 export default function MapFundsModal() {
-  const [allocations, setAllocations] = useState<any[]>([]); // Array of {donor, amount}
+  const [allocations, setAllocations] = useState<AllocationDraft[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [donorPool, setDonorPool] = useState<any[]>([])
+  const [donorPool, setDonorPool] = useState<DonorFundOption[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const selectedLoan = useLoanRequestStore((state) => state.selected_loan);
+  const setSelectedLoan = useLoanRequestStore((state) => state.setSelectedLoan);
+  const setAllocationFundModalOpen = useLoanRequestStore((state) => state.setAllocationFundModalOpen);
+
+  const applicationId = selectedLoan.id || selectedLoan.loanApplicationId;
+  const borrowerName = selectedLoan.name || selectedLoan.borrower?.name || "Borrower";
+  const targetAmount = Number(selectedLoan.approvedAmount || selectedLoan.requestedAmount || 0);
+  const currentLoanId = selectedLoan.loanId || selectedLoan.loan?.id || "";
+  const existingAllocated = (selectedLoan.loan?.fundings || []).reduce(
+    (total, funding) => total + (Number(funding.amount) || 0),
+    0
+  );
+  const remainingToAllocate = Math.max(targetAmount - existingAllocated, 0);
+  const totalAllocation = allocations.reduce((total, item) => total + (Number(item.amount) || 0), 0);
 
   // fetch the donor pools
   useEffect(() => {
-
     const fetchDonations = async () => {
-
-
-      // 1. Define the base URL
       const baseUrl = `/api/donations`;
 
       try {
@@ -27,7 +61,7 @@ export default function MapFundsModal() {
         }
 
         const result = await response.json();
-        setDonorPool(result.data.donations);
+        setDonorPool(result.data.donations || []);
       } catch (error) {
         console.error("Fetch error at admin/loan-request/page.tsx:", error);
       }
@@ -46,19 +80,136 @@ export default function MapFundsModal() {
     );
   }, [allocations, searchTerm, donorPool]);
 
-  const isAllocationFundModalOpen = useLoanRequestStore((state) => state.isAllocationFundModalOpen)
-  const setAllocationFundModalOpen = useLoanRequestStore((state) => (state.setAllocationFundModalOpen))
-
-  const addAllocation = (donor: any) => {
+  const addAllocation = (donor: DonorFundOption) => {
     setAllocations([...allocations, { donor, amount: "" }]);
     setIsDropdownOpen(false);
     setSearchTerm("");
+    setErrorMessage("");
   };
 
   const updateAmount = (index: number, value: string) => {
     const newAllocations = [...allocations];
     newAllocations[index].amount = value;
     setAllocations(newAllocations);
+    setErrorMessage("");
+  };
+
+  const closeModal = (force = false) => {
+    if (isSubmitting && !force) return;
+    setAllocations([]);
+    setSearchTerm("");
+    setIsDropdownOpen(false);
+    setErrorMessage("");
+    setAllocationFundModalOpen(false);
+  };
+
+  const removeAllocation = (index: number) => {
+    setAllocations((current) => current.filter((_, itemIndex) => itemIndex !== index));
+  };
+
+  const handleConfirmAllocation = async () => {
+    if (!applicationId) {
+      setErrorMessage("Application id tidak ditemukan.");
+      return;
+    }
+
+    if (!currentLoanId) {
+      setErrorMessage("Loan belum disetujui. Setujui pinjaman sebelum alokasi dana.");
+      return;
+    }
+
+    if (allocations.length === 0) {
+      setErrorMessage("Pilih minimal satu donor fund.");
+      return;
+    }
+
+    for (const allocation of allocations) {
+      const amount = Number(allocation.amount);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        setErrorMessage("Semua nominal alokasi harus lebih dari 0.");
+        return;
+      }
+      if (amount > allocation.donor.available) {
+        setErrorMessage(`Alokasi untuk ${allocation.donor.name} melebihi dana tersedia.`);
+        return;
+      }
+    }
+
+    if (totalAllocation > remainingToAllocate) {
+      setErrorMessage("Total alokasi melebihi sisa pinjaman yang belum dialokasikan.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const createdFundings: {
+        id: string;
+        loanId: string;
+        donorFundId: string;
+        sourceType: string;
+        amount: number;
+        donorFund?: {
+          donor?: {
+            name?: string | null;
+          } | null;
+        } | null;
+      }[] = [];
+
+      for (const allocation of allocations) {
+        const response = await fetch("/api/loan-fundings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            loanId: currentLoanId,
+            donorFundId: allocation.donor.id,
+            amount: Number(allocation.amount),
+          }),
+        });
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(result.error || "Gagal mengalokasikan dana");
+        }
+
+        createdFundings.push({
+          ...result.data,
+          donorFund: {
+            donor: {
+              name: allocation.donor.name,
+            },
+          },
+        });
+      }
+
+      setSelectedLoan({
+        ...selectedLoan,
+        loan: selectedLoan.loan
+          ? {
+              ...selectedLoan.loan,
+              fundings: [
+                ...(selectedLoan.loan.fundings || []),
+                ...createdFundings.map((funding) => ({
+                  id: funding.id,
+                  amount: funding.amount,
+                  donorFundId: funding.donorFundId,
+                  sourceType: funding.sourceType,
+                  donorFund: funding.donorFund,
+                })),
+              ],
+            }
+          : selectedLoan.loan,
+      });
+
+      closeModal(true);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Gagal mengalokasikan dana");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -67,7 +218,7 @@ export default function MapFundsModal() {
       <div className="flex flex-col justify-between py-4">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Map Funds to Borrower</h2>
-          <button className="text-gray-400" onClick={() => setAllocationFundModalOpen(!isAllocationFundModalOpen)}>✕</button>
+          <button className="text-gray-400 hover:text-slate-700" onClick={() => closeModal()}>✕</button>
         </div>
         <p className="text-gray-500 text-sm mt-1">Specify how much to allocate from the donor pool</p>
       </div>
@@ -79,10 +230,20 @@ export default function MapFundsModal() {
         <div className="flex flex-col gap-2">
           <label className="font-bold text-sm text-slate-600">To Borrower</label>
           <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-slate-50">
-            <p className="font-bold">Muhammad Fithra Rizki</p>
+            <p className="font-bold">{borrowerName}</p>
             <div className="flex justify-between items-end mt-1">
-              <p className="text-xs text-slate-400">Computer Science</p>
-              <p className="text-slate-600 font-medium">Rp 50.000.000</p>
+              <p className="text-xs text-slate-400">{selectedLoan.institution || "Institution not provided"}</p>
+              <p className="text-slate-600 font-medium">{formatCurrency(targetAmount)}</p>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
+              <div className="rounded-xl bg-white p-3">
+                <p className="text-slate-400">Sudah dialokasikan</p>
+                <p className="font-bold text-emerald-600">{formatCurrency(existingAllocated)}</p>
+              </div>
+              <div className="rounded-xl bg-white p-3">
+                <p className="text-slate-400">Sisa belum dialokasikan</p>
+                <p className="font-bold text-amber-600">{formatCurrency(remainingToAllocate)}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -104,16 +265,27 @@ export default function MapFundsModal() {
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] text-slate-400">Available</p>
-                  <p className="text-sm font-bold text-[#10B981]">Rp {item.donor.available.toLocaleString('id-ID')}</p>
+                  <p className="text-sm font-bold text-[#10B981]">{formatCurrency(item.donor.available)}</p>
                 </div>
               </div>
-              <input
-                type="number"
-                placeholder="Enter amount (Rp)"
-                className="w-full bg-[#F1F5F9] border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#7DD3E1] outline-none"
-                value={item.amount}
-                onChange={(e) => updateAmount(index, e.target.value)}
-              />
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={item.donor.available}
+                  placeholder="Enter amount (Rp)"
+                  className="w-full bg-[#F1F5F9] border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#7DD3E1] outline-none"
+                  value={item.amount}
+                  onChange={(e) => updateAmount(index, e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeAllocation(index)}
+                  className="px-3 rounded-xl border border-slate-200 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           ))}
 
@@ -147,7 +319,7 @@ export default function MapFundsModal() {
                           <p className="text-xs text-slate-400">{donor.fund}</p>
                         </div>
                         <p className="text-xs font-bold text-[#10B981]">
-                          Rp {donor.available.toLocaleString('id-ID')}
+                          {formatCurrency(donor.available)}
                         </p>
                       </div>
                     ))
@@ -170,15 +342,31 @@ export default function MapFundsModal() {
 
       {/* Action Buttons */}
       <div className="p-8 pt-4 bg-white border-t border-slate-50">
+        <div className="flex justify-between text-sm text-slate-500 mb-3">
+          <span>Total allocation</span>
+          <span className="font-bold text-slate-700">{formatCurrency(totalAllocation)}</span>
+        </div>
+        {errorMessage && (
+          <p className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+            {errorMessage}
+          </p>
+        )}
         <div className="flex gap-3">
-          <button className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50">
+          <button
+            type="button"
+            onClick={() => closeModal()}
+            disabled={isSubmitting}
+            className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+          >
             Cancel
           </button>
           <button
-            disabled={allocations.length === 0}
+            type="button"
+            onClick={handleConfirmAllocation}
+            disabled={allocations.length === 0 || isSubmitting}
             className="flex-1 py-3 bg-[#87DCE9] rounded-xl font-bold text-white hover:bg-[#76cad7] disabled:opacity-50"
           >
-            Confirm Allocation
+            {isSubmitting ? "Allocating..." : "Confirm Allocation"}
           </button>
         </div>
       </div>
