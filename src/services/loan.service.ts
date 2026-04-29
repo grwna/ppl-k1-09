@@ -1,34 +1,6 @@
-import { LoanApplicationStatus, LoanStatus, Prisma } from "@/generated/prisma";
+import { LoanApplicationStatus } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
-import { supabaseAdmin } from "@/lib/supabase";
 import { LoanApplicationInput } from "@/schemas/loan.schema";
-import { NotificationService } from "@/services/notification.service";
-
-const BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME || "loan-documents";
-
-async function withSignedAttachmentUrls<T extends { attachments?: { id: string; fileUrl: string }[] }>(application: T) {
-  const attachments = await Promise.all(
-    (application.attachments || []).map(async (attachment) => {
-      const { data, error } = await supabaseAdmin.storage
-        .from(BUCKET_NAME)
-        .createSignedUrl(attachment.fileUrl, 3600);
-
-      if (error || !data?.signedUrl) {
-        console.error("Supabase signed URL error:", error);
-      }
-
-      return {
-        ...attachment,
-        fileUrl: data?.signedUrl || `/api/attachments/${attachment.id}`,
-      };
-    })
-  );
-
-  return {
-    ...application,
-    attachments,
-  };
-}
 
 export const LoanService = {
   async createLoanApplication(userId: string, data: LoanApplicationInput) {
@@ -72,51 +44,12 @@ export const LoanService = {
           take: take,
           select: {
             id: true,
-            description: true,
-            collateralDescription: true,
             requestedAmount: true,
             createdAt: true,
             status: true,
-            loan: {
-              select: {
-                id: true,
-                approvedAmount: true,
-                status: true,
-                fundings: {
-                  select: {
-                    id: true,
-                    donorFundId: true,
-                    sourceType: true,
-                    amount: true,
-                    donorFund: {
-                      select: {
-                        donor: {
-                          select: {
-                            name: true,
-                            email: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            attachments: {
-              select: {
-                id: true,
-                documentType: true,
-                fileUrl: true,
-                uploadedAt: true,
-              },
-              orderBy: {
-                uploadedAt: "desc",
-              },
-            },
             // Using the relation from your schema: 'borrower'
             borrower: {
               select: {
-                id: true,
                 name: true,
                 email: true,
                 image: true, // Included so your frontend Table can show the profile pic
@@ -142,51 +75,12 @@ export const LoanService = {
           take: take,
           select: {
             id: true,
-            description: true,
-            collateralDescription: true,
             requestedAmount: true,
             createdAt: true,
             status: true,
-            loan: {
-              select: {
-                id: true,
-                approvedAmount: true,
-                status: true,
-                fundings: {
-                  select: {
-                    id: true,
-                    donorFundId: true,
-                    sourceType: true,
-                    amount: true,
-                    donorFund: {
-                      select: {
-                        donor: {
-                          select: {
-                            name: true,
-                            email: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            attachments: {
-              select: {
-                id: true,
-                documentType: true,
-                fileUrl: true,
-                uploadedAt: true,
-              },
-              orderBy: {
-                uploadedAt: "desc",
-              },
-            },
             // Using the relation from your schema: 'borrower'
             borrower: {
               select: {
-                id: true,
                 name: true,
                 email: true,
                 image: true, // Included so your frontend Table can show the profile pic
@@ -205,13 +99,9 @@ export const LoanService = {
 
       }
 
-      const loansWithSignedAttachments = await Promise.all(
-        (loanApplications || []).map((application) => withSignedAttachmentUrls(application))
-      );
-
       return {
       
-        loans: loansWithSignedAttachments,
+        loans: loanApplications,
         total: totalCount
       };
     } catch (error) {
@@ -275,145 +165,5 @@ export const LoanService = {
       console.error("Error in getLoanApplicationsByUserId:", error);
       throw new Error("Failed to fetch user loan statistics.");
     }
-  },
-
-  async approveLoanApplication(input: {
-    applicationId: string;
-    adminId: string;
-    approvedAmount: number;
-    notes?: string | null;
-  }) {
-    const approvedAmount = new Prisma.Decimal(input.approvedAmount);
-    const approvedAt = new Date();
-    const dueDate = new Date(approvedAt);
-    dueDate.setFullYear(dueDate.getFullYear() + 1);
-
-    return prisma.$transaction(async (tx) => {
-      const application = await tx.loanApplication.findUnique({
-        where: { id: input.applicationId },
-        select: {
-          id: true,
-          borrowerId: true,
-          status: true,
-          loan: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-
-      if (!application) {
-        throw new Error("APPLICATION_NOT_FOUND");
-      }
-
-      const updatedApplication = await tx.loanApplication.update({
-        where: { id: input.applicationId },
-        data: {
-          status: LoanApplicationStatus.APPROVED,
-        },
-      });
-
-      if (application.status !== LoanApplicationStatus.APPROVED) {
-        await tx.applicationStatusHistory.create({
-          data: {
-            applicationId: input.applicationId,
-            adminId: input.adminId,
-            fromStatus: application.status,
-            toStatus: LoanApplicationStatus.APPROVED,
-            notes: input.notes || null,
-          },
-        });
-      }
-
-      const loan = await tx.loan.upsert({
-        where: {
-          applicationId: input.applicationId,
-        },
-        update: {
-          approvedAmount,
-          status: LoanStatus.ACTIVE,
-        },
-        create: {
-          applicationId: input.applicationId,
-          approvedAmount,
-          status: LoanStatus.ACTIVE,
-          approvedAt,
-          dueDate,
-        },
-      });
-
-      if (application.status !== LoanApplicationStatus.APPROVED) {
-        await NotificationService.createLoanApprovalNotification(
-          {
-            borrowerId: application.borrowerId,
-            applicationId: input.applicationId,
-            approvedAmount: input.approvedAmount,
-          },
-          tx
-        );
-      }
-
-      return {
-        application: updatedApplication,
-        loan: {
-          ...loan,
-          approvedAmount: Number(loan.approvedAmount),
-        },
-      };
-    });
-  },
-
-  async rejectLoanApplication(input: {
-    applicationId: string;
-    adminId: string;
-    notes?: string | null;
-  }) {
-    return prisma.$transaction(async (tx) => {
-      const application = await tx.loanApplication.findUnique({
-        where: { id: input.applicationId },
-        select: {
-          id: true,
-          borrowerId: true,
-          status: true,
-        },
-      });
-
-      if (!application) {
-        throw new Error("APPLICATION_NOT_FOUND");
-      }
-
-      const updatedApplication = await tx.loanApplication.update({
-        where: { id: input.applicationId },
-        data: {
-          status: LoanApplicationStatus.REJECTED,
-        },
-      });
-
-      if (application.status !== LoanApplicationStatus.REJECTED) {
-        await tx.applicationStatusHistory.create({
-          data: {
-            applicationId: input.applicationId,
-            adminId: input.adminId,
-            fromStatus: application.status,
-            toStatus: LoanApplicationStatus.REJECTED,
-            notes: input.notes || null,
-          },
-        });
-      }
-
-      if (application.status !== LoanApplicationStatus.REJECTED) {
-        await NotificationService.createLoanRejectionNotification(
-          {
-            borrowerId: application.borrowerId,
-            applicationId: input.applicationId,
-            reason: input.notes,
-          },
-          tx
-        );
-      }
-
-      return updatedApplication;
-    });
-  },
+  }
 };

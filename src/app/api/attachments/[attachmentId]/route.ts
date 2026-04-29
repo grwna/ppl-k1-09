@@ -2,42 +2,6 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { DocumentService } from "@/services/document.service";
 
-export async function GET(
-  req: Request,
-  props: { params: Promise<{ attachmentId: string }> }
-) {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const roles = ((session.user as { roles?: string[] }).roles || []) as string[];
-    const params = await props.params;
-    const signedUrl = await DocumentService.getSignedAttachmentUrl(
-      params.attachmentId,
-      session.user.id,
-      roles
-    );
-
-    return NextResponse.redirect(signedUrl);
-  } catch (error) {
-    console.error("Preview attachment error:", error);
-    if (error instanceof Error) {
-      if (error.message === "ATTACHMENT_NOT_FOUND") {
-        return NextResponse.json({ error: "Dokumen tidak ditemukan" }, { status: 404 });
-      }
-      if (error.message === "UNAUTHORIZED") {
-        return NextResponse.json({ error: "Anda tidak memiliki akses untuk membuka dokumen ini" }, { status: 403 });
-      }
-      if (error.message === "SIGN_URL_FAILED") {
-        return NextResponse.json({ error: "Gagal membuat preview dokumen" }, { status: 502 });
-      }
-    }
-    return NextResponse.json({ error: "Terjadi kesalahan sistem" }, { status: 500 });
-  }
-}
-
 export async function DELETE(
   req: Request,
   props: { params: Promise<{ attachmentId: string }> }

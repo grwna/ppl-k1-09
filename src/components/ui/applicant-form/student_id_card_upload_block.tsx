@@ -5,7 +5,6 @@
 
 import { useRef } from "react"
 import { useApplicationProgressStore } from "@/hooks/applicationProgressStore"
-import ApplicantForm_DocumentFilePreview from "./document_file_preview"
 
 export default function ApplicantForm_StudentIdCardUploadBlock() {
     
@@ -34,7 +33,20 @@ export default function ApplicantForm_StudentIdCardUploadBlock() {
                 className="hidden"
             />
 
-            <ApplicantForm_DocumentFilePreview file={studentIdCard} onClick={handleClick} />
+            {/* Custom upload button */}
+            <div
+                onClick={handleClick}
+                className="w-full h-40 border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100"
+            >
+                Upload
+            </div>
+
+            {/* Preview */}
+            {studentIdCard && (
+                <div className="text-sm">
+                Selected: {studentIdCard.name}
+                </div>
+            )}
 
     </div>
   )

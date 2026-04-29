@@ -10,6 +10,24 @@ import { useApplicationProgressStore } from "@/hooks/applicationProgressStore";
 
 export default function ApplicantForm_DocumentUploadSection() {
 
+    // const handleUpload = async () => {
+
+    //     // construct the object to be sent
+    //     const family_card_file = useApplicationProgressStore((state) => state.family_card)
+    //     const student_id_card_file = useApplicationProgressStore((state) => state.student_id_card)
+        
+    //     if (!family_card_file || !student_id_card_file) return
+
+    //     const formData = new FormData()
+    //     formData.append("student_id_card_file", student_id_card_file)
+    //     formData.append("family_card_file", family_card_file)
+
+    //     await fetch("/api/documents/upload", {
+    //         method: "POST",
+    //         body: formData,
+    //     })
+    // }
+
     const incrementStep = useApplicationProgressStore((state) => state.incrementStep)
     const decrementStep = useApplicationProgressStore((state) => state.decrementStep)
 
