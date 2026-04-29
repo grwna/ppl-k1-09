@@ -1,25 +1,10 @@
 
 
 import { useApplicationProgressStore } from "@/hooks/applicationProgressStore"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-
-type CreatedLoanApplicationResponse = {
-    data: {
-        id: string
-    }
-}
 
 export default function ApplicantForm_TermsAndAgreementSection() {
 
-    const router = useRouter()
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [submitError, setSubmitError] = useState<string | null>(null)
-    const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
-
     const handleSubmitApplication = async () => {
-        if (isSubmitting) return
-
         const state = useApplicationProgressStore.getState()
 
         const {
@@ -44,67 +29,43 @@ export default function ApplicantForm_TermsAndAgreementSection() {
             !family_card ||
             !student_id_card ||
             !comply_to_terms_and_agreement
-        ) {
-            setSubmitError("Lengkapi semua data dan setujui syarat sebelum mengajukan.")
-            return
-        }
+        ) return
 
-        setIsSubmitting(true)
-        setSubmitError(null)
-        setSubmitSuccess(null)
+        const formData = new FormData()
+        formData.append("full_name", full_name)
+        formData.append("university_name", university_name)
+        formData.append("student_id_number", student_id_number)
+        formData.append("loan_title", loan_title)
+        formData.append("requested_amount", String(requested_amount))
+        formData.append("loan_purpose", loan_purpose)
+        formData.append("student_id_card_file", student_id_card)
+        formData.append("family_card_file", family_card)
+        formData.append("terms_and_agreement_compliance", String(comply_to_terms_and_agreement))
 
-        try {
-            const createApplicationResponse = await fetch("/api/loans", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    requestedAmount: requested_amount,
-                    description: `${loan_title}\n\n${loan_purpose}`,
-                    collateralUrl: "",
-                    collateralDescription: [
-                        `Nama: ${full_name}`,
-                        `Universitas: ${university_name}`,
-                        `NIM: ${student_id_number}`,
-                    ].join("\n"),
-                }),
-            })
+        await fetch("/api/documents/upload", {
+            method: "POST",
+            body: formData,
+        })
+        
+        const familyCardFormData = new FormData()
+        familyCardFormData.append("file", family_card)
+        familyCardFormData.append("documentType", "png")
+        familyCardFormData.append("applicationId", "xxxx")
 
-            if (!createApplicationResponse.ok) {
-                const errorBody = await createApplicationResponse.json().catch(() => null)
-                throw new Error(errorBody?.error || "Gagal membuat pengajuan pinjaman.")
-            }
+        await fetch("/api/documents/upload", {
+            method: "POST",
+            body: familyCardFormData,
+        })
+        
+        const studentIdCardFormData = new FormData()
+        studentIdCardFormData.append("file", student_id_card)
+        studentIdCardFormData.append("documentType", "png")
+        studentIdCardFormData.append("applicationId", "xxxx")
 
-            const createdApplication = (await createApplicationResponse.json()) as CreatedLoanApplicationResponse
-            const applicationId = createdApplication.data.id
-
-            const uploadAttachment = async (file: File, documentType: string) => {
-                const formData = new FormData()
-                formData.append("file", file)
-                formData.append("documentType", documentType)
-
-                const response = await fetch(`/api/applications/${applicationId}/attachments`, {
-                    method: "POST",
-                    body: formData,
-                })
-
-                if (!response.ok) {
-                    const errorBody = await response.json().catch(() => null)
-                    throw new Error(errorBody?.error || "Gagal mengunggah dokumen.")
-                }
-            }
-
-            await uploadAttachment(family_card, "family_card")
-            await uploadAttachment(student_id_card, "student_id_card")
-
-            setSubmitSuccess("Pengajuan berhasil dikirim.")
-            router.push("/applicant/dashboard")
-        } catch (error) {
-            setSubmitError(error instanceof Error ? error.message : "Terjadi kesalahan saat mengajukan pinjaman.")
-        } finally {
-            setIsSubmitting(false)
-        }
+        await fetch("/api/documents/upload", {
+            method: "POST",
+            body: studentIdCardFormData,
+        })
     }
 
     const decrementStep = useApplicationProgressStore((state) => state.decrementStep)
@@ -172,12 +133,6 @@ export default function ApplicantForm_TermsAndAgreementSection() {
             </div>
 
             {/* Buttons */}
-            {(submitError || submitSuccess) && (
-                <div className={`rounded-xl px-4 py-3 text-sm ${submitError ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>
-                    {submitError || submitSuccess}
-                </div>
-            )}
-
             <div className="flex justify-end gap-4 pt-2">
 
                 <button
@@ -189,10 +144,9 @@ export default function ApplicantForm_TermsAndAgreementSection() {
 
                 <button
                     onClick={handleSubmitApplication}
-                    disabled={isSubmitting}
-                    className="px-6 py-2 text-white bg-[#009966] rounded-xl hover:bg-[#007a4d] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="px-6 py-2 text-white bg-[#009966] rounded-xl hover:bg-[#007a4d]"
                 >
-                    {isSubmitting ? "Mengajukan..." : "Ajukan"}
+                    Ajukan
                 </button>
 
             </div>
