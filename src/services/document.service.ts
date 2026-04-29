@@ -95,12 +95,38 @@ export const DocumentService = {
         return {
           ...doc,
           // Replace the raw storage path with the temporary signed URL
-          fileUrl: data?.signedUrl || null, 
+          fileUrl: data?.signedUrl || `/api/attachments/${doc.id}`,
         };
       })
     );
 
     return attachmentsWithUrls;
+  },
+
+  async getSignedAttachmentUrl(attachmentId: string, userId: string, roles: string[]) {
+    const attachment = await prisma.applicationAttachment.findUnique({
+      where: { id: attachmentId },
+      include: { loanApplication: true },
+    });
+
+    if (!attachment) {
+      throw new Error("ATTACHMENT_NOT_FOUND");
+    }
+
+    if (attachment.loanApplication.borrowerId !== userId && !roles.includes("ADMIN")) {
+      throw new Error("UNAUTHORIZED");
+    }
+
+    const { data, error } = await supabaseAdmin.storage
+      .from(BUCKET_NAME)
+      .createSignedUrl(attachment.fileUrl, 3600);
+
+    if (error || !data?.signedUrl) {
+      console.error("Supabase signed URL error:", error);
+      throw new Error("SIGN_URL_FAILED");
+    }
+
+    return data.signedUrl;
   },
 
   /**

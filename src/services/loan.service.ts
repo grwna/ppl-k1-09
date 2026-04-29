@@ -6,16 +6,20 @@ import { NotificationService } from "@/services/notification.service";
 
 const BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME || "loan-documents";
 
-async function withSignedAttachmentUrls<T extends { attachments?: { fileUrl: string }[] }>(application: T) {
+async function withSignedAttachmentUrls<T extends { attachments?: { id: string; fileUrl: string }[] }>(application: T) {
   const attachments = await Promise.all(
     (application.attachments || []).map(async (attachment) => {
-      const { data } = await supabaseAdmin.storage
+      const { data, error } = await supabaseAdmin.storage
         .from(BUCKET_NAME)
         .createSignedUrl(attachment.fileUrl, 3600);
 
+      if (error || !data?.signedUrl) {
+        console.error("Supabase signed URL error:", error);
+      }
+
       return {
         ...attachment,
-        fileUrl: data?.signedUrl || attachment.fileUrl,
+        fileUrl: data?.signedUrl || `/api/attachments/${attachment.id}`,
       };
     })
   );
