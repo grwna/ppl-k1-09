@@ -50,7 +50,16 @@ const formatCurrency = (amount: number) => {
 
 const formatDate = (dateInput: string | number | Date) => {
     const date = new Date(dateInput);
-    return `Today, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+    if (Number.isNaN(date.getTime())) return "Tanggal tidak valid";
+
+    return new Intl.DateTimeFormat("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Asia/Jakarta",
+    }).format(date);
 };
 
 type LoanAttachment = {
