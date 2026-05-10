@@ -1,25 +1,10 @@
 
 
 import { useApplicationProgressStore } from "@/hooks/applicationProgressStore"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-
-type CreatedLoanApplicationResponse = {
-    data: {
-        id: string
-    }
-}
 
 export default function ApplicantForm_TermsAndAgreementSection() {
 
-    const router = useRouter()
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [submitError, setSubmitError] = useState<string | null>(null)
-    const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
-
     const handleSubmitApplication = async () => {
-        if (isSubmitting) return
-
         const state = useApplicationProgressStore.getState()
 
         const {
@@ -172,12 +157,6 @@ export default function ApplicantForm_TermsAndAgreementSection() {
             </div>
 
             {/* Buttons */}
-            {(submitError || submitSuccess) && (
-                <div className={`rounded-xl px-4 py-3 text-sm ${submitError ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>
-                    {submitError || submitSuccess}
-                </div>
-            )}
-
             <div className="flex justify-end gap-4 pt-2">
 
                 <button
@@ -189,10 +168,9 @@ export default function ApplicantForm_TermsAndAgreementSection() {
 
                 <button
                     onClick={handleSubmitApplication}
-                    disabled={isSubmitting}
-                    className="px-6 py-2 text-white bg-[#009966] rounded-xl hover:bg-[#007a4d] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="px-6 py-2 text-white bg-[#009966] rounded-xl hover:bg-[#007a4d]"
                 >
-                    {isSubmitting ? "Mengajukan..." : "Ajukan"}
+                    Ajukan
                 </button>
 
             </div>
