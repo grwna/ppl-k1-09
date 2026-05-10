@@ -1,34 +1,7 @@
 import { LoanApplicationStatus, LoanStatus, Prisma, RepaymentStatus } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
-import { supabaseAdmin } from "@/lib/supabase";
 import { LoanApplicationInput } from "@/schemas/loan.schema";
-import { NotificationService } from "@/services/notification.service";
-
-const BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME || "loan-documents";
-
-async function withSignedAttachmentUrls<T extends { attachments?: { id: string; fileUrl: string }[] }>(application: T) {
-  const attachments = await Promise.all(
-    (application.attachments || []).map(async (attachment) => {
-      const { data, error } = await supabaseAdmin.storage
-        .from(BUCKET_NAME)
-        .createSignedUrl(attachment.fileUrl, 3600);
-
-      if (error || !data?.signedUrl) {
-        console.error("Supabase signed URL error:", error);
-      }
-
-      return {
-        ...attachment,
-        fileUrl: data?.signedUrl || `/api/attachments/${attachment.id}`,
-      };
-    })
-  );
-
-  return {
-    ...application,
-    attachments,
-  };
-}
+import { NotificationService } from "./notification.service";
 
 export const LoanService = {
   async createLoanApplication(userId: string, data: LoanApplicationInput) {
@@ -72,51 +45,12 @@ export const LoanService = {
           take: take,
           select: {
             id: true,
-            description: true,
-            collateralDescription: true,
             requestedAmount: true,
             createdAt: true,
             status: true,
-            loan: {
-              select: {
-                id: true,
-                approvedAmount: true,
-                status: true,
-                fundings: {
-                  select: {
-                    id: true,
-                    donorFundId: true,
-                    sourceType: true,
-                    amount: true,
-                    donorFund: {
-                      select: {
-                        donor: {
-                          select: {
-                            name: true,
-                            email: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            attachments: {
-              select: {
-                id: true,
-                documentType: true,
-                fileUrl: true,
-                uploadedAt: true,
-              },
-              orderBy: {
-                uploadedAt: "desc",
-              },
-            },
             // Using the relation from your schema: 'borrower'
             borrower: {
               select: {
-                id: true,
                 name: true,
                 email: true,
                 image: true, // Included so your frontend Table can show the profile pic
@@ -142,51 +76,12 @@ export const LoanService = {
           take: take,
           select: {
             id: true,
-            description: true,
-            collateralDescription: true,
             requestedAmount: true,
             createdAt: true,
             status: true,
-            loan: {
-              select: {
-                id: true,
-                approvedAmount: true,
-                status: true,
-                fundings: {
-                  select: {
-                    id: true,
-                    donorFundId: true,
-                    sourceType: true,
-                    amount: true,
-                    donorFund: {
-                      select: {
-                        donor: {
-                          select: {
-                            name: true,
-                            email: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            attachments: {
-              select: {
-                id: true,
-                documentType: true,
-                fileUrl: true,
-                uploadedAt: true,
-              },
-              orderBy: {
-                uploadedAt: "desc",
-              },
-            },
             // Using the relation from your schema: 'borrower'
             borrower: {
               select: {
-                id: true,
                 name: true,
                 email: true,
                 image: true, // Included so your frontend Table can show the profile pic
@@ -205,13 +100,9 @@ export const LoanService = {
 
       }
 
-      const loansWithSignedAttachments = await Promise.all(
-        (loanApplications || []).map((application) => withSignedAttachmentUrls(application))
-      );
-
       return {
       
-        loans: loansWithSignedAttachments,
+        loans: loanApplications,
         total: totalCount
       };
     } catch (error) {
