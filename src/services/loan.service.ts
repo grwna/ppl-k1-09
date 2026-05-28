@@ -126,51 +126,12 @@ export const LoanService = {
           take: take,
           select: {
             id: true,
-            description: true,
-            collateralDescription: true,
             requestedAmount: true,
             createdAt: true,
             status: true,
-            loan: {
-              select: {
-                id: true,
-                approvedAmount: true,
-                status: true,
-                fundings: {
-                  select: {
-                    id: true,
-                    donorFundId: true,
-                    sourceType: true,
-                    amount: true,
-                    donorFund: {
-                      select: {
-                        donor: {
-                          select: {
-                            name: true,
-                            email: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            attachments: {
-              select: {
-                id: true,
-                documentType: true,
-                fileUrl: true,
-                uploadedAt: true,
-              },
-              orderBy: {
-                uploadedAt: "desc",
-              },
-            },
             // Using the relation from your schema: 'borrower'
             borrower: {
               select: {
-                id: true,
                 name: true,
                 email: true,
                 image: true, // Included so your frontend Table can show the profile pic
@@ -196,51 +157,12 @@ export const LoanService = {
           take: take,
           select: {
             id: true,
-            description: true,
-            collateralDescription: true,
             requestedAmount: true,
             createdAt: true,
             status: true,
-            loan: {
-              select: {
-                id: true,
-                approvedAmount: true,
-                status: true,
-                fundings: {
-                  select: {
-                    id: true,
-                    donorFundId: true,
-                    sourceType: true,
-                    amount: true,
-                    donorFund: {
-                      select: {
-                        donor: {
-                          select: {
-                            name: true,
-                            email: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            attachments: {
-              select: {
-                id: true,
-                documentType: true,
-                fileUrl: true,
-                uploadedAt: true,
-              },
-              orderBy: {
-                uploadedAt: "desc",
-              },
-            },
             // Using the relation from your schema: 'borrower'
             borrower: {
               select: {
-                id: true,
                 name: true,
                 email: true,
                 image: true, // Included so your frontend Table can show the profile pic
@@ -263,7 +185,7 @@ export const LoanService = {
 
       return {
       
-        loans: loansWithSignedAttachments,
+        loans: loanApplications,
         total: totalCount
       };
     } catch (error) {

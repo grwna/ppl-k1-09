@@ -50,63 +50,7 @@ const formatCurrency = (amount: number) => {
 
 const formatDate = (dateInput: string | number | Date) => {
     const date = new Date(dateInput);
-    if (Number.isNaN(date.getTime())) return "Tanggal tidak valid";
-
-    return new Intl.DateTimeFormat("id-ID", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "Asia/Jakarta",
-    }).format(date);
-};
-
-type LoanAttachment = {
-    id: string;
-    documentType: string;
-    fileUrl: string;
-    uploadedAt: string | Date;
-};
-
-type LoanRequestRow = {
-    id?: string;
-    loanApplicationId?: string;
-    borrower?: {
-        name?: string | null;
-        email?: string | null;
-        image?: string | null;
-    } | null;
-    image?: string;
-    idNumber?: string;
-    institution?: string;
-    intakeYear?: number;
-    address?: string;
-    requestedAmount: number | string;
-    description?: string | null;
-    collateralDescription?: string | null;
-    status?: string;
-    createdAt: string | number | Date;
-    loan?: {
-        id: string;
-        approvedAmount: string | number;
-        status: string;
-        fundings?: {
-            id: string;
-            amount: string | number;
-            donorFundId: string | null;
-            sourceType: string;
-            donorFund?: {
-                donor?: {
-                    name?: string | null;
-                    email?: string | null;
-                } | null;
-            } | null;
-        }[];
-    } | null;
-    attachments?: LoanAttachment[];
-    approvedAmount?: number;
-    rejectionApprovalNotes?: string;
+    return `Today, ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
 };
 
 // ===============================

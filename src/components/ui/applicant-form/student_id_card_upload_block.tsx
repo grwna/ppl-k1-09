@@ -5,7 +5,6 @@
 
 import { useRef } from "react"
 import { useApplicationProgressStore } from "@/hooks/applicationProgressStore"
-import ApplicantForm_DocumentFilePreview from "./document_file_preview"
 
 export default function ApplicantForm_StudentIdCardUploadBlock() {
     

@@ -1,25 +1,10 @@
 
 
 import { useApplicationProgressStore } from "@/hooks/applicationProgressStore"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-
-type CreatedLoanApplicationResponse = {
-    data: {
-        id: string
-    }
-}
 
 export default function ApplicantForm_TermsAndAgreementSection() {
 
-    const router = useRouter()
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [submitError, setSubmitError] = useState<string | null>(null)
-    const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
-
     const handleSubmitApplication = async () => {
-        if (isSubmitting) return
-
         const state = useApplicationProgressStore.getState()
 
         const {
@@ -45,9 +30,16 @@ export default function ApplicantForm_TermsAndAgreementSection() {
             return
         }
 
-        setIsSubmitting(true)
-        setSubmitError(null)
-        setSubmitSuccess(null)
+        const formData = new FormData()
+        formData.append("full_name", full_name)
+        formData.append("university_name", university_name)
+        formData.append("student_id_number", student_id_number)
+        formData.append("loan_title", loan_title)
+        formData.append("requested_amount", String(requested_amount))
+        formData.append("loan_purpose", loan_purpose)
+        formData.append("student_id_card_file", student_id_card)
+        formData.append("family_card_file", family_card)
+        formData.append("terms_and_agreement_compliance", String(comply_to_terms_and_agreement))
 
         try {
             const createApplicationResponse = await fetch("/api/loan-applications", {

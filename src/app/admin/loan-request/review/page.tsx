@@ -6,10 +6,8 @@ import DummyDocsLogo from "../../../../../public/dummy-docs.svg"
 import ArrowRightGreyLogo from "../../../../../public/arrow-right-grey.svg"
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import AdminDashboard_AdminNavbar from "@/components/ui/admin-dashboard/admin_navbar";
 import MapFundsModal from "@/components/ui/loan-request/fund_allocation_card";
-import { FileText } from "lucide-react";
 
 const StatusActionDict = {
     "PENDING": { "status_color": "#FEF3C6", "text_color": "#BB4D00" },
@@ -17,7 +15,7 @@ const StatusActionDict = {
     "REJECTED": { "status_color": "#FFE2E2", "text_color": "#C10007" },
 }
 
-const formatCurrency = (val: number | string) => {
+const formatCurrency = (val: any) => {
     const num = Number(val) || 0;
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num).replace("IDR", "Rp");
 }
@@ -31,11 +29,8 @@ function InfoBlock({ label, value }: { label: string, value: string | number | n
     );
 }
 
-function DocumentCard({ label, file }: { label: string, file?: string | File | null }) {
-    const fileUrl = typeof file === "string" ? file : "";
-    const isPlaceholder = !fileUrl;
-    const isPdf = fileUrl.toLowerCase().includes(".pdf") || fileUrl.toLowerCase().includes("application/pdf");
-
+function DocumentCard({ label, file }: { label: string, file: any }) {
+    const isPlaceholder = !file;
     return (
         <div className="border border-gray-200 rounded-xl overflow-hidden group hover:border-[#07B0C8] transition-colors bg-white">
             <div className="h-32 sm:h-40 bg-gray-50 relative flex items-center justify-center">
@@ -44,8 +39,7 @@ function DocumentCard({ label, file }: { label: string, file?: string | File | n
                 ) : isPdf ? (
                     <FileText className="text-red-500" size={40} />
                 ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={fileUrl} alt={label} className="h-full w-full object-cover" />
+                    <Image src={typeof file === 'string' ? file : URL.createObjectURL(file)} alt={label} fill className="object-cover" />
                 )}
             </div>
             <div className="p-3 bg-white flex justify-between items-center gap-2">
@@ -72,32 +66,18 @@ function DocumentCard({ label, file }: { label: string, file?: string | File | n
 export default function ReviewLoanApplicationPage() {
     const selectedLoan = useLoanRequestStore((state) => state.selected_loan);
     const isAllocationFundModalOpen = useLoanRequestStore((state) => state.isAllocationFundModalOpen);
-    const [actionError, setActionError] = useState("");
-    const [isApproving, setIsApproving] = useState(false);
-    const [isRejecting, setIsRejecting] = useState(false);
     
     const setApprovedAmount = useLoanRequestStore((state) => state.setApprovedAmount);
     const setRejectionApprovalNote = useLoanRequestStore((state) => state.setRejectionApprovalNote);
     const setAllocationFundModalOpen = useLoanRequestStore((state) => state.setAllocationFundModalOpen);
-    const setSelectedLoan = useLoanRequestStore((state) => state.setSelectedLoan);
 
     const submitTime = selectedLoan?.createdAt ? new Date(selectedLoan.createdAt).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' }) : "Recently";
     const approvedAmount = selectedLoan?.approvedAmount || "";
     const rejectionApprovalNote = selectedLoan?.rejectionApprovalNotes || "";
-    const status = (selectedLoan?.status || "PENDING").toUpperCase();
-    const isPending = status === "PENDING";
-    const isApproved = status === "APPROVED";
-    const isRejected = status === "REJECTED";
-    const approvedLoanAmount = Number(selectedLoan?.loan?.approvedAmount || selectedLoan?.approvedAmount || 0);
-    const allocatedAmount = (selectedLoan?.loan?.fundings || []).reduce(
-        (total, funding) => total + (Number(funding.amount) || 0),
-        0
-    );
-    const remainingAllocation = Math.max(approvedLoanAmount - allocatedAmount, 0);
     
     const documents = [
         { label: "KTM / ID Card", file: selectedLoan?.studentIdCard },
-        { label: "Kartu Keluarga", file: selectedLoan?.transcriptFile }
+        { label: "Transcript", file: selectedLoan?.transcriptFile }
     ];
 
     if (!selectedLoan) return <div className="p-20 text-center">Loading application data...</div>
