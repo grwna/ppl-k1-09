@@ -4,6 +4,14 @@ import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import type { RegisterInput } from "@/schemas/auth.schema";
 
+export interface UsersFilterInput {
+  page?: number;
+  limit?: number;
+  role?: string | null;
+  isVerified?: string | null;
+  search?: string | null;
+}
+
 export const UserService = {
   /**
    * Registers a new user with a hashed password and an assigned role.
@@ -138,4 +146,111 @@ export const UserService = {
 
     return true;
   },
+  
+  async getAllUsers(filters: UsersFilterInput) {
+    const page = Math.max(1, filters.page || 1);
+    const limit = Math.max(1, Math.min(100, filters.limit || 10));
+    const skip = (page - 1) * limit;
+
+    const whereClause: any = {};
+
+    if (filters.isVerified !== undefined && filters.isVerified !== null) {
+      whereClause.isVerified = filters.isVerified === "true";
+    }
+
+    if (filters.search) {
+      whereClause.OR = [
+        { name: { contains: filters.search, mode: "insensitive" } },
+        { email: { contains: filters.search, mode: "insensitive" } },
+      ];
+    }
+
+    if (filters.role) {
+      whereClause.roles = {
+        some: {
+          role: {
+            name: { equals: filters.role, mode: "insensitive" },
+          },
+        },
+      };
+    }
+
+    // Batch count query and selection query in a single transaction
+    const [users, totalCount] = await prisma.$transaction([
+      prisma.user.findMany({
+        where: whereClause,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          emailVerified: true,
+          nik: true,
+          phone_number: true,
+          address: true,
+          isVerified: true,
+          verificationDate: true,
+          createdAt: true,
+          identityCard: true,
+          institutionCard: true,
+          familyCard: true,
+          roles: {
+            include: {
+              role: true,
+            },
+          },
+          _count: {
+            select: {
+              donorFunds: true,
+              loanApplications: true,
+            },
+          },
+        },
+      }),
+      prisma.user.count({ where: whereClause }),
+    ]);
+
+    // Format the database models into a clean structure
+    const formattedUsers = users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      emailVerified: !!user.emailVerified,
+      createdAt: user.createdAt,
+      profile: {
+        nik: user.nik,
+        phoneNumber: user.phone_number,
+        address: user.address,
+      },
+      verification: {
+        isVerified: user.isVerified,
+        verifiedAt: user.verificationDate,
+        documents: {
+          hasIdentityCard: !!user.identityCard,
+          hasInstitutionCard: !!user.institutionCard,
+          hasFamilyCard: !!user.familyCard,
+        },
+      },
+      roles: Array.from(
+        new Set(user.roles.map((ur) => normalizeRoleName(ur.role.name)))
+      ),
+      activitySummary: {
+        totalFundingsCreated: user._count.donorFunds,
+        totalLoanApplicationsCreated: user._count.loanApplications,
+      },
+    }));
+
+    return {
+      users: formattedUsers,
+      pagination: {
+        page,
+        limit,
+        totalItems: totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+      },
+    };
+  },
+  
 };

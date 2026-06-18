@@ -18,6 +18,7 @@ const navItems = [
   { href: '/admin/account-verifications', label: 'Verifikasi Akun' },
   { href: '/admin/monitoring', label: 'Monitoring' },
   { href: '/admin/content/landing', label: 'Konten CMS' },
+  { href: '/admin/users', label: 'Daftar Pengguna' },
 ];
 
 export default function AdminDashboard_AdminNavbar() {
